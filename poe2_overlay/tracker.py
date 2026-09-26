@@ -25,6 +25,7 @@ from .logparse import (
 NEW_CHAR = "(새 캐릭터)"
 UNKNOWN_CHAR = "(확인 중)"
 PLACEHOLDERS = (NEW_CHAR, UNKNOWN_CHAR)
+HC_DEATH = {"하드코어": "소프트코어", "HC SSF": "SSF"}
 FIRST_ZONE = "g1_1"
 
 
@@ -101,6 +102,8 @@ class Tracker:
         elif isinstance(ev, Death):
             if c := self._identify(ev.name, ev.ts):
                 c.deaths += 1
+                # 하드코어 캐릭터는 죽으면 일반 리그로 옮겨진다
+                c.mode = HC_DEATH.get(c.mode, c.mode)
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)

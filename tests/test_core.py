@@ -120,6 +120,15 @@ def test_mode_set_before_name_is_kept():
     assert t.chars["char_i"].mode == "하드코어"
 
 
+def test_hardcore_death_becomes_softcore():
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="9"))
+    t.feed(LevelUp("t", "9", "hc", "머서너리", 2))
+    t.set_mode("HC SSF")
+    t.feed(Death("t", "9", "hc"))
+    assert t.chars["hc"].mode == "SSF" and t.chars["hc"].deaths == 1
+
+
 def test_guess_skips_other_league():
     t = Tracker(GUIDE)
     t.feed(area("G1_1", pid="1"))

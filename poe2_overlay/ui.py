@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QVBoxLayout, QWidget,
 )
 
-from .guide import Step
+from .guide import Step, is_town
 from .rewards import SlotState
 from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
 
@@ -207,13 +207,13 @@ class Overlay(QWidget):
 
         loc = html.escape(c.area_name or c.zone or "-")
         loc_html = f"📍 {loc}"
-        if c.area_level:
+        if c.area_level and not is_town(c.zone):  # 마을은 안전 지대라 레벨 경고 없음
             gap = c.area_level - c.level
             color = WARN if gap >= 3 else (OK if gap <= 0 else DIM)
             loc_html += f' · <span style="color:{color}">지역 Lv {c.area_level}</span>'
             if gap >= 3:
                 loc_html += f' <span style="color:{WARN}">(레벨 {gap} 부족)</span>'
-        if s.off_route:
+        if s.off_route and not is_town(c.zone):
             loc_html += f' · <span style="color:{WARN}">가이드 경로 밖</span>'
         self.loc_lbl.setText(loc_html)
 
