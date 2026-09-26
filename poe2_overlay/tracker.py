@@ -23,6 +23,8 @@ from .logparse import (
 )
 
 NEW_CHAR = "(새 캐릭터)"
+UNKNOWN_CHAR = "(확인 중)"
+PLACEHOLDERS = (NEW_CHAR, UNKNOWN_CHAR)
 FIRST_ZONE = "g1_1"
 
 
@@ -111,7 +113,7 @@ class Tracker:
         self._flush_pending_to_provisional()
         self.confirmed = False
         self.pending = []
-        self.provisional = None
+        self.provisional = Character(name=UNKNOWN_CHAR)
 
     def _on_area(self, ev: AreaEntered) -> None:
         if self.confirmed and self.current:
@@ -132,6 +134,11 @@ class Tracker:
         c.area_name = self.guide.area_name(code) or ""
         c.area_level = level
         c.last_seen = ts
+        if code.lower().startswith("map") and self.guide.steps:
+            # 엔드게임 지도에 들어갔다면 캠페인은 끝난 캐릭터
+            c.cursor = len(self.guide.steps) - 1
+            c.cursor_zone = self.guide.steps[c.cursor].zone
+            return
         new = self.guide.next_position(c.cursor, code)
         if new is not None:
             c.cursor = new
@@ -178,8 +185,11 @@ class Tracker:
             score = self._match_score(c, codes)
             if score > best_score:
                 best, best_score = c, score
-        if best is None:
-            return None
+        if best is None or best_score <= 0:
+            # 은신처 등 단서가 없는 곳: 아무 캐릭터나 고르지 말고 확인 대기
+            if self.provisional and self.provisional.name == UNKNOWN_CHAR:
+                return self.provisional
+            return Character(name=UNKNOWN_CHAR)
         # 추정 캐릭터 원본은 확정 전까지 건드리지 않도록 복사본을 쓴다.
         if self.provisional and self.provisional.name == best.name:
             return self.provisional
@@ -220,6 +230,16 @@ class Tracker:
         if self.chars:
             return max(self.chars.values(), key=lambda c: c.last_seen)
         return None
+
+    def restore_pending(self, pending: list, scene: str = "") -> None:
+        """저장해 둔 미확정 세션을 되살린다 (오버레이 재시작 대비)."""
+        self.confirmed = False
+        self.pending = []
+        self.provisional = Character(name=UNKNOWN_CHAR)
+        for code, level, ts in pending:
+            self._on_area(AreaEntered(ts, self.pid or "", code, int(level)))
+        if self.provisional and scene and not self.provisional.area_name:
+            self.provisional.area_name = scene
 
     # ------------------------------------------------------- 수동 조작
     def select_character(self, name: Optional[str]) -> None:
@@ -263,7 +283,7 @@ class Tracker:
     def snapshot(self, upcoming: int = 3) -> Snapshot:
         c = self._display()
         steps = self.guide.steps
-        if not c or not steps:
+        if not c or not steps or c.name == UNKNOWN_CHAR:
             return Snapshot(c, self.confirmed, None, [], None, False, len(steps))
         i = max(0, min(c.cursor, len(steps) - 1))
         step = steps[i]

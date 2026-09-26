@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from .guide import Step
-from .tracker import NEW_CHAR, Snapshot
+from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
 
 ACCENT = "#e8b04a"
 TEXT = "#ece6da"
@@ -84,7 +84,7 @@ class Overlay(QWidget):
         root.setSpacing(6)
 
         head = QHBoxLayout()
-        self.char_lbl = _label(fs - 1, TEXT, True, wrap=False)
+        self.char_lbl = _label(fs - 1, TEXT, True)
         self.act_lbl = _label(fs - 2, ACCENT, True, wrap=False)
         head.addWidget(self.char_lbl, 1)
         head.addWidget(self.act_lbl, 0, Qt.AlignRight)
@@ -138,6 +138,18 @@ class Overlay(QWidget):
             self.adjustSize()
             return
 
+        if c.name == UNKNOWN_CHAR:
+            self.char_lbl.setText("캐릭터 확인 중")
+            self.act_lbl.setText("")
+            self.loc_lbl.setText(f"📍 {html.escape(c.area_name or c.zone or '접속 중')}")
+            self.step_area.setText("")
+            self.step_text.setText("레벨업·보상·사망 메시지가 나오면 자동으로 확정됩니다.")
+            self.next_lbl.setText("우클릭 → 캐릭터 메뉴에서 직접 고를 수도 있습니다.")
+            self.foot_lbl.setText(notice)
+            self.foot_lbl.setVisible(bool(notice))
+            self.adjustSize()
+            return
+
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
         cls = f" · {html.escape(c.cls)}" if c.cls else ""
         tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
@@ -173,7 +185,10 @@ class Overlay(QWidget):
 
         foot = []
         if c.rewards or c.passive_points:
-            rw = " · ".join(dict.fromkeys(c.rewards))
+            uniq = list(dict.fromkeys(c.rewards))
+            rw = " · ".join(uniq[-4:])  # 최근 보상 몇 개만
+            if len(uniq) > 4:
+                rw = f"{len(uniq)}개 중 최근: " + rw
             pp = f"퀘스트 패시브 +{c.passive_points}" if c.passive_points else ""
             foot.append("🏆 " + " · ".join(x for x in (rw, pp) if x))
         if notice:

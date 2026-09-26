@@ -14,7 +14,7 @@ from . import config
 from .guide import Guide
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
-from .tracker import Character, NEW_CHAR, Tracker
+from .tracker import Character, PLACEHOLDERS, Tracker
 from .ui import Overlay, make_icon
 from .winutil import HotkeyManager, set_click_through
 
@@ -90,6 +90,8 @@ class Controller:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
             self.tracker = Tracker(self.guide, chars, saved.get("current"))
             self.tracker.pid = saved.get("pid")
+            if not saved.get("confirmed", True):
+                self.tracker.restore_pending(saved.get("pending", []), saved.get("pending_scene", ""))
             start = saved["offset"]
         for ln in iter_lines(self.log_path, start, size):
             if ev := parse_line(ln):
@@ -115,12 +117,15 @@ class Controller:
     def save(self) -> None:
         if not self.dirty or not self.tail:
             return
-        chars = {k: v.to_dict() for k, v in self.tracker.chars.items() if k != NEW_CHAR}
+        chars = {k: v.to_dict() for k, v in self.tracker.chars.items() if k not in PLACEHOLDERS}
         config.save_progress({
             "log_path": str(self.log_path),
             "offset": self.tail.offset,
             "current": self.tracker.current,
             "pid": self.tracker.pid,
+            "confirmed": self.tracker.confirmed,
+            "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
+            "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
             "characters": chars,
         })
         self.dirty = False
@@ -194,7 +199,7 @@ class Controller:
         grp.addAction(auto)
         cm.addAction(auto)
         cm.addSeparator()
-        chars = sorted((c for c in self.tracker.chars.values() if c.name != NEW_CHAR),
+        chars = sorted((c for c in self.tracker.chars.values() if c.name not in PLACEHOLDERS),
                        key=lambda c: c.last_seen, reverse=True)
         for c in chars[:15]:
             a = QAction(f"{c.name}  ({c.cls} Lv{c.level})", cm, checkable=True)

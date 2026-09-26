@@ -2,7 +2,7 @@ from poe2_overlay.guide import Guide, parse_csv
 from poe2_overlay.logparse import (
     AreaEntered, Death, LevelUp, LoginConnect, PassivePoints, Reward, SceneName, parse_line,
 )
-from poe2_overlay.tracker import NEW_CHAR, Tracker
+from poe2_overlay.tracker import NEW_CHAR, UNKNOWN_CHAR, Tracker
 
 P = "2026/09/26 22:57:03 947613015 2caa229f [DEBUG Client 26920] "
 I = "2026/09/26 22:57:03 947613015 2caa229f [INFO Client 26920] "
@@ -80,6 +80,23 @@ def test_existing_character_is_guessed_then_confirmed():
     s = t.snapshot()
     assert s.confirmed and s.character.name == "alice" and s.step.zone == "g1_4"
     assert t.chars["alice"].level == 9 and t.chars["bob"].cursor == 0
+
+
+def test_unknown_character_in_hideout_is_not_guessed():
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(LevelUp("t", "1", "alice", "소서리스", 2))
+    t.feed(area("G1_town", pid="1"))
+    t.feed(LoginConnect("t", "1"))  # 캐릭터 선택 화면으로 나감
+    assert t.snapshot().character.name == UNKNOWN_CHAR
+    t.feed(area("HideoutShoreline", 65, pid="1"))
+    s = t.snapshot()
+    assert s.character.name == UNKNOWN_CHAR and s.step is None
+    t.feed(area("MapBluff", 70, pid="1"))
+    t.feed(Death("t", "1", "carol"))
+    s = t.snapshot()
+    assert s.confirmed and s.character.name == "carol" and s.step.index == len(GUIDE) - 1
+    assert t.chars["alice"].cursor == 1
 
 
 def test_party_member_levelup_ignored():
