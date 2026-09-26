@@ -31,7 +31,7 @@ HOTKEYS = {
     "opacity_down": "Ctrl+Alt+Down",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
-PROGRESS_VERSION = 2  # 2: 플레이 시간/액트 스플릿 추가 (이전 저장본은 로그 전체를 다시 읽는다)
+PROGRESS_VERSION = 3  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
@@ -194,7 +194,8 @@ class Controller:
             if self._pbs_for != c.name:  # PB 는 캐릭터가 바뀔 때만 다시 계산
                 self._pbs = personal_bests(self.tracker.chars.values(), exclude=c.name)
                 self._pbs_for = c.name
-            timer = timer_view(c, self._pbs, self.live_extra())
+            pbs = self._pbs if self.settings.get("show_pb", False) else {}
+            timer = timer_view(c, pbs, self.live_extra())
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer)
 
     def tick(self) -> None:
@@ -254,6 +255,11 @@ class Controller:
 
     def change_opacity(self, delta: float) -> None:
         self.set_opacity(float(self.settings.get("window_opacity", 1.0)) + delta)
+
+    def toggle_pb(self) -> None:
+        self.settings["show_pb"] = not self.settings.get("show_pb", False)
+        config.save_settings(self.settings)
+        self.refresh()
 
     def toggle_rewards(self) -> None:
         self.overlay.show_rewards = not self.overlay.show_rewards
@@ -353,6 +359,11 @@ class Controller:
             a.triggered.connect(lambda _=False, val=v: self.set_opacity(val))
             ogrp.addAction(a)
             om.addAction(a)
+
+        pb = QAction("PB 비교 표시 (연습용)", m, checkable=True)
+        pb.setChecked(self.settings.get("show_pb", False))
+        pb.triggered.connect(self.toggle_pb)
+        m.addAction(pb)
 
         ct = QAction(f"클릭 통과  ({HOTKEYS['click_through']})", m, checkable=True)
         ct.setChecked(self.overlay.click_through)

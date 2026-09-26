@@ -102,6 +102,12 @@ class Guide:
             return None
         for j in range(cursor + 1, len(self.steps)):
             if self.steps[j].zone == z:
+                # 이미 지나온 지역에 되돌아간 경우(붉은 계곡 → 그렐우드), 그 지역의 다음 방문이
+                # 아직 안 거친 마을 단계 뒤에 있으면 건너뛰지 않는다.
+                revisit = any(s.zone == z for s in self.steps[:cursor])
+                town_between = any(self.steps[k].is_town for k in range(cursor + 1, j))
+                if revisit and town_between:
+                    return None
                 return j
         return None
 

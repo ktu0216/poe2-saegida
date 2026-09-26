@@ -51,6 +51,7 @@ def test_navigation_rules():
     assert g.next_position(4, "g1_2") is None               # 뒤로 가지 않음
     assert g.next_position(5, "g1_4") == 6
     assert g.next_position(5, "g1_5") == 4                  # 보스 전 포탈로 마을 다녀옴
+    assert g.next_position(4, "g1_4") is None               # 붉은 계곡 → 그렐우드 되돌아감 (마을 전)
 
 
 def test_new_character_session():
