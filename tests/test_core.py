@@ -99,6 +99,30 @@ def test_unknown_character_in_hideout_is_not_guessed():
     assert t.chars["alice"].cursor == 1
 
 
+def test_new_character_even_if_old_one_stuck_on_riverbank():
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(LevelUp("t", "1", "old", "워리어", 2))  # 강둑에 머문 옛 캐릭터 (cursor 0)
+    t.league = "Forbidden Rites"
+    t.feed(area("G1_1", pid="2"))
+    assert t.snapshot().character.name == NEW_CHAR
+    t.feed(LevelUp("t", "2", "char_i", "소서리스", 2))
+    s = t.snapshot()
+    assert s.character.name == "char_i" and s.league == "Forbidden Rites"
+    assert t.chars["old"].league == ""
+
+
+def test_guess_skips_other_league():
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(LevelUp("t", "1", "std", "워리어", 2))
+    t.feed(area("G1_town", pid="1"))
+    t.chars["std"].league = "Standard"
+    t.league = "Forbidden Rites"
+    t.feed(area("G1_town", pid="2"))
+    assert t.snapshot().character.name == UNKNOWN_CHAR
+
+
 def test_party_member_levelup_ignored():
     t = Tracker(GUIDE)
     t.feed(area("G1_1"))

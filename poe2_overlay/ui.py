@@ -139,7 +139,9 @@ class Overlay(QWidget):
             return
 
         if c.name == UNKNOWN_CHAR:
-            self.char_lbl.setText("캐릭터 확인 중")
+            self.char_lbl.setText("캐릭터 확인 중" + (
+                f'<br><span style="color:{DIM};font-weight:normal;font-size:small">'
+                f"🏳 {html.escape(s.league)}</span>" if s.league else ""))
             self.act_lbl.setText("")
             self.loc_lbl.setText(f"📍 {html.escape(c.area_name or c.zone or '접속 중')}")
             self.step_area.setText("")
@@ -153,7 +155,9 @@ class Overlay(QWidget):
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
         cls = f" · {html.escape(c.cls)}" if c.cls else ""
         tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
-        self.char_lbl.setText(f"{name}{cls} · Lv {c.level}{tag}")
+        league = (f'<br><span style="color:{DIM};font-weight:normal;font-size:small">'
+                  f"🏳 {html.escape(s.league)}</span>") if s.league else ""
+        self.char_lbl.setText(f"{name}{cls} · Lv {c.level}{tag}{league}")
 
         step = s.step
         if step:

@@ -36,6 +36,9 @@ class Controller:
         self.tail: Optional[LogTail] = None
         self.dirty = False
         self.notice = ""
+        self.game_cfg = config.find_game_config()
+        self._cfg_mtime = None
+        self._ticks = 0
 
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
@@ -98,11 +101,34 @@ class Controller:
                 self.tracker.feed(ev)
         self.tail = LogTail(self.log_path, size)
         self.dirty = True
+        # 과거 로그 재생이 끝난 뒤에만 현재 리그를 적용 (옛 캐릭터에 현재 리그가 찍히지 않도록)
+        self._cfg_mtime = None
+        self.check_league()
+
+    def check_league(self) -> bool:
+        """게임 설정 파일의 league_selected 가 바뀌면 현재 캐릭터에 반영한다."""
+        cfg = self.game_cfg
+        try:
+            mtime = cfg.stat().st_mtime if cfg else None
+        except OSError:
+            mtime = None
+        if mtime == self._cfg_mtime:
+            return False
+        self._cfg_mtime = mtime
+        league = config.read_league(cfg)
+        if league == self.tracker.league:
+            return False
+        self.tracker.league = league
+        if league and (c := self.tracker._active()):
+            c.league = league
+        self.dirty = True
+        return True
 
     def poll(self) -> None:
         if not self.tail:
             return
-        changed = False
+        self._ticks += 1
+        changed = self._ticks % 7 == 0 and self.check_league()
         for ln in self.tail.read_new():
             if ev := parse_line(ln):
                 self.tracker.feed(ev)

@@ -43,6 +43,7 @@ class Character:
     passive_points: int = 0
     weapon_set_points: int = 0
     last_seen: str = ""
+    league: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -62,6 +63,7 @@ class Snapshot:
     previous: Optional[Step]
     off_route: bool
     total: int
+    league: str = ""
 
 
 class Tracker:
@@ -76,6 +78,7 @@ class Tracker:
         self.provisional: Optional[Character] = None
         self._scene_for_pending: dict[str, str] = {}
         self.manual_lock = False  # 사용자가 직접 캐릭터를 고르면 추정/전환하지 않음
+        self.league = ""  # 게임 설정 파일의 현재 리그 (라이브 감시 중에만 설정)
         for c in self.chars.values():
             self._repair_cursor(c)
 
@@ -134,6 +137,8 @@ class Tracker:
         c.area_name = self.guide.area_name(code) or ""
         c.area_level = level
         c.last_seen = ts
+        if self.league:
+            c.league = self.league
         if code.lower().startswith("map") and self.guide.steps:
             # 엔드게임 지도에 들어갔다면 캠페인은 끝난 캐릭터
             c.cursor = len(self.guide.steps) - 1
@@ -164,6 +169,8 @@ class Tracker:
         for p in replay:
             self._apply_area(c, p.code, p.level, p.ts)
         c.last_seen = ts
+        if self.league:
+            c.league = self.league
         self.current = name
         self.confirmed = True
         self.pending = []
@@ -176,12 +183,16 @@ class Tracker:
             return self.chars[self.current]
         codes = [p.code.lower() for p in self.pending]
         first = codes[0]
-        # 새 캐릭터는 강둑(g1_1)에서 시작한다.
-        if first == FIRST_ZONE and all(c.cursor > 0 for c in self.chars.values()):
-            return self.provisional if (self.provisional and self.provisional.name == NEW_CHAR) \
-                else Character(name=NEW_CHAR)
+        # 접속하자마자 강둑(g1_1)이면 새 캐릭터로 본다.
+        if first == FIRST_ZONE:
+            if self.provisional and self.provisional.name == NEW_CHAR:
+                return self.provisional
+            nc = Character(name=NEW_CHAR, league=self.league)
+            return nc
         best, best_score = None, -1
-        for c in sorted(self.chars.values(), key=lambda c: c.last_seen, reverse=True):
+        cands = [c for c in self.chars.values()
+                 if not (self.league and c.league and c.league != self.league)]
+        for c in sorted(cands, key=lambda c: c.last_seen, reverse=True):
             score = self._match_score(c, codes)
             if score > best_score:
                 best, best_score = c, score
@@ -284,7 +295,8 @@ class Tracker:
         c = self._display()
         steps = self.guide.steps
         if not c or not steps or c.name == UNKNOWN_CHAR:
-            return Snapshot(c, self.confirmed, None, [], None, False, len(steps))
+            return Snapshot(c, self.confirmed, None, [], None, False, len(steps),
+                            (c.league if c else "") or self.league)
         i = max(0, min(c.cursor, len(steps) - 1))
         step = steps[i]
         off = bool(c.zone) and c.zone != step.zone and not (
@@ -297,4 +309,5 @@ class Tracker:
             previous=steps[i - 1] if i > 0 else None,
             off_route=off,
             total=len(steps),
+            league=c.league or self.league,
         )

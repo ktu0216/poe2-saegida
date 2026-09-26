@@ -91,6 +91,28 @@ def find_log(configured: str = "") -> Optional[Path]:
     return max(found, key=lambda p: p.stat().st_mtime)
 
 
+def find_game_config() -> Optional[Path]:
+    """POE2 설정 파일 (캐릭터 선택 화면에서 고른 리그가 league_selected 로 저장됨)."""
+    docs = [Path.home() / "Documents", Path.home() / "OneDrive" / "Documents", Path.home() / "OneDrive" / "문서"]
+    for d in docs:
+        p = d / "My Games" / "Path of Exile 2" / "poe2_production_Config.ini"
+        if p.is_file():
+            return p
+    return None
+
+
+def read_league(path: Optional[Path]) -> str:
+    if not path:
+        return ""
+    try:
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.startswith("league_selected="):
+                return line.split("=", 1)[1].strip()
+    except OSError:
+        pass
+    return ""
+
+
 def _reim_guide_candidates() -> list[Path]:
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "바탕 화면"]
