@@ -19,6 +19,7 @@ from .logparse import (
     Event,
     LevelUp,
     LoginConnect,
+    NewCharacter,
     PassivePoints,
     Reward,
     SceneName,
@@ -103,6 +104,7 @@ class Tracker:
         self.last_ts: Optional[datetime] = None  # 현재 세션의 마지막 로그 시각
         self.afk = False
         self._pending_play = 0.0  # 미확정 동안 쌓인 플레이 시간
+        self.new_char_session = False  # 튜토리얼 줄로 '새 캐릭터'가 확정된 세션
         for c in self.chars.values():
             self._repair_cursor(c)
 
@@ -131,6 +133,8 @@ class Tracker:
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)
+        elif isinstance(ev, NewCharacter):
+            self._on_new_character()
         elif isinstance(ev, Afk):
             self.afk = ev.on
         elif isinstance(ev, PassivePoints):
@@ -156,12 +160,27 @@ class Tracker:
 
     def _new_session(self) -> None:
         self._pending_play = 0.0
+        self.new_char_session = False
         if self.manual_lock:
             return
         self._flush_pending_to_provisional()
         self.confirmed = False
         self.pending = []
         self.provisional = Character(name=UNKNOWN_CHAR)
+
+    def _on_new_character(self) -> None:
+        """새 캐릭터 확정 (이름은 아직 모름). 이번 세션의 지역 이동을 새 캐릭터에 다시 적용한다."""
+        if self.confirmed or self.manual_lock:
+            return
+        self.new_char_session = True
+        old = self.provisional
+        if old is not None and old.name == NEW_CHAR:
+            return
+        nc = Character(name=NEW_CHAR, league=self.league, mode=old.mode if old and old.name in PLACEHOLDERS else "")
+        for p in self.pending:
+            self._apply_area(nc, p.code, p.level, p.ts)
+        nc.play_seconds = self._pending_play
+        self.provisional = nc
 
     def _on_area(self, ev: AreaEntered) -> None:
         if self.confirmed and self.current:
@@ -205,6 +224,12 @@ class Tracker:
         if self.manual_lock and self.current and name != self.current:
             return None
         c = self.chars.get(name)
+        if c is not None and self.new_char_session:
+            # 삭제한 캐릭터와 같은 이름으로 새로 만든 경우: 옛 기록은 PB용으로 이름을 바꿔 보관
+            archived = f"{name} (이전 {c.last_seen[:10]})"
+            c.name = archived
+            self.chars[archived] = c
+            c = None
         if c is None:
             c = Character(name=name)
             self.chars[name] = c
@@ -237,8 +262,8 @@ class Tracker:
             return self.chars[self.current]
         codes = [p.code.lower() for p in self.pending]
         first = codes[0]
-        # 접속하자마자 강둑(g1_1)이면 새 캐릭터로 본다.
-        if first == FIRST_ZONE:
+        # 튜토리얼 줄이 나왔거나, 접속하자마자 강둑(g1_1)이면 새 캐릭터로 본다.
+        if self.new_char_session or first == FIRST_ZONE:
             if self.provisional and self.provisional.name == NEW_CHAR:
                 return self.provisional
             nc = Character(name=NEW_CHAR, league=self.league)

@@ -113,6 +113,30 @@ def test_new_character_even_if_old_one_stuck_on_riverbank():
     assert t.chars["old"].league == ""
 
 
+def test_tutorial_line_confirms_new_character_and_archives_reused_name():
+    from poe2_overlay.logparse import NewCharacter
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(LevelUp("t", "1", "bob", "워리어", 2))
+    t.feed(area("G1_town", pid="1"))
+    t.feed(area("G1_2", pid="1"))
+    # bob 삭제 후 같은 이름으로 새로 만듦
+    t.feed(LoginConnect("t", "1"))
+    t.feed(area("G1_1", pid="1"))
+    t.feed(NewCharacter("t", "1"))
+    assert t.snapshot().character.name == NEW_CHAR and t.new_char_session
+    t.feed(LevelUp("t2", "1", "bob", "머서너리", 2))
+    assert t.chars["bob"].cls == "머서너리" and t.chars["bob"].cursor == 0
+    old = [c for n, c in t.chars.items() if n.startswith("bob (이전")]
+    assert len(old) == 1 and old[0].cursor == 2
+
+
+def test_parse_tutorial_line():
+    from poe2_overlay.logparse import NewCharacter
+    ln = I + "Requesting to complete all tutorials due to the client setting"
+    assert isinstance(parse_line(ln), NewCharacter)
+
+
 def test_mode_set_before_name_is_kept():
     t = Tracker(GUIDE)
     t.feed(area("G1_1", pid="9"))

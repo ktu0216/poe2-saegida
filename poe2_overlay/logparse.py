@@ -91,6 +91,13 @@ class LoginConnect:
 
 
 @dataclass(frozen=True)
+class NewCharacter:
+    """새 캐릭터가 강둑에 처음 들어오면 1초 뒤 찍히는 튜토리얼 건너뛰기 요청."""
+    ts: str
+    pid: str
+
+
+@dataclass(frozen=True)
 class Afk:
     ts: str
     pid: str
@@ -104,10 +111,11 @@ class Activity:
     pid: str
 
 
-Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, Afk, Activity]
+Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, NewCharacter,
+              Afk, Activity]
 
 # 빠른 사전 필터: 이 문자열이 하나도 없으면 정규식을 돌리지 않는다.
-_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]")
+_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]", "complete all tutorials")
 
 
 def parse_line(line: str) -> Optional[Event]:
@@ -129,6 +137,8 @@ def parse_line(line: str) -> Optional[Event]:
         return SceneName(ts, pid, name)
     if _LOGIN.match(body):
         return LoginConnect(ts, pid)
+    if body.startswith("Requesting to complete all tutorials"):
+        return NewCharacter(ts, pid)
     if not body.startswith(": "):
         return Activity(ts, pid)
     if _AFK_ON.match(body):

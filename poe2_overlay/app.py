@@ -31,7 +31,7 @@ HOTKEYS = {
     "opacity_down": "Ctrl+Alt+Down",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
-PROGRESS_VERSION = 3  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정 (이전 저장본은 로그 전체를 다시 읽는다)
+PROGRESS_VERSION = 4  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
