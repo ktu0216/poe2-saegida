@@ -25,7 +25,10 @@ HOTKEYS = {
     "click_through": "Ctrl+Alt+T",
     "toggle": "Ctrl+Alt+H",
     "rewards": "Ctrl+Alt+R",
+    "opacity_up": "Ctrl+Alt+Up",
+    "opacity_down": "Ctrl+Alt+Down",
 }
+OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 
 
 class Controller:
@@ -61,6 +64,8 @@ class Controller:
         self.hotkeys.register(HOTKEYS["prev"], lambda: self.step(-1))
         self.hotkeys.register(HOTKEYS["click_through"], self.toggle_click_through)
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
+        self.hotkeys.register(HOTKEYS["opacity_up"], lambda: self.change_opacity(0.1))
+        self.hotkeys.register(HOTKEYS["opacity_down"], lambda: self.change_opacity(-0.1))
         # 다른 프로그램이 이미 쓰는 키면 다음 후보로 (실제 등록된 키를 메뉴에 표시)
         for key in (HOTKEYS["rewards"], "Ctrl+Alt+B", "Ctrl+Alt+J", "Ctrl+Alt+F9"):
             if self.hotkeys.register(key, self.toggle_rewards):
@@ -80,6 +85,7 @@ class Controller:
         self.save_timer.start(5000)
         app.aboutToQuit.connect(self.shutdown)
 
+        self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
         if self.settings.get("click_through"):
             self.toggle_click_through()
@@ -189,6 +195,15 @@ class Controller:
         set_click_through(int(self.overlay.winId()), self.overlay.click_through)
         self.refresh()
 
+    def set_opacity(self, value: float) -> None:
+        value = round(max(OPACITY_STEPS[-1], min(1.0, value)), 2)
+        self.overlay.setWindowOpacity(value)
+        self.settings["window_opacity"] = value
+        config.save_settings(self.settings)
+
+    def change_opacity(self, delta: float) -> None:
+        self.set_opacity(float(self.settings.get("window_opacity", 1.0)) + delta)
+
     def toggle_rewards(self) -> None:
         self.overlay.show_rewards = not self.overlay.show_rewards
         self.refresh()
@@ -270,6 +285,16 @@ class Controller:
             a.triggered.connect(lambda _=False, md=mode: self.set_mode(md))
             mgrp.addAction(a)
             mm.addAction(a)
+
+        cur_op = float(self.settings.get("window_opacity", 1.0))
+        om = m.addMenu(f"투명도: {round(cur_op * 100)}%  ({HOTKEYS['opacity_up']} / Down)")
+        ogrp = QActionGroup(om)
+        for v in OPACITY_STEPS:
+            a = QAction(f"{round(v * 100)}%", om, checkable=True)
+            a.setChecked(abs(v - cur_op) < 0.01)
+            a.triggered.connect(lambda _=False, val=v: self.set_opacity(val))
+            ogrp.addAction(a)
+            om.addAction(a)
 
         ct = QAction(f"클릭 통과  ({HOTKEYS['click_through']})", m, checkable=True)
         ct.setChecked(self.overlay.click_through)

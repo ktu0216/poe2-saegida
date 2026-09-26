@@ -58,6 +58,7 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
 | Ctrl+Alt+→ / ← | 다음 / 이전 단계 (자동 위치가 틀렸을 때 보정) |
 | Ctrl+Alt+T | 클릭 통과 켜기/끄기 |
 | Ctrl+Alt+H | 숨기기/보이기 |
+| Ctrl+Alt+↑ / ↓ | 창 투명도 10%씩 조절 (30%~100%, 메뉴에서도 선택) |
 | Ctrl+Alt+R | 영구 보상 전체 목록 (다른 프로그램이 쓰면 Ctrl+Alt+B → J → F9 순으로 대체) |
 
 창은 드래그로 옮기고, 우클릭 또는 트레이 아이콘 메뉴에서 캐릭터 수동 선택·가이드/로그 파일 변경을 할 수 있다.
