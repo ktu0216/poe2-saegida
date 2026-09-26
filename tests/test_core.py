@@ -112,6 +112,14 @@ def test_new_character_even_if_old_one_stuck_on_riverbank():
     assert t.chars["old"].league == ""
 
 
+def test_mode_set_before_name_is_kept():
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="9"))
+    t.set_mode("하드코어")
+    t.feed(LevelUp("t", "9", "char_i", "소서리스", 2))
+    assert t.chars["char_i"].mode == "하드코어"
+
+
 def test_guess_skips_other_league():
     t = Tracker(GUIDE)
     t.feed(area("G1_1", pid="1"))

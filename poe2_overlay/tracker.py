@@ -44,6 +44,7 @@ class Character:
     weapon_set_points: int = 0
     last_seen: str = ""
     league: str = ""
+    mode: str = ""  # 사용자가 지정: 소프트코어/하드코어/SSF/HC SSF
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -171,6 +172,9 @@ class Tracker:
         c.last_seen = ts
         if self.league:
             c.league = self.league
+        p = self.provisional
+        if p is not None and p.name in PLACEHOLDERS and p.mode and not c.mode:
+            c.mode = p.mode  # 확정 전에 지정한 모드 이어받기
         self.current = name
         self.confirmed = True
         self.pending = []
@@ -253,6 +257,10 @@ class Tracker:
             self.provisional.area_name = scene
 
     # ------------------------------------------------------- 수동 조작
+    def set_mode(self, mode: str) -> None:
+        if c := self._display():
+            c.mode = mode
+
     def select_character(self, name: Optional[str]) -> None:
         """None 이면 자동 모드로 복귀."""
         if name is None:

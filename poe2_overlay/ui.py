@@ -32,6 +32,20 @@ def rich(text: str) -> str:
     return t
 
 
+MODE_COLOR = {"하드코어": "#ff6b5b", "HC SSF": "#ff6b5b", "SSF": "#7fb8ff"}
+
+
+def _league_line(league: str, mode: str) -> str:
+    parts = []
+    if league:
+        parts.append(f"🏳 {html.escape(league)}")
+    if mode:
+        parts.append(f'<b style="color:{MODE_COLOR.get(mode, DIM)}">{html.escape(mode)}</b>')
+    if not parts:
+        return ""
+    return f'<br><span style="color:{DIM};font-weight:normal;font-size:small">{" · ".join(parts)}</span>'
+
+
 def make_icon() -> QIcon:
     pm = QPixmap(64, 64)
     pm.fill(Qt.transparent)
@@ -139,9 +153,7 @@ class Overlay(QWidget):
             return
 
         if c.name == UNKNOWN_CHAR:
-            self.char_lbl.setText("캐릭터 확인 중" + (
-                f'<br><span style="color:{DIM};font-weight:normal;font-size:small">'
-                f"🏳 {html.escape(s.league)}</span>" if s.league else ""))
+            self.char_lbl.setText("캐릭터 확인 중" + _league_line(s.league, c.mode))
             self.act_lbl.setText("")
             self.loc_lbl.setText(f"📍 {html.escape(c.area_name or c.zone or '접속 중')}")
             self.step_area.setText("")
@@ -155,8 +167,7 @@ class Overlay(QWidget):
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
         cls = f" · {html.escape(c.cls)}" if c.cls else ""
         tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
-        league = (f'<br><span style="color:{DIM};font-weight:normal;font-size:small">'
-                  f"🏳 {html.escape(s.league)}</span>") if s.league else ""
+        league = _league_line(s.league, c.mode)
         self.char_lbl.setText(f"{name}{cls} · Lv {c.level}{tag}{league}")
 
         step = s.step

@@ -95,6 +95,8 @@ class Controller:
             self.tracker.pid = saved.get("pid")
             if not saved.get("confirmed", True):
                 self.tracker.restore_pending(saved.get("pending", []), saved.get("pending_scene", ""))
+                if self.tracker.provisional:
+                    self.tracker.provisional.mode = saved.get("pending_mode", "")
             start = saved["offset"]
         for ln in iter_lines(self.log_path, start, size):
             if ev := parse_line(ln):
@@ -152,6 +154,7 @@ class Controller:
             "confirmed": self.tracker.confirmed,
             "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
             "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
+            "pending_mode": self.tracker.provisional.mode if self.tracker.provisional else "",
             "characters": chars,
         })
         self.dirty = False
@@ -187,6 +190,12 @@ class Controller:
     def select_character(self, name: Optional[str]) -> None:
         self.tracker.select_character(name)
         self.dirty = True
+        self.refresh()
+
+    def set_mode(self, mode: str) -> None:
+        self.tracker.set_mode(mode)
+        self.dirty = True
+        self.save()
         self.refresh()
 
     def choose_log(self) -> None:
@@ -233,6 +242,17 @@ class Controller:
             a.triggered.connect(lambda _=False, n=c.name: self.select_character(n))
             grp.addAction(a)
             cm.addAction(a)
+
+        cur = self.tracker.snapshot().character
+        mm = m.addMenu(f"모드: {cur.mode or '미지정'}" if cur else "모드")
+        mm.setEnabled(cur is not None)
+        mgrp = QActionGroup(mm)
+        for mode in ("", "소프트코어", "하드코어", "SSF", "HC SSF"):
+            a = QAction(mode or "미지정", mm, checkable=True)
+            a.setChecked(bool(cur) and cur.mode == mode)
+            a.triggered.connect(lambda _=False, md=mode: self.set_mode(md))
+            mgrp.addAction(a)
+            mm.addAction(a)
 
         ct = QAction(f"클릭 통과  ({HOTKEYS['click_through']})", m, checkable=True)
         ct.setChecked(self.overlay.click_through)
