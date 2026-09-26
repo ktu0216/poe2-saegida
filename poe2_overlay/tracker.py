@@ -8,10 +8,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
+from datetime import datetime
 from typing import Optional
 
-from .guide import Guide, Step, is_town
+from .guide import Guide, Step, act_label, is_town
 from .logparse import (
+    Afk,
     AreaEntered,
     Death,
     Event,
@@ -27,6 +29,21 @@ UNKNOWN_CHAR = "(확인 중)"
 PLACEHOLDERS = (NEW_CHAR, UNKNOWN_CHAR)
 HC_DEATH = {"하드코어": "소프트코어", "HC SSF": "SSF"}
 FIRST_ZONE = "g1_1"
+MAX_GAP = 30 * 60  # 이보다 긴 로그 공백은 플레이 시간에서 뺀다
+
+
+def parse_ts(ts: str) -> Optional[datetime]:
+    try:
+        return datetime.strptime(ts, "%Y/%m/%d %H:%M:%S")
+    except ValueError:
+        return None
+
+
+def zone_act(code: str) -> str:
+    code = code.lower()
+    if code.startswith("map"):
+        return "엔드게임"
+    return act_label(code)
 
 
 @dataclass
@@ -46,6 +63,8 @@ class Character:
     last_seen: str = ""
     league: str = ""
     mode: str = ""  # 사용자가 지정: 소프트코어/하드코어/SSF/HC SSF
+    play_seconds: float = 0.0  # 자리 비움·로그아웃·긴 공백을 뺀 플레이 시간
+    splits: dict[str, float] = field(default_factory=dict)  # 액트 -> 처음 들어갔을 때의 play_seconds
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -81,12 +100,17 @@ class Tracker:
         self._scene_for_pending: dict[str, str] = {}
         self.manual_lock = False  # 사용자가 직접 캐릭터를 고르면 추정/전환하지 않음
         self.league = ""  # 게임 설정 파일의 현재 리그 (라이브 감시 중에만 설정)
+        self.last_ts: Optional[datetime] = None  # 현재 세션의 마지막 로그 시각
+        self.afk = False
+        self._pending_play = 0.0  # 미확정 동안 쌓인 플레이 시간
         for c in self.chars.values():
             self._repair_cursor(c)
 
     # ---------------------------------------------------------------- 이벤트
     def feed(self, ev: Event) -> None:
-        if self.pid is not None and ev.pid != self.pid:
+        new_pid = self.pid is not None and ev.pid != self.pid
+        self._account_time(ev, reset=new_pid or isinstance(ev, LoginConnect))
+        if new_pid:
             self._new_session()
         self.pid = ev.pid
 
@@ -107,6 +131,8 @@ class Tracker:
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)
+        elif isinstance(ev, Afk):
+            self.afk = ev.on
         elif isinstance(ev, PassivePoints):
             if c := self._active():
                 if ev.weapon_set:
@@ -114,7 +140,22 @@ class Tracker:
                 else:
                     c.passive_points += ev.points
 
+    def _account_time(self, ev: Event, reset: bool) -> None:
+        t = parse_ts(ev.ts)
+        if t is None:
+            return
+        if reset:
+            self.last_ts, self.afk = None, False
+        elif self.last_ts is not None and not self.afk:
+            delta = (t - self.last_ts).total_seconds()
+            if 0 < delta <= MAX_GAP and (c := self._active()):
+                c.play_seconds += delta
+                if not self.confirmed:
+                    self._pending_play += delta
+        self.last_ts = t
+
     def _new_session(self) -> None:
+        self._pending_play = 0.0
         if self.manual_lock:
             return
         self._flush_pending_to_provisional()
@@ -141,6 +182,9 @@ class Tracker:
         c.area_name = self.guide.area_name(code) or ""
         c.area_level = level
         c.last_seen = ts
+        act = zone_act(code)
+        if act and act not in c.splits:
+            c.splits[act] = c.play_seconds
         if self.league:
             c.league = self.league
         if code.lower().startswith("map") and self.guide.steps:
@@ -172,6 +216,9 @@ class Tracker:
             replay = self.pending
         for p in replay:
             self._apply_area(c, p.code, p.level, p.ts)
+        if c is not self.provisional:  # 추정본을 채택한 경우는 이미 시간이 쌓여 있다
+            c.play_seconds += self._pending_play
+        self._pending_play = 0.0
         c.last_seen = ts
         if self.league:
             c.league = self.league

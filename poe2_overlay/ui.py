@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 
 from .guide import Step, is_town
 from .rewards import SlotState
+from .timing import CAMPAIGN, TimerView, fmt, fmt_delta
 from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
 
 ACCENT = "#e8b04a"
@@ -32,6 +33,31 @@ def rich(text: str) -> str:
     t = _EMPH.sub(lambda m: f'<b style="color:{ACCENT}">{m.group(1) or m.group(2)}</b>', t)
     t = t.replace("→", f'<span style="color:{ACCENT}">→</span>')
     return t
+
+
+def _timer_line(t: TimerView) -> str:
+    act, cur, pb = t.act, t.act_time, t.pb
+    if t.rows[-1][0] == CAMPAIGN:  # 캠페인을 끝낸 캐릭터는 완주 시간만
+        act, cur, _, pb = t.rows[-1]
+        act += " 완료"
+    line = f'⏱ {html.escape(act)} <b style="color:{TEXT}">{fmt(cur)}</b>'
+    if pb:
+        diff = cur - pb
+        color = OK if diff <= 0 else WARN
+        line += f' · PB {fmt(t.pb)} <span style="color:{color}">({fmt_delta(diff)})</span>'
+    return line + f' · 전체 {fmt(t.total)}'
+
+
+def _split_table(t: TimerView) -> str:
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>구간 기록</b> <span style="color:{DIM}">(PB = 이전 캐릭터 최고)</span></div>']
+    for act, dur, done, pb in t.rows:
+        cmp = ""
+        if pb:
+            diff = dur - pb
+            cmp = f' <span style="color:{OK if diff <= 0 else WARN}">{fmt_delta(diff)}</span> <span style="color:{DIM}">/ PB {fmt(pb)}</span>'
+        mark = "✓" if done else "▶"
+        out.append(f'<div style="color:{TEXT}">{mark} {html.escape(act)} {fmt(dur)}{cmp}</div>')
+    return "".join(out)
 
 
 def _reward_list(rewards: list[SlotState]) -> str:
@@ -130,6 +156,9 @@ class Overlay(QWidget):
             f"QProgressBar::chunk{{background:{ACCENT};border-radius:1px}}")
         root.addWidget(self.bar)
 
+        self.timer_lbl = _label(fs - 2, DIM)
+        root.addWidget(self.timer_lbl)
+
         self.loc_lbl = _label(fs - 2, DIM)
         root.addWidget(self.loc_lbl)
 
@@ -165,8 +194,11 @@ class Overlay(QWidget):
 
     # ------------------------------------------------------------ 표시
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
-               passive_total: int = 0) -> None:
+               passive_total: int = 0, timer: Optional[TimerView] = None) -> None:
         rewards = rewards or []
+        self.timer_lbl.setVisible(timer is not None)
+        if timer:
+            self.timer_lbl.setText(_timer_line(timer))
         self.step_gift.setVisible(False)
         self.reward_lbl.setVisible(False)
         c = s.character
@@ -178,7 +210,7 @@ class Overlay(QWidget):
             self.step_text.setText("대기 중…")
             self.next_lbl.setText("")
             self.foot_lbl.setText(notice)
-            self.adjustSize()
+            self._fit()
             return
 
         if c.name == UNKNOWN_CHAR:
@@ -190,7 +222,7 @@ class Overlay(QWidget):
             self.next_lbl.setText("우클릭 → 캐릭터 메뉴에서 직접 고를 수도 있습니다.")
             self.foot_lbl.setText(notice)
             self.foot_lbl.setVisible(bool(notice))
-            self.adjustSize()
+            self._fit()
             return
 
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
@@ -242,7 +274,7 @@ class Overlay(QWidget):
                     f'<span style="color:{GIFT}">{html.escape(sl.label)}</span>' for sl in left)
             foot.append(line)
             if self.show_rewards:
-                self.reward_lbl.setText(_reward_list(rewards))
+                self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else ""))
                 self.reward_lbl.setVisible(True)
         if notice:
             foot.append(notice)
@@ -250,7 +282,14 @@ class Overlay(QWidget):
             foot.append("🔒 클릭 통과 중 (Ctrl+Alt+T 해제)")
         self.foot_lbl.setText("<br>".join(foot))
         self.foot_lbl.setVisible(bool(foot))
-        self.adjustSize()
+        self._fit()
+
+    def _fit(self) -> None:
+        """폭은 고정, 높이는 줄바꿈된 내용에 딱 맞게 (adjustSize 는 줄어들지 않는 경우가 있다)."""
+        lay = self.layout()
+        lay.activate()
+        h = lay.heightForWidth(self.width()) if lay.hasHeightForWidth() else lay.sizeHint().height()
+        self.setFixedHeight(max(h, lay.minimumSize().height()))
 
     # ------------------------------------------------------------ 그리기/조작
     def paintEvent(self, _):

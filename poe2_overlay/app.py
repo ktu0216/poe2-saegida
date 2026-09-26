@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -15,9 +16,10 @@ from .guide import Guide
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .rewards import RewardTable
-from .tracker import Character, PLACEHOLDERS, Tracker
+from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
-from .winutil import HotkeyManager, set_click_through
+from .timing import personal_bests, timer_view
+from .winutil import HotkeyManager, foreground_pid, game_pids, set_click_through
 
 HOTKEYS = {
     "next": "Ctrl+Alt+Right",
@@ -29,6 +31,7 @@ HOTKEYS = {
     "opacity_down": "Ctrl+Alt+Down",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
+PROGRESS_VERSION = 2  # 2: 플레이 시간/액트 스플릿 추가 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
@@ -45,6 +48,10 @@ class Controller:
         self.game_cfg = config.find_game_config()
         self._cfg_mtime = None
         self._ticks = 0
+        self.user_hidden = False  # Ctrl+Alt+H 로 직접 숨긴 상태
+        self.game_running = False
+        self._pbs: dict[str, float] = {}
+        self._pbs_for: Optional[str] = None
 
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
@@ -83,10 +90,14 @@ class Controller:
         self.save_timer = QTimer()
         self.save_timer.timeout.connect(self.save)
         self.save_timer.start(5000)
+        self.clock = QTimer()  # 타이머 표시와 게임 포커스 확인
+        self.clock.timeout.connect(self.tick)
+        self.clock.start(1000)
         app.aboutToQuit.connect(self.shutdown)
 
         self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
+        set_click_through(int(self.overlay.winId()), False)  # 클릭해도 게임 포커스를 뺏지 않게
         if self.settings.get("click_through"):
             self.toggle_click_through()
         self.refresh()
@@ -106,10 +117,14 @@ class Controller:
         size = self.log_path.stat().st_size
         saved = config.load_progress()
         start = 0
-        if saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
+        old_chars = saved.get("characters", {})
+        migrate = saved.get("version", 1) < PROGRESS_VERSION
+        if not migrate and saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
             self.tracker = Tracker(self.guide, chars, saved.get("current"))
             self.tracker.pid = saved.get("pid")
+            self.tracker.last_ts = parse_ts(saved.get("last_ts") or "")
+            self.tracker.afk = bool(saved.get("afk"))
             if not saved.get("confirmed", True):
                 self.tracker.restore_pending(saved.get("pending", []), saved.get("pending_scene", ""))
                 if self.tracker.provisional:
@@ -118,8 +133,14 @@ class Controller:
         for ln in iter_lines(self.log_path, start, size):
             if ev := parse_line(ln):
                 self.tracker.feed(ev)
+        if migrate:  # 로그로 되살릴 수 없는 사용자 지정 값만 옮긴다
+            for name, old in old_chars.items():
+                if c := self.tracker.chars.get(name):
+                    c.mode = old.get("mode", "") or c.mode
+                    c.league = old.get("league", "") or c.league
         self.tail = LogTail(self.log_path, size)
         self.dirty = True
+        self._pbs_for = None
         # 과거 로그 재생이 끝난 뒤에만 현재 리그를 적용 (옛 캐릭터에 현재 리그가 찍히지 않도록)
         self._cfg_mtime = None
         self.check_league()
@@ -156,10 +177,37 @@ class Controller:
             self.dirty = True
             self.refresh()
 
+    def live_extra(self) -> float:
+        """마지막 로그 이후 지금까지 흐른 시간 (게임 실행 중이고 자리 비움이 아닐 때만)."""
+        t = self.tracker
+        if not self.game_running or t.afk or t.last_ts is None:
+            return 0.0
+        gap = (datetime.now() - t.last_ts).total_seconds()
+        return gap if 0 < gap <= MAX_GAP else 0.0
+
     def refresh(self) -> None:
         snap = self.tracker.snapshot(int(self.settings.get("upcoming", 3)))
-        states = self.rewards.evaluate(snap.character.rewards) if snap.character else []
-        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total)
+        c = snap.character
+        states = self.rewards.evaluate(c.rewards) if c else []
+        timer = None
+        if c and c.name not in PLACEHOLDERS[1:]:
+            if self._pbs_for != c.name:  # PB 는 캐릭터가 바뀔 때만 다시 계산
+                self._pbs = personal_bests(self.tracker.chars.values(), exclude=c.name)
+                self._pbs_for = c.name
+            timer = timer_view(c, self._pbs, self.live_extra())
+        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer)
+
+    def tick(self) -> None:
+        pids = game_pids()
+        self.game_running = bool(pids)
+        if self.settings.get("auto_hide", True) and not self.user_hidden:
+            fg = foreground_pid()
+            if fg != os.getpid():  # 오버레이 자신(메뉴 등)을 누른 경우는 그대로 둔다
+                want = (fg in pids) or not pids  # 게임이 꺼져 있으면 보여준다
+                if want != self.overlay.isVisible():
+                    self.overlay.setVisible(want)
+        if self.overlay.isVisible():
+            self.refresh()
 
     def save(self) -> None:
         if not self.dirty or not self.tail:
@@ -170,6 +218,9 @@ class Controller:
             "offset": self.tail.offset,
             "current": self.tracker.current,
             "pid": self.tracker.pid,
+            "version": PROGRESS_VERSION,
+            "last_ts": self.tracker.last_ts.strftime("%Y/%m/%d %H:%M:%S") if self.tracker.last_ts else "",
+            "afk": self.tracker.afk,
             "confirmed": self.tracker.confirmed,
             "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
             "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
@@ -209,7 +260,14 @@ class Controller:
         self.refresh()
 
     def toggle_visible(self) -> None:
-        self.overlay.setVisible(not self.overlay.isVisible())
+        self.user_hidden = self.overlay.isVisible()
+        self.overlay.setVisible(not self.user_hidden)
+
+    def toggle_auto_hide(self) -> None:
+        self.settings["auto_hide"] = not self.settings.get("auto_hide", True)
+        config.save_settings(self.settings)
+        if not self.settings["auto_hide"] and not self.user_hidden:
+            self.overlay.show()
 
     def on_tray(self, reason) -> None:
         if reason == QSystemTrayIcon.Trigger:
@@ -301,6 +359,10 @@ class Controller:
         ct.triggered.connect(self.toggle_click_through)
         m.addAction(ct)
         m.addAction(f"숨기기/보이기  ({HOTKEYS['toggle']})", self.toggle_visible)
+        ah = QAction("게임 창이 아닐 때 자동 숨김", m, checkable=True)
+        ah.setChecked(self.settings.get("auto_hide", True))
+        ah.triggered.connect(self.toggle_auto_hide)
+        m.addAction(ah)
         m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
         m.addSeparator()
         m.addAction("가이드 CSV 선택…", self.choose_guide)

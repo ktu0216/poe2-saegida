@@ -25,7 +25,9 @@ _DEATH_EN = re.compile(r"^: (?P<name>\S+) has been slain\.")
 _REWARD_KO = re.compile(r"^: (?P<name>\S+) 님이 (?P<text>.+?)을\(를\) 획득했습니다\.")
 _REWARD_EN = re.compile(r"^: (?P<name>\S+) has received (?P<text>.+?)\.$")
 _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포인트(?:를)? ?(?P<n>\d+)(?:포인트를)? ?획득했습니다\.)")
-_PASSIVE_EN = re.compile(r"^: You have received (?P<n>\d+) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
+_AFK_ON = re.compile(r"^: (?:자리 비움 모드를 설정했습니다|AFK mode is now ON)")
+_AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mode is now OFF)")
+_PASSIVE_EN =re.compile(r"^: You have received (?P<n>\d+) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
 
 # [Resistances|냉기] -> 냉기
 _MARKUP = re.compile(r"\[(?:[^\[\]|]*\|)?([^\[\]]*)\]")
@@ -88,10 +90,24 @@ class LoginConnect:
     pid: str
 
 
-Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect]
+@dataclass(frozen=True)
+class Afk:
+    ts: str
+    pid: str
+    on: bool
+
+
+@dataclass(frozen=True)
+class Activity:
+    """캐릭터 상태와 무관한 줄. 플레이 시간 계산의 시각 표시로만 쓴다."""
+    ts: str
+    pid: str
+
+
+Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, Afk, Activity]
 
 # 빠른 사전 필터: 이 문자열이 하나도 없으면 정규식을 돌리지 않는다.
-_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting")
+_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]")
 
 
 def parse_line(line: str) -> Optional[Event]:
@@ -114,7 +130,11 @@ def parse_line(line: str) -> Optional[Event]:
     if _LOGIN.match(body):
         return LoginConnect(ts, pid)
     if not body.startswith(": "):
-        return None
+        return Activity(ts, pid)
+    if _AFK_ON.match(body):
+        return Afk(ts, pid, True)
+    if _AFK_OFF.match(body):
+        return Afk(ts, pid, False)
     for rx in (_LEVEL_KO, _LEVEL_EN):
         if lv := rx.match(body):
             return LevelUp(ts, pid, lv["name"], lv["cls"], int(lv["level"]))

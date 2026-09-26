@@ -75,6 +75,53 @@ class HotkeyManager(QAbstractNativeEventFilter):
         return False, 0
 
 
+kernel32 = ctypes.windll.kernel32
+TH32CS_SNAPPROCESS = 0x2
+GAME_EXE_PREFIX = "pathofexile"  # PathOfExile.exe, PathOfExile_x64Steam.exe, PathOfExile_KG.exe ...
+
+
+class PROCESSENTRY32W(ctypes.Structure):
+    _fields_ = [
+        ("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD), ("th32ProcessID", wintypes.DWORD),
+        ("th32DefaultHeapID", ctypes.c_void_p), ("th32ModuleID", wintypes.DWORD),
+        ("cntThreads", wintypes.DWORD), ("th32ParentProcessID", wintypes.DWORD),
+        ("pcPriClassBase", ctypes.c_long), ("dwFlags", wintypes.DWORD),
+        ("szExeFile", ctypes.c_wchar * 260),
+    ]
+
+
+kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+user32.GetForegroundWindow.restype = wintypes.HWND
+
+
+def game_pids() -> set[int]:
+    """실행 중인 POE 클라이언트 PID. 프로세스를 열지 않으므로 관리자 권한 게임도 보인다."""
+    snap = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if not snap or snap == wintypes.HANDLE(-1).value:
+        return set()
+    pids = set()
+    try:
+        e = PROCESSENTRY32W()
+        e.dwSize = ctypes.sizeof(e)
+        ok = kernel32.Process32FirstW(snap, ctypes.byref(e))
+        while ok:
+            if e.szExeFile.lower().startswith(GAME_EXE_PREFIX):
+                pids.add(e.th32ProcessID)
+            ok = kernel32.Process32NextW(snap, ctypes.byref(e))
+    finally:
+        kernel32.CloseHandle(snap)
+    return pids
+
+
+def foreground_pid() -> int:
+    hwnd = user32.GetForegroundWindow()
+    if not hwnd:
+        return 0
+    pid = wintypes.DWORD()
+    user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    return pid.value
+
+
 def set_click_through(hwnd: int, enabled: bool) -> None:
     style = user32.GetWindowLongPtrW(hwnd, GWL_EXSTYLE)
     style |= WS_EX_LAYERED | WS_EX_NOACTIVATE
