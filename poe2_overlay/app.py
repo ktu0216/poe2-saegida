@@ -14,6 +14,7 @@ from . import config
 from .guide import Guide
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
+from .rewards import RewardTable
 from .tracker import Character, PLACEHOLDERS, Tracker
 from .ui import Overlay, make_icon
 from .winutil import HotkeyManager, set_click_through
@@ -23,6 +24,7 @@ HOTKEYS = {
     "prev": "Ctrl+Alt+Left",
     "click_through": "Ctrl+Alt+T",
     "toggle": "Ctrl+Alt+H",
+    "rewards": "Ctrl+Alt+R",
 }
 
 
@@ -32,6 +34,7 @@ class Controller:
         self.settings = config.load_settings()
         self.guide = Guide.load(config.find_guide(self.settings.get("guide_path", "")))
         self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
+        self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
         self.tracker = Tracker(self.guide)
         self.tail: Optional[LogTail] = None
         self.dirty = False
@@ -58,6 +61,12 @@ class Controller:
         self.hotkeys.register(HOTKEYS["prev"], lambda: self.step(-1))
         self.hotkeys.register(HOTKEYS["click_through"], self.toggle_click_through)
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
+        # 다른 프로그램이 이미 쓰는 키면 다음 후보로 (실제 등록된 키를 메뉴에 표시)
+        for key in (HOTKEYS["rewards"], "Ctrl+Alt+B", "Ctrl+Alt+J", "Ctrl+Alt+F9"):
+            if self.hotkeys.register(key, self.toggle_rewards):
+                HOTKEYS["rewards"] = key
+                break
+        self.hotkeys.failed = [k for k in self.hotkeys.failed if k != "Ctrl+Alt+R"]
         if self.hotkeys.failed:
             self.notice = "단축키 등록 실패: " + ", ".join(self.hotkeys.failed)
 
@@ -77,6 +86,8 @@ class Controller:
         self.refresh()
 
         # 개발용: 화면 캡처를 파일로 남긴다.
+        if os.environ.get("POE2_OVERLAY_SHOW_REWARDS"):
+            self.toggle_rewards()
         if snap := os.environ.get("POE2_OVERLAY_SNAPSHOT"):
             QTimer.singleShot(1500, lambda: self.overlay.grab().save(snap))
 
@@ -140,7 +151,9 @@ class Controller:
             self.refresh()
 
     def refresh(self) -> None:
-        self.overlay.render(self.tracker.snapshot(int(self.settings.get("upcoming", 3))), self.notice)
+        snap = self.tracker.snapshot(int(self.settings.get("upcoming", 3)))
+        states = self.rewards.evaluate(snap.character.rewards) if snap.character else []
+        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total)
 
     def save(self) -> None:
         if not self.dirty or not self.tail:
@@ -174,6 +187,10 @@ class Controller:
     def toggle_click_through(self) -> None:
         self.overlay.click_through = not self.overlay.click_through
         set_click_through(int(self.overlay.winId()), self.overlay.click_through)
+        self.refresh()
+
+    def toggle_rewards(self) -> None:
+        self.overlay.show_rewards = not self.overlay.show_rewards
         self.refresh()
 
     def toggle_visible(self) -> None:
@@ -259,6 +276,7 @@ class Controller:
         ct.triggered.connect(self.toggle_click_through)
         m.addAction(ct)
         m.addAction(f"숨기기/보이기  ({HOTKEYS['toggle']})", self.toggle_visible)
+        m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
         m.addSeparator()
         m.addAction("가이드 CSV 선택…", self.choose_guide)
         m.addAction("가이드 파일 열기", lambda: os.startfile(self.guide.source))

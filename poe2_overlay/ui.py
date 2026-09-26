@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from .guide import Step
+from .rewards import SlotState
 from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
 
 ACCENT = "#e8b04a"
@@ -19,6 +20,7 @@ TEXT = "#ece6da"
 DIM = "#9a9284"
 WARN = "#ff8a65"
 OK = "#8fd18b"
+GIFT = "#c9a0ff"
 BG = QColor(18, 16, 14)
 
 _EMPH = re.compile(r"「([^」]+)」|&quot;([^&]+?)&quot;")
@@ -30,6 +32,22 @@ def rich(text: str) -> str:
     t = _EMPH.sub(lambda m: f'<b style="color:{ACCENT}">{m.group(1) or m.group(2)}</b>', t)
     t = t.replace("→", f'<span style="color:{ACCENT}">→</span>')
     return t
+
+
+def _reward_list(rewards: list[SlotState]) -> str:
+    """액트별 전체 보상 체크리스트."""
+    out, act = [], None
+    for r in rewards:
+        if r.slot.act != act:
+            act = r.slot.act
+            out.append(f'<div style="color:{ACCENT};margin-top:4px"><b>{html.escape(act)}</b></div>')
+        if r.done:
+            out.append(f'<div style="color:{OK}">✓ {html.escape(", ".join(r.got))}'
+                       f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
+        else:
+            out.append(f'<div style="color:{TEXT}">○ {html.escape(r.slot.label)}'
+                       f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
+    return "".join(out)
 
 
 MODE_COLOR = {"하드코어": "#ff6b5b", "HC SSF": "#ff6b5b", "SSF": "#7fb8ff"}
@@ -124,8 +142,10 @@ class Overlay(QWidget):
         cl.setSpacing(2)
         self.step_area = _label(fs - 1, ACCENT, True)
         self.step_text = _label(fs + 2, TEXT, True)
+        self.step_gift = _label(fs - 1, GIFT, True)
         cl.addWidget(self.step_area)
         cl.addWidget(self.step_text)
+        cl.addWidget(self.step_gift)
         root.addWidget(card)
 
         self.next_lbl = _label(fs - 1, DIM)
@@ -134,12 +154,21 @@ class Overlay(QWidget):
         self.foot_lbl = _label(fs - 3, DIM)
         root.addWidget(self.foot_lbl)
 
+        self.reward_lbl = _label(fs - 3, DIM)  # 전체 보상 목록 (Ctrl+Alt+R)
+        self.reward_lbl.setVisible(False)
+        root.addWidget(self.reward_lbl)
+        self.show_rewards = False
+
         self.setFixedWidth(int(settings["window"].get("w", 420)))
         w = settings["window"]
         self.move(int(w.get("x", 40)), int(w.get("y", 120)))
 
     # ------------------------------------------------------------ 표시
-    def render(self, s: Snapshot, notice: str = "") -> None:
+    def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
+               passive_total: int = 0) -> None:
+        rewards = rewards or []
+        self.step_gift.setVisible(False)
+        self.reward_lbl.setVisible(False)
         c = s.character
         if c is None:
             self.char_lbl.setText("캐릭터 없음")
@@ -191,6 +220,10 @@ class Overlay(QWidget):
         if step:
             self.step_area.setText(html.escape(step.area))
             self.step_text.setText(rich(step.text) or "이동")
+            gifts = [r.slot for r in rewards if not r.done and r.slot.zone == step.zone]
+            if gifts:
+                self.step_gift.setText("🎁 " + " · ".join(html.escape(g.label) for g in gifts))
+                self.step_gift.setVisible(True)
         rows = []
         for i, st in enumerate(s.upcoming):
             size = "" if i == 0 else ' style="font-size:small"'
@@ -199,13 +232,18 @@ class Overlay(QWidget):
         self.next_lbl.setText("".join(rows))
 
         foot = []
-        if c.rewards or c.passive_points:
-            uniq = list(dict.fromkeys(c.rewards))
-            rw = " · ".join(uniq[-4:])  # 최근 보상 몇 개만
-            if len(uniq) > 4:
-                rw = f"{len(uniq)}개 중 최근: " + rw
-            pp = f"퀘스트 패시브 +{c.passive_points}" if c.passive_points else ""
-            foot.append("🏆 " + " · ".join(x for x in (rw, pp) if x))
+        if rewards:
+            done = sum(r.done for r in rewards)
+            line = (f'🏆 영구 보상 <b style="color:{TEXT}">{done}/{len(rewards)}</b>'
+                    f' · 퀘스트 패시브 <b style="color:{TEXT}">{c.passive_points}/{passive_total}</b>')
+            left = [r.slot for r in rewards if not r.done and step and r.slot.act == step.act]
+            if left:
+                line += f"<br>{html.escape(step.act)} 남음: " + " · ".join(
+                    f'<span style="color:{GIFT}">{html.escape(sl.label)}</span>' for sl in left)
+            foot.append(line)
+            if self.show_rewards:
+                self.reward_lbl.setText(_reward_list(rewards))
+                self.reward_lbl.setVisible(True)
         if notice:
             foot.append(notice)
         if self.click_through:
