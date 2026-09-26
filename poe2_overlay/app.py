@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -12,9 +13,10 @@ from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 
 from . import config
-from .guide import Guide
+from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
+from .regex import RegexBook
 from .rewards import RewardTable
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
@@ -29,6 +31,7 @@ HOTKEYS = {
     "rewards": "Ctrl+Alt+R",
     "opacity_up": "Ctrl+Alt+Up",
     "opacity_down": "Ctrl+Alt+Down",
+    "copy_regex": "Ctrl+Alt+C",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 PROGRESS_VERSION = 4  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리 (이전 저장본은 로그 전체를 다시 읽는다)
@@ -41,6 +44,11 @@ class Controller:
         self.guide = Guide.load(config.find_guide(self.settings.get("guide_path", "")))
         self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
         self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
+        self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
+        self.active_builds: dict[str, str] = {}
+        self.current_regex = None
+        self._regex_copied_at = 0.0
+        self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
         self.tracker = Tracker(self.guide)
         self.tail: Optional[LogTail] = None
         self.dirty = False
@@ -78,7 +86,11 @@ class Controller:
             if self.hotkeys.register(key, self.toggle_rewards):
                 HOTKEYS["rewards"] = key
                 break
-        self.hotkeys.failed = [k for k in self.hotkeys.failed if k != "Ctrl+Alt+R"]
+        for key in (HOTKEYS["copy_regex"], "Ctrl+Alt+Q", "Ctrl+Alt+F10"):
+            if self.hotkeys.register(key, lambda: self.copy_regex(auto=False)):
+                HOTKEYS["copy_regex"] = key
+                break
+        self.hotkeys.failed = [k for k in self.hotkeys.failed if k not in ("Ctrl+Alt+R", "Ctrl+Alt+C", "Ctrl+Alt+Q")]
         if self.hotkeys.failed:
             self.notice = "단축키 등록 실패: " + ", ".join(self.hotkeys.failed)
 
@@ -155,9 +167,10 @@ class Controller:
         if mtime == self._cfg_mtime:
             return False
         self._cfg_mtime = mtime
+        self.active_builds = config.read_active_builds(cfg)  # 캐릭터 -> 빌드 플래너 이름
         league = config.read_league(cfg)
         if league == self.tracker.league:
-            return False
+            return True
         self.tracker.league = league
         if league and (c := self.tracker._active()):
             c.league = league
@@ -170,6 +183,8 @@ class Controller:
         self._ticks += 1
         changed = self._ticks % 7 == 0 and self.check_league()
         for ln in self.tail.read_new():
+            if self.regex_book.vendor_spoke(ln):
+                self.copy_regex(auto=True)
             if ev := parse_line(ln):
                 self.tracker.feed(ev)
                 changed = True
@@ -196,7 +211,35 @@ class Controller:
                 self._pbs_for = c.name
             pbs = self._pbs if self.settings.get("show_pb", False) else {}
             timer = timer_view(c, pbs, self.live_extra())
-        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer)
+        rule = None
+        if c and snap.step:
+            rule = self.regex_book.select(self.active_builds.get(c.name, ""), c.cls, snap.step.act)
+        self.current_regex = rule
+        in_town = bool(c and is_town(c.zone))
+        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
+                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash)
+
+    def copy_regex(self, auto: bool) -> None:
+        """정규식을 클립보드에. auto 는 상인 인사로 호출된 경우 (마을에서만, 20초에 한 번)."""
+        rule = self.current_regex
+        if rule is None:
+            return
+        now = time.monotonic()
+        if auto:
+            c = self.tracker.snapshot().character
+            if not self.settings.get("auto_copy_regex", True) or not (c and is_town(c.zone)):
+                return
+            if now - self._regex_copied_at < 20:
+                return
+        self._regex_copied_at = now
+        QApplication.clipboard().setText(rule.regex)
+        self.flash = f"📋 {rule.name} 정규식 복사됨 — 검색창에 Ctrl+V"
+        QTimer.singleShot(4000, self._clear_flash)
+        self.refresh()
+
+    def _clear_flash(self) -> None:
+        self.flash = ""
+        self.refresh()
 
     def tick(self) -> None:
         pids = game_pids()
@@ -255,6 +298,10 @@ class Controller:
 
     def change_opacity(self, delta: float) -> None:
         self.set_opacity(float(self.settings.get("window_opacity", 1.0)) + delta)
+
+    def toggle_auto_copy(self) -> None:
+        self.settings["auto_copy_regex"] = not self.settings.get("auto_copy_regex", True)
+        config.save_settings(self.settings)
 
     def toggle_pb(self) -> None:
         self.settings["show_pb"] = not self.settings.get("show_pb", False)
@@ -360,6 +407,10 @@ class Controller:
             ogrp.addAction(a)
             om.addAction(a)
 
+        rx = QAction("상인 대화 시 정규식 자동 복사", m, checkable=True)
+        rx.setChecked(self.settings.get("auto_copy_regex", True))
+        rx.triggered.connect(self.toggle_auto_copy)
+        m.addAction(rx)
         pb = QAction("PB 비교 표시 (연습용)", m, checkable=True)
         pb.setChecked(self.settings.get("show_pb", False))
         pb.triggered.connect(self.toggle_pb)

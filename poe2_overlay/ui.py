@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from .guide import Step, is_town
+from .regex import RegexRule
 from .rewards import SlotState
 from .timing import CAMPAIGN, TimerView, fmt, fmt_delta
 from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
@@ -180,6 +181,10 @@ class Overlay(QWidget):
         self.next_lbl = _label(fs - 1, DIM)
         root.addWidget(self.next_lbl)
 
+        self.regex_lbl = _label(fs - 3, DIM)  # 마을에서만: 상점 검색 정규식
+        self.regex_lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        root.addWidget(self.regex_lbl)
+
         self.foot_lbl = _label(fs - 3, DIM)
         root.addWidget(self.foot_lbl)
 
@@ -194,8 +199,17 @@ class Overlay(QWidget):
 
     # ------------------------------------------------------------ 표시
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
-               passive_total: int = 0, timer: Optional[TimerView] = None) -> None:
+               passive_total: int = 0, timer: Optional[TimerView] = None,
+               regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "") -> None:
         rewards = rewards or []
+        self.regex_lbl.setVisible(bool(regex or flash))
+        if flash:
+            self.regex_lbl.setText(f'<b style="color:{OK}">{html.escape(flash)}</b>')
+        elif regex:
+            self.regex_lbl.setText(
+                f'🔎 <b style="color:{TEXT}">{html.escape(regex.name)}</b> '
+                f'<span style="color:{ACCENT};font-family:Consolas">{html.escape(regex.regex)}</span>'  # 맑은 고딕은 \ 를 ₩ 로 그린다
+                f' <span style="color:{DIM}">· {html.escape(regex_key)} 복사</span>')
         self.timer_lbl.setVisible(timer is not None)
         if timer:
             self.timer_lbl.setText(_timer_line(timer))

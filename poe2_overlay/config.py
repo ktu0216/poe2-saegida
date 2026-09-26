@@ -113,6 +113,31 @@ def read_league(path: Optional[Path]) -> str:
     return ""
 
 
+def read_active_builds(path: Optional[Path]) -> dict[str, str]:
+    """게임 설정의 active_builds: 캐릭터 이름 -> 빌드 플래너 이름(파일 안 name, 없으면 파일명)."""
+    if not path:
+        return {}
+    try:
+        line = next((ln for ln in path.read_text(encoding="utf-8", errors="replace").splitlines()
+                     if ln.startswith("active_builds=")), "")
+        entries = json.loads(line.split("=", 1)[1]) if line else []
+    except (OSError, ValueError):
+        return {}
+    out = {}
+    for e in entries:
+        char, ref = e.get("character"), e.get("path", "")
+        if not char or not ref:
+            continue
+        file = Path(ref[5:] if ref.startswith("file:") else ref)
+        name = file.stem
+        try:
+            name = json.loads(file.read_text(encoding="utf-8", errors="replace")).get("name") or name
+        except (OSError, ValueError):
+            pass
+        out[char] = name
+    return out
+
+
 def _reim_guide_candidates() -> list[Path]:
     home = Path.home()
     roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "바탕 화면"]
