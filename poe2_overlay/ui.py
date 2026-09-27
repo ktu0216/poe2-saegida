@@ -195,7 +195,8 @@ class Overlay(QWidget):
 
         self.setFixedWidth(int(settings["window"].get("w", 420)))
         w = settings["window"]
-        self.move(int(w.get("x", 40)), int(w.get("y", 120)))
+        if w.get("x") is not None:
+            self.move(int(w["x"]), int(w.get("y") or 0))
 
     # ------------------------------------------------------------ 표시
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,

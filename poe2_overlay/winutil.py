@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import ctypes
 from ctypes import wintypes
-from typing import Callable
+from typing import Callable, Optional
 
 from PySide6.QtCore import QAbstractNativeEventFilter
 
@@ -111,6 +111,30 @@ def game_pids() -> set[int]:
     finally:
         kernel32.CloseHandle(snap)
     return pids
+
+
+def game_window_rect() -> Optional[tuple[int, int, int, int]]:
+    """게임 창의 (left, top, right, bottom) 물리 픽셀 좌표. 여러 개면 가장 큰 창."""
+    pids = game_pids()
+    if not pids:
+        return None
+    found: list[tuple[int, int, int, int]] = []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def cb(hwnd, _):
+        if user32.IsWindowVisible(hwnd):
+            pid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+            if pid.value in pids:
+                r = wintypes.RECT()
+                if user32.GetClientRect(hwnd, ctypes.byref(r)) and r.right > 200:
+                    pt = wintypes.POINT(0, 0)
+                    user32.ClientToScreen(hwnd, ctypes.byref(pt))  # 제목 표시줄 제외한 실제 화면 영역
+                    found.append((pt.x, pt.y, pt.x + r.right, pt.y + r.bottom))
+        return True
+
+    user32.EnumWindows(cb, 0)
+    return max(found, key=lambda r: (r[2] - r[0]) * (r[3] - r[1])) if found else None
 
 
 def foreground_pid() -> int:

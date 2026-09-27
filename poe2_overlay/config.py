@@ -21,7 +21,7 @@ def resource_dir() -> Path:
 DEFAULTS: dict[str, Any] = {
     "log_path": "",
     "guide_path": "",
-    "window": {"x": 40, "y": 120, "w": 420},
+    "window": {"x": None, "y": None, "w": 420},  # x/y 가 None 이면 게임 창 오른쪽 위
     "opacity": 0.88,
     "font_size": 13,
     "upcoming": 3,

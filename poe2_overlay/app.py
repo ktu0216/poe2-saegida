@@ -21,7 +21,7 @@ from .rewards import RewardTable
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
 from .timing import personal_bests, timer_view
-from .winutil import HotkeyManager, foreground_pid, game_pids, set_click_through
+from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
 HOTKEYS = {
     "next": "Ctrl+Alt+Right",
@@ -110,6 +110,11 @@ class Controller:
         self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
         set_click_through(int(self.overlay.winId()), False)  # 클릭해도 게임 포커스를 뺏지 않게
+        # 저장된 위치가 없으면 게임 창 오른쪽 위(미니맵 자리)에 붙인다. 게임 창을 찾을 때까지 tick 에서 재시도.
+        self.auto_pos = self.settings["window"].get("x") is None
+        self._auto_placed = False
+        if self.auto_pos:
+            self.place_top_right()
         if self.settings.get("click_through"):
             self.toggle_click_through()
         self.refresh()
@@ -241,9 +246,35 @@ class Controller:
         self.flash = ""
         self.refresh()
 
+    def place_top_right(self) -> None:
+        """게임 창(없으면 주 모니터) 오른쪽 위. 게임 창 좌표는 물리 픽셀이라 모니터 배율로 나눈다."""
+        margin = 8
+        rect = game_window_rect()
+        right = top = None
+        if rect:
+            cx, cy = (rect[0] + rect[2]) // 2, (rect[1] + rect[3]) // 2
+            for s in self.app.screens():
+                g, d = s.geometry(), s.devicePixelRatio()
+                if g.x() * d <= cx < (g.x() + g.width()) * d and g.y() * d <= cy < (g.y() + g.height()) * d:
+                    right, top = int(rect[2] / d), int(rect[1] / d)
+                    break
+            self._auto_placed = right is not None
+        if right is None:
+            g = self.app.primaryScreen().availableGeometry()
+            right, top = g.x() + g.width(), g.y()
+        self.overlay.move(right - self.overlay.width() - margin, top + margin)
+
+    def reset_position(self) -> None:
+        self.settings["window"].update(x=None, y=None)
+        config.save_settings(self.settings)
+        self.auto_pos = True
+        self.place_top_right()
+
     def tick(self) -> None:
         pids = game_pids()
         self.game_running = bool(pids)
+        if self.auto_pos and pids and not self._auto_placed:
+            self.place_top_right()  # 오버레이를 게임보다 먼저 켠 경우
         if self.settings.get("auto_hide", True) and not self.user_hidden:
             fg = foreground_pid()
             if fg != os.getpid():  # 오버레이 자신(메뉴 등)을 누른 경우는 그대로 둔다
@@ -327,6 +358,7 @@ class Controller:
             self.toggle_visible()
 
     def on_moved(self, x: int, y: int) -> None:
+        self.auto_pos = False  # 직접 옮긴 위치를 우선
         self.settings["window"].update(x=x, y=y)
         config.save_settings(self.settings)
 
@@ -427,6 +459,7 @@ class Controller:
         m.addAction(ah)
         m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
         m.addSeparator()
+        m.addAction("위치 초기화 (게임 창 오른쪽 위)", self.reset_position)
         m.addAction("가이드 CSV 선택…", self.choose_guide)
         m.addAction("가이드 파일 열기", lambda: os.startfile(self.guide.source))
         m.addAction("로그 파일 선택…", self.choose_log)
