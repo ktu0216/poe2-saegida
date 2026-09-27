@@ -51,6 +51,8 @@ def test_navigation_rules():
     assert g.next_position(4, "g1_2") is None               # 뒤로 가지 않음
     assert g.next_position(5, "g1_4") == 6
     assert g.next_position(5, "g1_5") == 4                  # 보스 전 포탈로 마을 다녀옴
+    g2 = Guide(parse_csv("id,area_name,quest\ng3_5,키메랄 습지대,마을로\ng3_town,지구라트 야영지,보상\ng3_5,키메랄 습지대,보스"), "t")
+    assert g2.next_position(1, "g3_5") == 2                 # 다음 단계가 같은 지역이면 되돌리지 않고 전진
     assert g.next_position(4, "g1_4") is None               # 붉은 계곡 → 그렐우드 되돌아감 (마을 전)
 
 

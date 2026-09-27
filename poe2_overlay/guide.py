@@ -93,6 +93,8 @@ class Guide:
         cursor = max(0, min(cursor, len(self.steps) - 1))
         if self.steps[cursor].zone == z:
             return None
+        if self.steps[cursor].is_town and cursor + 1 < len(self.steps) and self.steps[cursor + 1].zone == z:
+            return cursor + 1  # 마을 일을 마치고 다음 지역으로 (직전 지역과 같아도: 키메랄 습지대 → 마을 → 키메랄 습지대)
         if self.steps[cursor].is_town and cursor > 0 and self.steps[cursor - 1].zone == z:
             return cursor - 1
         if is_town(z):
