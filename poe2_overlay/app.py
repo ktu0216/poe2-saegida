@@ -328,7 +328,7 @@ class Controller:
             return
         self.last_item_text = text
         keys = slot_keys(item.slot)  # 반지는 두 칸
-        label = lambda k: k.replace("#", " ") if len(keys) > 1 else item.slot
+        label = lambda k: (k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else item.slot
         if any(c.gear.get(k) == text for k in keys):
             k = next(k for k in keys if c.gear.get(k) == text)
             title, _, _ = compare(item, None)
@@ -382,7 +382,8 @@ class Controller:
         c.gear[key] = self.last_item_text
         self.dirty = True
         title, _, _ = compare(item, None)
-        self._show_item(f'📌 {key.replace("#", " ")} 장착 기준 갱신 · {title}', "#8fd18b")
+        name = (key.replace("#", " ") if "#" in key else f"{key} 1") if len(keys) > 1 else key
+        self._show_item(f'📌 {name} 장착 기준 갱신 · {title}', "#8fd18b")
 
     def _clear_flash(self) -> None:
         self.flash = ""
