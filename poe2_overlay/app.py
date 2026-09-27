@@ -102,6 +102,7 @@ class Controller:
         self.show_gem_card = False
         # 게임에서 아이템에 Ctrl+C → 클립보드 감시로 장착 아이템과 비교
         self.item_msg = ""
+        self.item_color = "#e8b04a"
         self.last_item_text = ""
         self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
         self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
@@ -272,7 +273,7 @@ class Controller:
             return
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
-                            gems, self.gem_names, self.show_gem_card)
+                            gems, self.gem_names, self.show_gem_card, self.item_color)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -426,7 +427,8 @@ class Controller:
         self._show_item(body, color)
 
     def _show_item(self, html_text: str, color: str) -> None:
-        self.item_msg = f'<span style="color:{color}">⚔ {html_text}</span>'
+        self.item_color = color
+        self.item_msg = f'<span style="color:{color}">{html_text}</span>'
         self._item_clear.start(30000)
         self.refresh()
 

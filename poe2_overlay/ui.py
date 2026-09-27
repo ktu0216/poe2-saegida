@@ -64,19 +64,20 @@ def _split_table(t: TimerView) -> str:
 _ROMAN = re.compile(r" (II|III|IV)$")
 
 
-def _gem_card(gems, names) -> str:
-    """빌드 플래너 기준: 지금 쓸 스킬과 보조 젬, 미가공 보조 젬 후보, 다음 레벨 젬."""
+def _gem_card(gems, names) -> tuple[str, str]:
+    """빌드 플래너 기준 (머리글, 본문): 스킬 아래 보조 젬 들여쓰기, 미가공 보조 젬 후보, 다음 레벨 젬."""
     b = gems.build
-    out = [f'<div><b style="color:{ACCENT}">💎 {html.escape(b.label)}</b>'
-           f' <span style="color:{DIM}">· {html.escape(b.stage or "-")}</span></div>']
-    linked = [g for g in gems.now if g.supports]
-    alone = [g for g in gems.now if not g.supports]
-    for g in linked:
+    head = (f'💎 {html.escape(b.label)} <span style="color:{DIM};font-weight:normal">'
+            f'· {html.escape(b.stage or "-")}</span>')
+    out = []
+    for g in (g for g in gems.now if g.supports):
+        out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">● {html.escape(names(g.id))}</b></div>')
         sup = " · ".join(html.escape(names(s)) for s in g.supports)
-        out.append(f'<div>● <b>{html.escape(names(g.id))}</b> <span style="color:{DIM}">+ {sup}</span></div>')
+        out.append(f'<div style="color:#c8bfae;margin-left:14px">└ {sup}</div>')
+    alone = [g for g in gems.now if not g.supports]
     if alone:
-        out.append(f'<div>◆ {" · ".join(html.escape(names(g.id)) for g in alone)}'
-                   f' <span style="color:{DIM}">(보조 젬 없는 스킬)</span></div>')
+        out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">◆ {" · ".join(html.escape(names(g.id)) for g in alone)}</b>'
+                   f' <span style="color:{DIM}">(보조 젬 없음)</span></div>')
     seen, basic = set(), []
     for g in gems.now:
         for s in g.supports:
@@ -85,16 +86,15 @@ def _gem_card(gems, names) -> str:
                 seen.add(n)
                 basic.append(n)
     if basic:
-        out.append(f'<div style="color:{GIFT}">미가공 보조 젬 Lv 1 후보: {html.escape(" · ".join(basic))}'
-                   f' <span style="color:{DIM}">(II·III 없는 것, 게임 목록에서 확인)</span></div>')
+        out.append(f'<div style="margin-top:6px;color:{GIFT}"><b>미가공 보조 젬 Lv 1:</b> {html.escape(" · ".join(basic))}</div>'
+                   f'<div style="color:{DIM};font-size:small">II·III 없는 것 — 게임 목록에서 확인</div>')
     if gems.upcoming:
         lv = gems.upcoming[0].lo
         for g in (x for x in gems.upcoming if x.lo == lv):
             sup = " · ".join(html.escape(names(s)) for s in g.supports)
-            out.append(f'<div style="color:{DIM}">다음: Lv {lv} {html.escape(names(g.id))}'
+            out.append(f'<div style="margin-top:6px;color:{DIM}">다음 Lv {lv}: <b style="color:#c8bfae">{html.escape(names(g.id))}</b>'
                        + (f' + {sup}' if sup else "") + '</div>')
-    return "".join(out)
-
+    return head, "".join(out)
 
 def _gem_table(gems, names) -> str:
     out = [f'<div style="color:{ACCENT};margin-top:6px"><b>젬</b> <span style="color:{DIM}">'
@@ -290,24 +290,28 @@ class Overlay(QWidget):
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
-               item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False) -> None:
+               item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
+               item_color: str = ACCENT) -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names)
-        toast = []
-        if gem_card:  # Ctrl+Alt+G 젬 카드
-            toast.append(_gem_card(gems, gem_names) if gems is not None else
-                         f'<span style="color:{WARN}">💎 이 캐릭터에 빌드가 지정되지 않았습니다</span>'
-                         f'<br><span style="color:{DIM}">우클릭 → 빌드 (젬 안내) 에서 고르거나, 게임 빌드 플래너에 연결</span>')
-        if item_msg:
-            toast.append(item_msg)
+        # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
+        cards = []
         if flash:
-            toast.append(f'<b style="color:{OK}">{html.escape(flash)}</b>')
-        elif regex:
-            toast.append(
-                f'🔎 <b style="color:{TEXT}">{html.escape(regex.name)}</b> '
-                f'<span style="color:{ACCENT};font-family:Consolas">{html.escape(regex.regex)}</span>'  # 맑은 고딕은 \ 를 ₩ 로 그린다
-                f' <span style="color:{DIM}">· {html.escape(regex_key)} 복사</span>')
-        self.toast.set_content("<br>".join(toast), self.isVisible())
+            cards.append(("", html.escape(flash), OK))
+        if item_msg:
+            cards.append(("⚔ 아이템 비교", item_msg, item_color))
+        if gem_card:  # Ctrl+Alt+G
+            if gems is not None:
+                head, body = _gem_card(gems, gem_names)
+                cards.append((head, body, ACCENT))
+            else:
+                cards.append(("💎 젬", f'<span style="color:{WARN}">이 캐릭터에 빌드가 지정되지 않았습니다</span>'
+                              f'<br><span style="color:{DIM}">우클릭 → 빌드 (젬 안내) 에서 고르거나, 게임 빌드 플래너에 연결</span>', WARN))
+        if regex and not flash:
+            cards.append((f'🔎 {html.escape(regex.name)} 정규식 <span style="color:{DIM};font-weight:normal">· {html.escape(regex_key)} 복사</span>',
+                          f'<span style="color:{ACCENT};font-family:Consolas">{html.escape(regex.regex)}</span>',  # 맑은 고딕은 \ 를 ₩ 로 그린다
+                          DIM))
+        self.toast.set_cards(cards, self.isVisible())
         self._follow()
         self.timer_lbl.setText(_timer_line(timer) if timer else "&nbsp;")  # 비어도 자리 유지
         self.step_gift.setText("&nbsp;")
@@ -444,7 +448,7 @@ class Overlay(QWidget):
             for w in self._full:
                 w.setVisible(False)
             self.compact_lbl.setVisible(True)
-            self.toast.set_content("", False)
+            self.toast.set_cards([], False)
         self.compact_lbl.setText(html_text)
         self._min_h = 0
         self._fit()
@@ -501,7 +505,7 @@ class Overlay(QWidget):
 
     def setVisible(self, visible: bool) -> None:
         super().setVisible(visible)
-        self.toast.set_content(self.toast.content, visible)
+        self.toast.set_cards(self.toast.cards, visible)
 
     def setWindowOpacity(self, value: float) -> None:
         super().setWindowOpacity(value)
@@ -529,29 +533,60 @@ class Overlay(QWidget):
 
 
 class Toast(QWidget):
-    """가이드 패널 바로 아래(공간이 없으면 위)에 붙는 알림 창. 내용이 없으면 숨는다."""
+    """가이드 패널 바로 아래(공간이 없으면 위)에 붙는 알림 창. 카드(머리글+본문)를 위아래로 쌓는다."""
 
     def __init__(self, fs: int, width: int):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
         self.setWindowTitle("POE2 가이드 알림")
-        self.content = ""
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(12, 8, 12, 8)
-        self.lbl = _label(fs - 1, TEXT)
-        lay.addWidget(self.lbl)
+        self.fs = fs
+        self.cards: list[tuple[str, str, str]] = []
+        self.lay = QVBoxLayout(self)
+        self.lay.setContentsMargins(0, 0, 0, 0)
+        self.lay.setSpacing(6)
         self.setFixedWidth(width)
 
-    def set_content(self, html_text: str, parent_visible: bool) -> None:
-        self.content = html_text
-        if html_text:
-            self.lbl.setText(html_text)
-            lay = self.layout()
-            lay.activate()
-            self.setFixedHeight(lay.heightForWidth(self.width()) if lay.hasHeightForWidth()
-                                else lay.sizeHint().height())
-        self.setVisible(bool(html_text) and parent_visible)
+    def set_cards(self, cards: list[tuple[str, str, str]], parent_visible: bool) -> None:
+        """cards: [(머리글 html, 본문 html, 테두리 색)]"""
+        if cards != self.cards:
+            self.cards = list(cards)
+            while self.lay.count():
+                w = self.lay.takeAt(0).widget()
+                if w:
+                    w.deleteLater()
+            total = 0
+            for head, body, color in cards:
+                card = self._card(head, body, color)
+                cl = card.layout()
+                cl.activate()  # 카드 안 줄바꿈 글자 높이를 폭 기준으로 계산
+                h = cl.totalHeightForWidth(self.width()) if cl.hasHeightForWidth() else card.sizeHint().height()
+                card.setFixedHeight(h)
+                self.lay.addWidget(card)
+                card.show()  # 이미 떠 있는 창에 새로 넣은 카드는 직접 보이게 해야 한다
+                total += h
+            if cards:
+                self.setFixedHeight(total + self.lay.spacing() * (len(cards) - 1))
+        self.setVisible(bool(cards) and parent_visible)
+
+    def _card(self, head: str, body: str, color: str) -> QFrame:
+        f = QFrame()
+        f.setObjectName("tcard")
+        f.setStyleSheet(f"QFrame#tcard{{background:rgba(14,12,10,242);border:2px solid {color};border-radius:6px}}")
+        lay = QVBoxLayout(f)
+        lay.setContentsMargins(10, 6, 10, 8)
+        lay.setSpacing(3)
+        if head:
+            h = _label(self.fs, color, True)
+            h.setText(head)
+            lay.addWidget(h)
+        b = _label(self.fs, TEXT)
+        b.setText(body)
+        lay.addWidget(b)
+        return f
+
+    def setWindowOpacity(self, value: float) -> None:
+        super().setWindowOpacity(max(value, 0.9))  # 카드는 패널보다 덜 투명하게 (읽기 쉽게)
 
     def follow(self, g) -> None:
         screen = self.screen().availableGeometry() if self.screen() else None
@@ -559,12 +594,3 @@ class Toast(QWidget):
         if screen is not None and y + self.height() > screen.bottom():
             y = g.top() - self.height() - 6
         self.move(g.left(), y)
-
-    def paintEvent(self, _):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-        bg = QColor(BG)
-        bg.setAlphaF(0.92)
-        p.setBrush(bg)
-        p.setPen(QColor(ACCENT))
-        p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
