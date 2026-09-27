@@ -97,6 +97,7 @@ class Controller:
         self.last_item_text = ""
         self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
         self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
+        self._last_copy_at = 0.0
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
@@ -321,8 +322,18 @@ class Controller:
 
     def on_clipboard(self) -> None:
         text = self.app.clipboard().text()
-        if not is_item_text(text) or text == self.last_item_text:
+        if not is_item_text(text):
             return
+        now = time.monotonic()
+        if text == self.last_item_text:
+            gap = now - self._last_copy_at
+            if gap < 0.25:  # 복사 한 번에 알림이 여러 번 오는 경우
+                return
+            self._last_copy_at = now
+            if gap <= 2.5:  # 같은 아이템을 빠르게 두 번 복사 = 장착 기준 등록
+                self.set_equipped(via="두 번 복사")
+            return
+        self._last_copy_at = now
         item = parse_item(text)
         c = self.tracker.snapshot().character
         if item is None or c is None:
@@ -339,7 +350,7 @@ class Controller:
         prev_text = self.prev_copied.get(item.slot)
         self.prev_copied[item.slot] = text
         if empty and is_town(c.zone) and len(empty) == len(keys):  # 마을에서 복사한 건 대부분 상점/창고 아이템
-            hint = f'<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템이면 {HOTKEYS["equip"]} 로 등록</span>'
+            hint = f'<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 등록</span>'
             if prev_text and prev_text != text:  # 기준이 없으면 직전에 복사한 같은 부위 아이템과 비교
                 title, diffs, verdict = compare(item, parse_item(prev_text))
                 color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
@@ -366,7 +377,7 @@ class Controller:
         body = f'{mark} · {item.slot} {title}' + (f" ({label(target)} 대비)" if len(keys) > 1 else "")
         if diffs:
             body += "<br>" + " · ".join(diffs)
-        body += f'<br><span style="color:#9a9284">장착했다면 {HOTKEYS["equip"]} 로 기준 갱신</span>'
+        body += f'<br><span style="color:#9a9284">장착했다면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 기준 갱신</span>'
         self._show_item(body, color)
 
     def _show_item(self, html_text: str, color: str) -> None:
@@ -378,7 +389,7 @@ class Controller:
         self.item_msg = ""
         self.refresh()
 
-    def set_equipped(self) -> None:
+    def set_equipped(self, via: str = "") -> None:
         """마지막으로 복사한 아이템을 그 부위의 장착 기준으로."""
         c = self.tracker.snapshot().character
         item = parse_item(self.last_item_text) if self.last_item_text else None
@@ -394,7 +405,8 @@ class Controller:
         self.dirty = True
         title, _, _ = compare(item, None)
         name = (key.replace("#", " ") if "#" in key else f"{key} 1") if len(keys) > 1 else key
-        self._show_item(f'📌 {name} 장착 기준 갱신 · {title}', "#8fd18b")
+        how = f"{via} → " if via else ""
+        self._show_item(f'📌 {how}{name} 장착 기준 등록 · {title}', "#8fd18b")
 
     def _clear_flash(self) -> None:
         self.flash = ""
