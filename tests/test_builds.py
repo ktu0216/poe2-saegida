@@ -41,4 +41,4 @@ def test_gem_names_korean_and_fallback(tmp_path):
     names = GemNames.load(tmp_path)
     assert names("Metadata/Items/Gem/SkillGemExplosiveGrenade") == "폭발 유탄"
     assert names("Metadata/Items/Gems/SupportGemScattershotTwo") == "산탄 II"
-    assert names("Metadata/Items/Gem/SupportGemExpedite") == "Expedite"
+    assert names("Metadata/Items/Gem/SupportGemExpedite") == "Expedite (한글명 미확인)"

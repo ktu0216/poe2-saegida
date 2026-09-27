@@ -147,9 +147,10 @@ class GemNames:
 
     def __init__(self, mapping: Optional[dict[str, str]] = None):
         self.map = mapping or {}
+        self.unknown_mark = ""  # 한국어 이름을 모를 때 영어 이름 뒤에 붙일 표시
 
     @classmethod
-    def load(cls, folder: Optional[Path]) -> "GemNames":
+    def load(cls, folder: Optional[Path], overrides: Optional[Path] = None) -> "GemNames":
         """레임 가이드 pob_leveling 폴더: gems_ko.json (젬 ID→이름), ko_names.json (영어 이름→한국어)."""
         mapping: dict[str, str] = {}
         if folder and folder.is_dir():
@@ -166,15 +167,25 @@ class GemNames:
                         mapping[key.rsplit("/", 1)[-1]] = v["name"]
             except (OSError, ValueError):
                 pass
-        return cls(mapping)
+        if overrides and overrides.is_file():  # 게임에서 확인한 이름이 가장 우선
+            try:
+                for en, ko in json.loads(overrides.read_text(encoding="utf-8")).get("names", {}).items():
+                    mapping[en.lower()] = ko
+            except (OSError, ValueError):
+                pass
+        names = cls(mapping)
+        names.unknown_mark = " (한글명 미확인)"
+        return names
 
     def __call__(self, gem_id: str) -> str:
+        en = _english(gem_id)
         if ko := self.map.get(gem_id.rsplit("/", 1)[-1]):
             return ko
-        en = _english(gem_id)
         base = re.sub(r" (II|III|IV)$", "", en)
         ko = self.map.get(en.lower()) or self.map.get(base.lower())
-        return (ko + en[len(base):]) if ko and en != base and not self.map.get(en.lower()) else (ko or en)
+        if ko:
+            return (ko + en[len(base):]) if en != base and not self.map.get(en.lower()) else ko
+        return en + self.unknown_mark
 
 
 @dataclass
