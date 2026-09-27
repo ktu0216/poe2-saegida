@@ -41,7 +41,7 @@ HOTKEYS = {
     "gems": "Ctrl+Alt+G",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
-MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
+TOP_RATIO = 0.14  # 기본 위치: 게임 창 왼쪽, 위에서 14% (왼쪽 위 버프·스킬 아이콘 아래)
 DOUBLE_COPY_SEC = 0.8  # 이보다 느린 재복사는 '다시 비교'로 본다
 PROGRESS_VERSION = 18  # 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
@@ -149,7 +149,7 @@ class Controller:
         self.auto_pos = self.settings["window"].get("x") is None
         self._auto_placed = False
         if self.auto_pos:
-            self.place_top_right()
+            self.place_default()
         if self.settings.get("click_through"):
             self.toggle_click_through()
         self.refresh()
@@ -460,24 +460,24 @@ class Controller:
         self.flash = ""
         self.refresh()
 
-    def place_top_right(self) -> None:
-        """게임 창(없으면 주 모니터) 오른쪽, 미니맵 바로 아래. 게임 창 좌표는 물리 픽셀이라 모니터 배율로 나눈다."""
+    def place_default(self) -> None:
+        """게임 창(없으면 주 모니터) 왼쪽 위, 버프·스킬 아이콘 아래. 게임 창 좌표는 물리 픽셀이라 모니터 배율로 나눈다."""
         margin = 8
-        ratio = float(self.settings.get("minimap_ratio", MINIMAP_RATIO))  # 미니맵이 차지하는 게임 창 높이 비율
+        ratio = float(self.settings.get("top_ratio", TOP_RATIO))  # 게임 창 위에서부터의 높이 비율
         rect = game_window_rect()
-        right = top = height = None
+        left = top = height = None
         if rect:
             cx, cy = (rect[0] + rect[2]) // 2, (rect[1] + rect[3]) // 2
             for s in self.app.screens():
                 g, d = s.geometry(), s.devicePixelRatio()
                 if g.x() * d <= cx < (g.x() + g.width()) * d and g.y() * d <= cy < (g.y() + g.height()) * d:
-                    right, top, height = int(rect[2] / d), int(rect[1] / d), (rect[3] - rect[1]) / d
+                    left, top, height = int(rect[0] / d), int(rect[1] / d), (rect[3] - rect[1]) / d
                     break
-            self._auto_placed = right is not None
-        if right is None:
+            self._auto_placed = left is not None
+        if left is None:
             g = self.app.primaryScreen().availableGeometry()
-            right, top, height = g.x() + g.width(), g.y(), g.height()
-        self.overlay.move(right - self.overlay.width() - margin, top + int(height * ratio))
+            left, top, height = g.x(), g.y(), g.height()
+        self.overlay.move(left + margin, top + int(height * ratio))
 
     def _clamp_saved(self) -> None:
         self.overlay.clamp_to_screen()
@@ -488,13 +488,13 @@ class Controller:
         self.settings["window"].update(x=None, y=None)
         config.save_settings(self.settings)
         self.auto_pos = True
-        self.place_top_right()
+        self.place_default()
 
     def tick(self) -> None:
         pids = game_pids()
         self.game_running = bool(pids)
         if self.auto_pos and pids and not self._auto_placed:
-            self.place_top_right()  # 오버레이를 게임보다 먼저 켠 경우
+            self.place_default()  # 오버레이를 게임보다 먼저 켠 경우
         if self.settings.get("auto_hide", True) and not self.user_hidden:
             fg = foreground_pid()
             if fg != os.getpid():  # 오버레이 자신(메뉴 등)을 누른 경우는 그대로 둔다

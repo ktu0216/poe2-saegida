@@ -31,7 +31,7 @@ DEFAULTS: dict[str, Any] = {
 
 def _read_json(path: Path) -> dict:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8-sig"))  # 메모장·PowerShell 로 저장하면 BOM 이 붙는다
     except (OSError, ValueError):
         return {}
 
