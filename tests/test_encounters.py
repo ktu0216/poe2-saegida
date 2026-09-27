@@ -109,3 +109,12 @@ def test_kill_line_marks_killed_immediately():
     assert t.snapshot().flags == {"marker": "2페이즈", "boss": "engaged"}
     feed(t, NpcLine("t", "1", "연무 속의 왕", "우리는 다시 만나게 될 것이다..."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_soon_marker_before_rust_king():
+    t = start()
+    feed(t, NpcLine("t", "1", "귀신의 목소리", "여긴 우리 땅이다. 우린 하나 되어 싸운다!"))
+    s = t.snapshot()
+    assert s.flags.get("soon") and s.in_step_zone and s.boss == "녹왕"
+    feed(t, AreaEntered("t", "1", "G1_town", 15))
+    assert not t.snapshot().in_step_zone  # 마을로 나가면 간단 모드 조건에서 빠진다

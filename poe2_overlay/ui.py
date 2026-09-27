@@ -234,6 +234,14 @@ class Overlay(QWidget):
         root.addWidget(self.reward_lbl)
         self.show_rewards = False
 
+        # 보스전 간단 모드: 이 한 줄만 보이고 나머지는 숨긴다
+        self.compact_lbl = _label(fs - 1, TEXT, True)
+        self.compact_lbl.setVisible(False)
+        root.insertWidget(0, self.compact_lbl)
+        self.compact = False
+        self._full = [w for w in (self.char_lbl, self.act_lbl, self.bar, self.timer_lbl, self.loc_lbl, card,
+                                  self.gem_lbl, self.next_lbl, self.foot_lbl, self.reward_lbl, self.mode_box)]
+
         self.setFixedWidth(int(settings["window"].get("w", 420)))
         self._grow_key = None  # 이 값(캐릭터)이 같은 동안은 창 높이를 줄이지 않는다 (흔들림 방지)
         self._min_h = 0
@@ -389,6 +397,28 @@ class Overlay(QWidget):
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
+
+    def render_compact(self, html_text: str) -> None:
+        """보스전: 한 줄만 남기고 알림 창도 숨긴다."""
+        if not self.compact:
+            self.compact = True
+            for w in self._full:
+                w.setVisible(False)
+            self.compact_lbl.setVisible(True)
+            self.toast.set_content("", False)
+        self.compact_lbl.setText(html_text)
+        self._min_h = 0
+        self._fit()
+
+    def leave_compact(self) -> None:
+        if not self.compact:
+            return
+        self.compact = False
+        self.compact_lbl.setVisible(False)
+        for w in self._full:
+            if w not in (self.reward_lbl, self.mode_box):  # 이 둘은 render 가 필요할 때만 켠다
+                w.setVisible(True)
+        self._min_h = 0
 
     def show_mode_prompt(self, show: bool) -> None:
         if show:

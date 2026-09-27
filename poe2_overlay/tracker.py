@@ -94,6 +94,7 @@ class Snapshot:
     league: str = ""
     flags: dict = field(default_factory=dict)  # 현재 단계의 보스/진행 상태
     boss: str = ""  # 현재 단계 지역의 보스 이름
+    in_step_zone: bool = False  # 캐릭터가 현재 단계 지역(또는 그 하위 지역)에 있는지
 
 
 class Tracker:
@@ -219,6 +220,8 @@ class Tracker:
         engaged = f.get("boss") == "engaged"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
+                if m.soon:  # 곧 보스 등장
+                    f["soon"] = True
                 if m.kill:  # 처치 대사: 지역을 떠나기 전에 바로 처치
                     f["boss"] = "killed"
                     return
@@ -480,4 +483,5 @@ class Tracker:
             league=c.league or self.league,
             flags=dict(c.step_flags.get(str(i), {})),
             boss=self.encounters.boss_name(step.zone),
+            in_step_zone=c.zone == step.zone or bool(self._subzone(step.zone, c.zone)),
         )

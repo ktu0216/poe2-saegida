@@ -1,6 +1,7 @@
 """앱 진입점: 로그 감시 → 트래커 → 오버레이."""
 from __future__ import annotations
 
+import html
 import os
 import sys
 import time
@@ -99,6 +100,7 @@ class Controller:
         self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
         self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
         self._last_copy_at = 0.0
+        self._tab_until = 0.0
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
@@ -260,9 +262,41 @@ class Controller:
         self.overlay.show_mode_prompt(bool(c and c.mode_prompt))
         gems = self.gem_plan(c, snap.step.act if snap.step else "")
         self._notify_level_up(c, gems)
+        if self._boss_compact(snap):
+            return
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
                             gems, self.gem_names)
+
+    # ---------------------------------------------------------- 보스전 간단 모드
+    def _boss_compact(self, snap) -> bool:
+        """곧 보스/보스 전투 중이면 패널을 한 줄로. 처리했으면 True."""
+        c, f = snap.character, snap.flags
+        subs = {k: v for k, v in f.get("sub", {}).items() if v == "engaged"}
+        boss_state = f.get("boss")
+        fighting = bool(subs) or boss_state == "engaged"
+        soon = bool(f.get("soon")) and boss_state not in ("engaged", "killed", "died")
+        on = (self.settings.get("boss_compact", True) and c is not None and snap.in_step_zone
+              and (fighting or soon))
+        if not on:
+            if self.overlay.compact:
+                self.overlay.leave_compact()
+            return False
+        if not self.overlay.compact:  # 막 시작됨 → Tab 안내
+            self._tab_until = time.monotonic() + 3 if self.settings.get("tab_hint", True) else 0
+        name = html.escape(next(iter(subs)) if subs else (snap.boss or "보스"))
+        head = (f'<span style="color:#ff8a65">⚔ {name} 전투 중</span>' if fighting
+                else f'<span style="color:#e8b04a">⚠ 곧 {name}</span>')
+        gap = c.area_level - c.level if c.area_level else 0
+        lv = f'<span style="color:{"#ff8a65" if gap >= 3 else "#9a9284"}"> · Lv {c.level} · 지역 {c.area_level}</span>'
+        tab = (' <b style="color:#e8b04a">· Tab→미니맵</b>' if time.monotonic() < self._tab_until else "")
+        self.overlay.render_compact(head + lv + tab)
+        return True
+
+    def toggle_setting(self, key: str) -> None:
+        self.settings[key] = not self.settings.get(key, True)
+        config.save_settings(self.settings)
+        self.refresh()
 
     # ---------------------------------------------------------- 빌드 젬 안내
     def build_family(self, c) -> Optional[str]:
@@ -646,6 +680,11 @@ class Controller:
             ogrp.addAction(a)
             om.addAction(a)
 
+        for key, text in (("boss_compact", "보스전 간단 모드 (한 줄)"), ("tab_hint", "보스전 시작 시 Tab → 미니맵 안내")):
+            act = QAction(text, m, checkable=True)
+            act.setChecked(self.settings.get(key, True))
+            act.triggered.connect(lambda _=False, k=key: self.toggle_setting(k))
+            m.addAction(act)
         rx = QAction("상인 대화 시 정규식 자동 복사", m, checkable=True)
         rx.setChecked(self.settings.get("auto_copy_regex", True))
         rx.triggered.connect(self.toggle_auto_copy)

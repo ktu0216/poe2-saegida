@@ -15,6 +15,7 @@ class Marker:
     engage: bool = False  # 이 대사부터 보스 전투 시작
     phase: bool = False  # 전투 중 진행 표시 (2페이즈 등)
     kill: bool = False  # 보스 처치 대사
+    soon: bool = False  # 곧 보스 등장
 
 
 @dataclass(frozen=True)
@@ -42,7 +43,7 @@ class Encounters:
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
-                             bool(m.get("kill"))) for m in z.get("markers", [])),
+                             bool(m.get("kill")), bool(m.get("soon"))) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()})
         return cls(zones)
 
