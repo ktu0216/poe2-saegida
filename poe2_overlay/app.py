@@ -38,6 +38,7 @@ HOTKEYS = {
     "copy_regex": "Ctrl+Alt+C",
     "auto_hide": "Ctrl+Alt+A",
     "equip": "Ctrl+Alt+E",
+    "gems": "Ctrl+Alt+G",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
@@ -94,6 +95,11 @@ class Controller:
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
         self.hotkeys.register(HOTKEYS["auto_hide"], self.toggle_auto_hide)
         self.hotkeys.register(HOTKEYS["equip"], self.set_equipped)
+        for key in (HOTKEYS["gems"], "Ctrl+Alt+J", "Ctrl+Alt+F11"):  # 다른 프로그램이 쓰면 다음 후보
+            if self.hotkeys.register(key, self.toggle_gem_card):
+                HOTKEYS["gems"] = key
+                break
+        self.show_gem_card = False
         # 게임에서 아이템에 Ctrl+C → 클립보드 감시로 장착 아이템과 비교
         self.item_msg = ""
         self.last_item_text = ""
@@ -116,7 +122,7 @@ class Controller:
             if self.hotkeys.register(key, lambda: self.copy_regex(auto=False)):
                 HOTKEYS["copy_regex"] = key
                 break
-        self.hotkeys.failed = [k for k in self.hotkeys.failed if k not in ("Ctrl+Alt+R", "Ctrl+Alt+C", "Ctrl+Alt+Q")]
+        self.hotkeys.failed = [k for k in self.hotkeys.failed if k not in ("Ctrl+Alt+R", "Ctrl+Alt+C", "Ctrl+Alt+Q", "Ctrl+Alt+G", "Ctrl+Alt+J")]
         if self.hotkeys.failed:
             self.notice = "단축키 등록 실패: " + ", ".join(self.hotkeys.failed)
 
@@ -266,7 +272,7 @@ class Controller:
             return
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
-                            gems, self.gem_names)
+                            gems, self.gem_names, self.show_gem_card)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -292,6 +298,10 @@ class Controller:
         tab = (' <b style="color:#e8b04a">· Tab→미니맵</b>' if time.monotonic() < self._tab_until else "")
         self.overlay.render_compact(head + lv + tab)
         return True
+
+    def toggle_gem_card(self) -> None:
+        self.show_gem_card = not self.show_gem_card
+        self.refresh()
 
     def toggle_setting(self, key: str) -> None:
         self.settings[key] = not self.settings.get(key, True)
@@ -704,6 +714,7 @@ class Controller:
         ah.triggered.connect(self.toggle_auto_hide)
         m.addAction(ah)
         m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
+        m.addAction(f"젬 카드  ({HOTKEYS['gems']})", self.toggle_gem_card)
         m.addSeparator()
         m.addAction("위치 초기화 (미니맵 아래)", self.reset_position)
         m.addAction("가이드 CSV 선택…", self.choose_guide)

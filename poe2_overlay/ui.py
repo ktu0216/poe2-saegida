@@ -61,6 +61,41 @@ def _split_table(t: TimerView) -> str:
     return "".join(out)
 
 
+_ROMAN = re.compile(r" (II|III|IV)$")
+
+
+def _gem_card(gems, names) -> str:
+    """빌드 플래너 기준: 지금 쓸 스킬과 보조 젬, 미가공 보조 젬 후보, 다음 레벨 젬."""
+    b = gems.build
+    out = [f'<div><b style="color:{ACCENT}">💎 {html.escape(b.label)}</b>'
+           f' <span style="color:{DIM}">· {html.escape(b.stage or "-")}</span></div>']
+    linked = [g for g in gems.now if g.supports]
+    alone = [g for g in gems.now if not g.supports]
+    for g in linked:
+        sup = " · ".join(html.escape(names(s)) for s in g.supports)
+        out.append(f'<div>● <b>{html.escape(names(g.id))}</b> <span style="color:{DIM}">+ {sup}</span></div>')
+    if alone:
+        out.append(f'<div>◆ {" · ".join(html.escape(names(g.id)) for g in alone)}'
+                   f' <span style="color:{DIM}">(보조 젬 없는 스킬)</span></div>')
+    seen, basic = set(), []
+    for g in gems.now:
+        for s in g.supports:
+            n = names(s)
+            if n not in seen and not _ROMAN.search(n):
+                seen.add(n)
+                basic.append(n)
+    if basic:
+        out.append(f'<div style="color:{GIFT}">미가공 보조 젬 Lv 1 후보: {html.escape(" · ".join(basic))}'
+                   f' <span style="color:{DIM}">(II·III 없는 것, 게임 목록에서 확인)</span></div>')
+    if gems.upcoming:
+        lv = gems.upcoming[0].lo
+        for g in (x for x in gems.upcoming if x.lo == lv):
+            sup = " · ".join(html.escape(names(s)) for s in g.supports)
+            out.append(f'<div style="color:{DIM}">다음: Lv {lv} {html.escape(names(g.id))}'
+                       + (f' + {sup}' if sup else "") + '</div>')
+    return "".join(out)
+
+
 def _gem_table(gems, names) -> str:
     out = [f'<div style="color:{ACCENT};margin-top:6px"><b>젬</b> <span style="color:{DIM}">'
            f'{html.escape(gems.build.name)}</span></div>']
@@ -255,10 +290,12 @@ class Overlay(QWidget):
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
-               item_msg: str = "", gems=None, gem_names=None) -> None:
+               item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False) -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names)
         toast = []
+        if gem_card and gems is not None:  # Ctrl+Alt+G 젬 카드
+            toast.append(_gem_card(gems, gem_names))
         if item_msg:
             toast.append(item_msg)
         if flash:

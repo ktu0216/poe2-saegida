@@ -115,6 +115,7 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
 | Ctrl+Alt+T | 클릭 통과 켜기/끄기 |
 | Ctrl+Alt+H | 숨기기/보이기 |
 | Ctrl+Alt+E | 마지막으로 Ctrl+C 한 아이템을 장착 기준으로 |
+| Ctrl+Alt+G | 젬 카드: 스킬별 보조 젬, 미가공 보조 젬 Lv1 후보, 다음 레벨 젬 (다른 프로그램이 쓰면 J → F11) |
 | Ctrl+Alt+A | 게임 창이 아닐 때 자동 숨김 켜기/끄기 |
 | Ctrl+Alt+C | 상점 검색 정규식 복사 (다른 프로그램이 쓰면 Q → F10) |
 | Ctrl+Alt+↑ / ↓ | 창 투명도 10%씩 조절 (30%~100%, 메뉴에서도 선택) |
