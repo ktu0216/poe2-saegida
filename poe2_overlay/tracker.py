@@ -180,6 +180,10 @@ class Tracker:
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)
+                # 보스가 떨군 퀘스트 아이템 사용(검은턱 → 화염 저항) = 전투가 끝났다
+                f = self._flags(c)
+                if f is not None and f.get("boss") == "engaged":
+                    f["boss"] = "killed"
         elif isinstance(ev, NpcLine):
             self._on_npc(ev)
         elif isinstance(ev, NewCharacter):

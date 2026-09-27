@@ -163,3 +163,15 @@ def test_book_counts_as_kill_only_during_fight():
     assert t.snapshot().flags.get("boss") is None
     feed(t, NpcLine("t", "1", "위압자 여왕 카발라", "깨어난다!"), PassivePoints("t", "1", 2, False))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_reward_while_boss_engaged_counts_as_kill():
+    from poe2_overlay.logparse import Reward
+    g = Guide(parse_csv("id,area_name,quest\ng3_6_1,지콰니의 기계실,검은 턱 처치\ng3_6_2,지콰니의 지성소,다음"), "t")
+    t = Tracker(g, encounters=ENC)
+    t.feed(AreaEntered("t", "9", "G3_6_1", 37))
+    t.feed(LevelUp("t", "9", "hc", "머서너리", 32))
+    t.feed(NpcLine("t", "9", "검은턱", "감히... 날 방해하느냐?"))
+    assert t.chars["hc"].step_flags["0"]["boss"] == "engaged"
+    t.feed(Reward("t", "9", "hc", "화염 저항 +10%"))
+    assert t.chars["hc"].step_flags["0"]["boss"] == "killed"
