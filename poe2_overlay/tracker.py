@@ -112,6 +112,7 @@ class Tracker:
         self.afk = False
         self._pending_play = 0.0  # 미확정 동안 쌓인 플레이 시간
         self.new_char_session = False  # 튜토리얼 줄로 '새 캐릭터'가 확정된 세션
+        self.relog = False  # 게임을 끄지 않고 캐릭터 선택에 다녀온 세션
         for c in self.chars.values():
             self._repair_cursor(c)
 
@@ -121,10 +122,12 @@ class Tracker:
         self._account_time(ev, reset=new_pid or isinstance(ev, LoginConnect))
         if new_pid:
             self._new_session()
+            self.relog = False  # 게임 재시작: 다른 캐릭터일 수 있다
         self.pid = ev.pid
 
         if isinstance(ev, LoginConnect):
             self._new_session()
+            self.relog = not new_pid
         elif isinstance(ev, AreaEntered):
             self._on_area(ev)
         elif isinstance(ev, SceneName):
@@ -336,8 +339,8 @@ class Tracker:
                  if not (self.league and c.league and c.league != self.league)]
         for c in sorted(cands, key=lambda c: c.last_seen, reverse=True):
             score = self._match_score(c, codes)
-            if score > 0 and c.name == self.current:
-                score += 4  # 캐릭터 선택에 다녀온 경우(맵 초기화 등)는 대부분 같은 캐릭터
+            if score > 0 and self.relog and c.name == self.current:
+                score += 4  # 같은 게임 실행에서 캐릭터 선택에 다녀온 경우(맵 초기화 등)는 대부분 같은 캐릭터
             if score > best_score:
                 best, best_score = c, score
         if best is None or best_score <= 0:
