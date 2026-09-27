@@ -128,3 +128,21 @@ def test_no_revert_to_step_whose_boss_is_killed():
          NpcLine("t", "1", "연무 속의 왕", "우리는 다시 만나게 될 것이다..."),
          AreaEntered("t", "1", "G1_town", 15), AreaEntered("t", "1", "G1_12", 11))
     assert t.snapshot().step.zone == "g1_town"
+
+
+GUIDE15 = Guide(parse_csv("""
+g1_14,저택 성벽,오검 저택으로 이동
+g1_15,오검 저택,양초 덩어리 → 지오너 백작 처치 → 마을
+g1_town,클리어펠 야영지,액트 2
+"""), "t")
+
+
+def test_geonor_phase1_counts_only_after_countess():
+    t = Tracker(GUIDE15, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_14", 14), LevelUp("t", "1", "me", "머서너리", 12),
+         AreaEntered("t", "1", "G1_15", 15),
+         NpcLine("t", "1", "지오너 백작", "쉬는 건 죽은 다음에 하면 되지. 계속 파라!"))
+    assert t.snapshot().flags.get("boss") is None
+    feed(t, NpcLine("t", "1", "백작 부인", "여보, 이 침입자에겐 …"),
+         NpcLine("t", "1", "지오너 백작", "이번엔 생포할 생각이 없다. 내가 직접 머리를 베어 주마!"))
+    assert t.snapshot().flags["boss"] == "engaged"

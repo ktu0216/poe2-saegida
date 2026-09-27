@@ -230,7 +230,7 @@ class Tracker:
                 if m.engage or (m.phase and ev.who in enc.bosses):
                     f["boss"] = "engaged"
                 return  # 보스가 말한 진행 대사(의식 등)는 전투로 보지 않는다
-        if ev.who in enc.bosses and f.get("boss") != "killed":
+        if f.get("boss") != "killed" and (ev.who in enc.bosses or (f.get("soon") and ev.who in enc.engage_after_soon)):
             f["boss"] = "engaged"
 
     def _on_new_character(self) -> None:
