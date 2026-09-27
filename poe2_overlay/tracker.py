@@ -218,12 +218,15 @@ class Tracker:
         engaged = f.get("boss") == "engaged"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
-                if not engaged:  # 전투 중에 다시 나온 진행 대사로 표시를 되돌리지 않는다
+                if m.kill:  # 처치 대사: 지역을 떠나기 전에 바로 처치
+                    f["boss"] = "killed"
+                    return
+                if m.label and (not engaged or m.phase):  # 전투 중 다시 나온 진행 대사로 표시를 되돌리지 않는다
                     f["marker"] = m.label
-                if m.engage:
+                if m.engage or (m.phase and ev.who in enc.bosses):
                     f["boss"] = "engaged"
                 return  # 보스가 말한 진행 대사(의식 등)는 전투로 보지 않는다
-        if ev.who in enc.bosses:
+        if ev.who in enc.bosses and f.get("boss") != "killed":
             f["boss"] = "engaged"
 
     def _on_new_character(self) -> None:

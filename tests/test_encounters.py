@@ -98,3 +98,14 @@ def test_ritual_lines_are_progress_not_fight():
          NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
          NpcLine("t", "1", "연무 속의 왕", "사라져라!"))
     assert t.snapshot().flags == {"marker": "의식 3/3", "boss": "engaged"}
+
+
+def test_kill_line_marks_killed_immediately():
+    t = Tracker(GUIDE12, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_11", 10), LevelUp("t", "1", "me", "머서너리", 8),
+         AreaEntered("t", "1", "G1_12", 11),
+         NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
+         NpcLine("t", "1", "연무 속의 왕", "야생림의 힘은... 내 것이다!"))
+    assert t.snapshot().flags == {"marker": "2페이즈", "boss": "engaged"}
+    feed(t, NpcLine("t", "1", "연무 속의 왕", "우리는 다시 만나게 될 것이다..."))
+    assert t.snapshot().flags["boss"] == "killed"
