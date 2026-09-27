@@ -215,11 +215,16 @@ class Tracker:
         enc = self.encounters.get(c.zone)
         if not enc:
             return
-        if ev.who in enc.bosses:
-            f["boss"] = "engaged"
+        engaged = f.get("boss") == "engaged"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
-                f["marker"] = m.label
+                if not engaged:  # 전투 중에 다시 나온 진행 대사로 표시를 되돌리지 않는다
+                    f["marker"] = m.label
+                if m.engage:
+                    f["boss"] = "engaged"
+                return  # 보스가 말한 진행 대사(의식 등)는 전투로 보지 않는다
+        if ev.who in enc.bosses:
+            f["boss"] = "engaged"
 
     def _on_new_character(self) -> None:
         """새 캐릭터 확정 (이름은 아직 모름). 이번 세션의 지역 이동을 새 캐릭터에 다시 적용한다."""

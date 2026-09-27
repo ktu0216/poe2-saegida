@@ -76,3 +76,25 @@ def test_subzone_bosses_under_parent_step():
     feed(t, AreaEntered("t", "1", "G1_7", 7), AreaEntered("t", "1", "G1_9", 8),
          NpcLine("t", "1", "집정관의 배우자 아시니아", "..."), Death("t", "1", "me"))
     assert t.snapshot().flags["sub"] == {"집정관": "killed", "배우자": "died"}
+
+
+GUIDE12 = Guide(parse_csv("""
+g1_11,사냥터,까마귀 종 처치
+g1_12,프레이쏜,의식 3개 진행 후 연무 속의 왕 처치 → 마을 복귀
+g1_town,클리어펠 야영지,핀과 대화
+"""), "t")
+
+
+def test_ritual_lines_are_progress_not_fight():
+    t = Tracker(GUIDE12, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_11", 10), LevelUp("t", "1", "me", "머서너리", 8),
+         AreaEntered("t", "1", "G1_12", 11),
+         NpcLine("t", "1", "연무 속의 왕", "<i>{코 로르}... 나그네여."))
+    s = t.snapshot()
+    assert s.flags == {"marker": "의식 1/3"}
+    feed(t, AreaEntered("t", "1", "G1_town", 15))  # 의식 중 정비 → 단계 유지
+    assert t.snapshot().step.zone == "g1_12"
+    feed(t, AreaEntered("t", "1", "G1_12", 11), NpcLine("t", "1", "연무 속의 왕", "사라져라!"),
+         NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
+         NpcLine("t", "1", "연무 속의 왕", "사라져라!"))
+    assert t.snapshot().flags == {"marker": "의식 3/3", "boss": "engaged"}

@@ -12,6 +12,7 @@ class Marker:
     speaker: str
     text: str
     label: str
+    engage: bool = False  # 이 대사부터 보스 전투 시작
 
 
 @dataclass(frozen=True)
@@ -38,7 +39,7 @@ class Encounters:
         for code, z in d.get("zones", {}).items():
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
-                tuple(Marker(m["speaker"], m["text"], m["label"]) for m in z.get("markers", [])),
+                tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage"))) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()})
         return cls(zones)
 
