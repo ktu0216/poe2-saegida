@@ -146,3 +146,20 @@ def test_geonor_phase1_counts_only_after_countess():
     feed(t, NpcLine("t", "1", "백작 부인", "여보, 이 침입자에겐 …"),
          NpcLine("t", "1", "지오너 백작", "이번엔 생포할 생각이 없다. 내가 직접 머리를 베어 주마!"))
     assert t.snapshot().flags["boss"] == "engaged"
+
+
+GUIDE2 = Guide(parse_csv("""
+g2_town,아르듀라 카라반,케스로 이동
+g2_4_1,케스,카발라 처치 후 잃어버린 도시로 이동
+g2_town,아르듀라 카라반,자르카 대화
+"""), "t")
+
+
+def test_book_counts_as_kill_only_during_fight():
+    from poe2_overlay.logparse import PassivePoints
+    t = Tracker(GUIDE2, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G2_town", 32), LevelUp("t", "1", "me", "머서너리", 19),
+         AreaEntered("t", "1", "G2_4_1", 23), PassivePoints("t", "1", 2, False))  # 예전 책을 보스 전에 사용
+    assert t.snapshot().flags.get("boss") is None
+    feed(t, NpcLine("t", "1", "위압자 여왕 카발라", "깨어난다!"), PassivePoints("t", "1", 2, False))
+    assert t.snapshot().flags["boss"] == "killed"

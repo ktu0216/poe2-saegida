@@ -30,6 +30,8 @@ class ZoneEncounter:
     markers: tuple[Marker, ...] = ()
     subzones: dict[str, SubZone] = field(default_factory=dict)  # 하위 지역 코드 -> 보스
     engage_after_soon: tuple[str, ...] = ()  # 곧 보스 신호 뒤에는 전투로 보는 화자
+    book_kill: str = ""  # 특화의 서 사용 = 처치: "engaged"(전투 중일 때만) / "any"
+    label: str = ""  # 표시용 보스 이름 (대사 없는 보스)
 
 
 @dataclass
@@ -46,7 +48,7 @@ class Encounters:
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
                              bool(m.get("kill")), bool(m.get("soon"))) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
-                tuple(z.get("engage_after_soon", [])))
+                tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""))
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:
@@ -54,4 +56,6 @@ class Encounters:
 
     def boss_name(self, zone: str) -> str:
         z = self.get(zone)
-        return z.bosses[0] if z and z.bosses else ""
+        if not z:
+            return ""
+        return z.label or (z.bosses[0] if z.bosses else "")

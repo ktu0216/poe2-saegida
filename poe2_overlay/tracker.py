@@ -165,6 +165,7 @@ class Tracker:
                     c.weapon_set_points += ev.points
                 else:
                     c.passive_points += ev.points
+                    self._book_kill(c)
 
     def _account_time(self, ev: Event, reset: bool) -> None:
         t = parse_ts(ev.ts)
@@ -203,6 +204,15 @@ class Tracker:
     def _subzone(self, step_zone: str, zone: str):
         enc = self.encounters.get(step_zone)
         return enc.subzones.get(zone.lower()) if enc else None
+
+    def _book_kill(self, c: Character) -> None:
+        """보스가 떨구는 특화의 서를 그 지역에서 쓰면 처치로 본다."""
+        enc = self.encounters.get(c.zone)
+        f = self._flags(c)
+        if not enc or not enc.book_kill or f is None or f.get("boss") == "killed":
+            return
+        if enc.book_kill == "any" or f.get("boss") == "engaged":
+            f["boss"] = "killed"
 
     def _on_npc(self, ev: NpcLine) -> None:
         c = self._active()
