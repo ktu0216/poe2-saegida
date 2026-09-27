@@ -175,3 +175,15 @@ def test_reward_while_boss_engaged_counts_as_kill():
     assert t.chars["hc"].step_flags["0"]["boss"] == "engaged"
     t.feed(Reward("t", "9", "hc", "화염 저항 +10%"))
     assert t.chars["hc"].step_flags["0"]["boss"] == "killed"
+
+
+def test_jiquani_sanctum_markers():
+    g = Guide(parse_csv("id,area_name,quest\ng3_6_2,지콰니의 지성소,지코아틀\ng3_3,밀림 유적,다음"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G3_6_2", 38), LevelUp("t", "9", "a", "머서너리", 32))
+    t.feed(NpcLine("t", "9", "알바", "이건 내가 지금껏 본 것 중에서 가장 큰 영혼 핵인데!"))
+    assert t.chars["a"].step_flags["0"]["marker"] == "영혼 핵 발견"
+    t.feed(NpcLine("t", "9", "알바", "영혼 핵이 충전됐어! 네가 가서 가져오지 않겠어?"))
+    t.feed(NpcLine("t", "9", "알바", "이런. 이제 저 거대한 구조물에서 제거하기만 하면 되는데... 행운을 빌게!"))
+    f = t.chars["a"].step_flags["0"]
+    assert f["marker"] == "발전기 완료" and f["soon"]
