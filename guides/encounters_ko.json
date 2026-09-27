@@ -10,6 +10,8 @@
                 ]},
     "g1_7":    {"bosses": ["끝없는 한탄의 라클란"],
                 "markers": [
+                  {"speaker": "잃어버린 자 라클란", "text": "드디어 열렸군요", "label": "무덤 문 열림"},
+                  {"speaker": "잃어버린 자 라클란", "text": "내 가족", "label": "", "soon": true},
                   {"speaker": "끝없는 한탄의 라클란", "text": "드디어... 만나는 것인가", "label": "", "kill": true}
                 ],
                 "subzones": {
