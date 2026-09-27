@@ -32,6 +32,7 @@ HOTKEYS = {
     "opacity_up": "Ctrl+Alt+Up",
     "opacity_down": "Ctrl+Alt+Down",
     "copy_regex": "Ctrl+Alt+C",
+    "auto_hide": "Ctrl+Alt+A",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
@@ -80,6 +81,7 @@ class Controller:
         self.hotkeys.register(HOTKEYS["prev"], lambda: self.step(-1))
         self.hotkeys.register(HOTKEYS["click_through"], self.toggle_click_through)
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
+        self.hotkeys.register(HOTKEYS["auto_hide"], self.toggle_auto_hide)
         self.hotkeys.register(HOTKEYS["opacity_up"], lambda: self.change_opacity(0.1))
         self.hotkeys.register(HOTKEYS["opacity_down"], lambda: self.change_opacity(-0.1))
         # 다른 프로그램이 이미 쓰는 키면 다음 후보로 (실제 등록된 키를 메뉴에 표시)
@@ -354,6 +356,9 @@ class Controller:
         config.save_settings(self.settings)
         if not self.settings["auto_hide"] and not self.user_hidden:
             self.overlay.show()
+        self.flash = "자동 숨김 켜짐" if self.settings["auto_hide"] else "자동 숨김 꺼짐 (항상 표시)"
+        QTimer.singleShot(3000, self._clear_flash)
+        self.refresh()
 
     def on_tray(self, reason) -> None:
         if reason == QSystemTrayIcon.Trigger:
@@ -455,7 +460,7 @@ class Controller:
         ct.triggered.connect(self.toggle_click_through)
         m.addAction(ct)
         m.addAction(f"숨기기/보이기  ({HOTKEYS['toggle']})", self.toggle_visible)
-        ah = QAction("게임 창이 아닐 때 자동 숨김", m, checkable=True)
+        ah = QAction(f"게임 창이 아닐 때 자동 숨김  ({HOTKEYS['auto_hide']})", m, checkable=True)
         ah.setChecked(self.settings.get("auto_hide", True))
         ah.triggered.connect(self.toggle_auto_hide)
         m.addAction(ah)
