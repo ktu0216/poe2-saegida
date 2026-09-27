@@ -294,8 +294,10 @@ class Overlay(QWidget):
         rewards = rewards or []
         self._render_gems(gems, gem_names)
         toast = []
-        if gem_card and gems is not None:  # Ctrl+Alt+G 젬 카드
-            toast.append(_gem_card(gems, gem_names))
+        if gem_card:  # Ctrl+Alt+G 젬 카드
+            toast.append(_gem_card(gems, gem_names) if gems is not None else
+                         f'<span style="color:{WARN}">💎 이 캐릭터에 빌드가 지정되지 않았습니다</span>'
+                         f'<br><span style="color:{DIM}">우클릭 → 빌드 (젬 안내) 에서 고르거나, 게임 빌드 플래너에 연결</span>')
         if item_msg:
             toast.append(item_msg)
         if flash:
