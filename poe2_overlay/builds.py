@@ -20,6 +20,22 @@ _STAGE = re.compile(
     r"LvL \d+ ?~ ?\d+)\s+-\s+(?P<rest>.+)$", re.IGNORECASE)
 FAMILY_KEY_LEN = 14  # 파일 이름이 잘려 저장되므로 앞부분으로 묶는다
 
+# 직접 정한 이름 규칙: "<빌드 이름> <번호>. <구간>" (예: "젬링 유탄 1. Lv 1-42", "젬링 유탄 3. 엔드 초기")
+# 게임 목록에서 같은 빌드끼리 번호 순으로 모인다. 이름은 40바이트 안쪽 (게임이 잘라 저장한다).
+_NUMBERED = re.compile(r"^(?P<family>.+?) (?P<n>\d+)\. (?P<stage>.+)$")
+_STAGE_KO = {"엔드 초기": "Early Endgame", "엔드 중기": "Mid Endgame", "엔드 후기": "Late Endgame",
+             "엔드": "Endgame", "막간": "Interludes", "액트 올인원": "All-In-One"}
+
+
+def _numbered_stage(text: str) -> str:
+    """'Lv 1-42' → 'LvL 1~42', '액트 1' → 'Act 1', '엔드 초기' → 'Early Endgame'. 모르면 그대로."""
+    t = text.strip()
+    if m := re.fullmatch(r"[Ll]v\.? ?(\d+) ?[-~] ?(\d+)", t):
+        return f"LvL {m[1]}~{m[2]}"
+    if m := re.fullmatch(r"액트 (\d+(?: ?[-~] ?\d+)?)", t):
+        return "Act " + m[1].replace("-", " & ").replace("~", " & ")
+    return _STAGE_KO.get(t, t)
+
 
 @dataclass
 class Gem:
@@ -80,16 +96,25 @@ def load_build(path: Path) -> Optional[BuildFile]:
     name = d.get("name") or path.stem
     if name.lower().startswith("unnamed"):  # poe.ninja 내보내기 등
         name = path.stem
+    if n := _NUMBERED.match(name.replace("�", "").strip()):
+        fam = n["family"].strip()
+        gems = _gems(d)
+        return BuildFile(path, name, d.get("ascendancy", ""), _numbered_stage(n["stage"]), fam, gems, fam)
     m = _STAGE.match(name)
     stage, rest = (m["stage"], m["rest"]) if m else ("", name)
+    gems = _gems(d)
+    rest = rest.replace("�", "").strip()  # 게임이 잘라 저장한 파일 이름의 깨진 글자
+    name = name.replace("�", "").strip()
+    return BuildFile(path, name, d.get("ascendancy", ""), stage, rest[:FAMILY_KEY_LEN].strip(), gems, rest)
+
+
+def _gems(d: dict) -> list[Gem]:
     gems = []
     for s in d.get("skills", []) or []:
         lo, hi = (s.get("level_interval") or [1, 100])[:2]
         gems.append(Gem(s.get("id", ""), int(lo), int(hi),
                         [x.get("id", "") for x in s.get("support_skills", []) or []]))
-    rest = rest.replace("�", "").strip()  # 게임이 잘라 저장한 파일 이름의 깨진 글자
-    name = name.replace("�", "").strip()
-    return BuildFile(path, name, d.get("ascendancy", ""), stage, rest[:FAMILY_KEY_LEN].strip(), gems, rest)
+    return gems
 
 
 def scan(folder: Path) -> list[BuildFile]:

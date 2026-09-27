@@ -42,3 +42,17 @@ def test_gem_names_korean_and_fallback(tmp_path):
     assert names("Metadata/Items/Gem/SkillGemExplosiveGrenade") == "폭발 유탄"
     assert names("Metadata/Items/Gems/SupportGemScattershotTwo") == "산탄 II"
     assert names("Metadata/Items/Gem/SupportGemExpedite") == "Expedite (한글명 미확인)"
+
+
+def test_numbered_names_group_and_pick(tmp_path):
+    write(tmp_path, "a", "젬링 유탄 0. 액트 올인원", [gem("SkillGemExplosiveGrenade", 1)])
+    write(tmp_path, "b", "젬링 유탄 1. Lv 1-42", [gem("SkillGemExplosiveGrenade", 1)])
+    write(tmp_path, "c", "젬링 유탄 2. Lv 43-62", [gem("SkillGemExplosiveGrenade", 1)])
+    write(tmp_path, "d", "젬링 유탄 3. 엔드 초기", [])
+    write(tmp_path, "e", "젬링 유탄 4. 엔드 후기", [])
+    fam = families(scan(tmp_path))
+    assert list(fam) == ["젬링 유탄"] and len(fam["젬링 유탄"]) == 5
+    files = fam["젬링 유탄"]
+    assert pick_stage(files, "액트 3", 34).stage == "LvL 1~42"
+    assert pick_stage(files, "막간 2", 50).stage == "LvL 43~62"
+    assert pick_stage(files, "엔드게임", 70).stage == "Early Endgame"
