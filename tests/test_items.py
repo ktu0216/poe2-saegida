@@ -68,3 +68,10 @@ def test_ring_with_roll_ranges():
     title, _, _ = compare(it, None)
     assert "저항 합 7" in title and "공격 추가 피해 4" in title
     assert parse_item(CROSSBOW).added == {}  # 무기의 피해 추가 문구는 피해 줄에 이미 포함
+
+
+def test_ring_slots_and_score():
+    from poe2_overlay.items import defense_score, slot_keys
+    assert slot_keys("반지") == ["반지", "반지#2"] and slot_keys("투구") == ["투구"]
+    weak = parse_item(RING.replace("화염 저항 +7(6-10)%", "화염 저항 +1%"))
+    assert defense_score(weak) < defense_score(parse_item(RING))

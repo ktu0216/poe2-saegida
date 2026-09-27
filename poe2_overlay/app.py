@@ -19,7 +19,7 @@ from .logtail import LogTail, iter_lines
 from .regex import RegexBook
 from .builds import GemNames, families, family_of, pick_stage, plan, scan
 from .encounters import Encounters
-from .items import compare, is_item_text, parse_item
+from .items import compare, defense_score, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
@@ -95,6 +95,7 @@ class Controller:
         # 게임에서 아이템에 Ctrl+C → 클립보드 감시로 장착 아이템과 비교
         self.item_msg = ""
         self.last_item_text = ""
+        self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
@@ -326,25 +327,32 @@ class Controller:
         if item is None or c is None:
             return
         self.last_item_text = text
-        base_text = c.gear.get(item.slot)
-        if base_text is None and is_town(c.zone):  # 마을에서 복사한 건 대부분 상점/창고 아이템
+        keys = slot_keys(item.slot)  # 반지는 두 칸
+        label = lambda k: k.replace("#", " ") if len(keys) > 1 else item.slot
+        if any(c.gear.get(k) == text for k in keys):
+            k = next(k for k in keys if c.gear.get(k) == text)
+            title, _, _ = compare(item, None)
+            self._show_item(f'📌 장착 중 ({label(k)}) · {title}', "#9a9284")
+            return
+        empty = [k for k in keys if k not in c.gear]
+        if empty and is_town(c.zone) and len(empty) == len(keys):  # 마을에서 복사한 건 대부분 상점/창고 아이템
             title, _, _ = compare(item, None)
             self._show_item(f'{item.slot} {title}<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템을 Ctrl+C 한 뒤 {HOTKEYS["equip"]}</span>', "#ece6da")
             return
-        if base_text is None:  # 마을 밖 첫 복사 = 지금 장착 중인 아이템으로 본다
-            c.gear[item.slot] = text
+        if empty and not is_town(c.zone):  # 마을 밖: 빈 칸 = 지금 장착 중인 아이템으로 본다
+            c.gear[empty[0]] = text
             self.dirty = True
             title, _, _ = compare(item, None)
-            self._show_item(f'📌 {item.slot} 장착 기준 저장 · {title}', "#8fd18b")
+            self._show_item(f'📌 {label(empty[0])} 장착 기준 저장 · {title}', "#8fd18b")
             return
-        if base_text == text:
-            title, _, _ = compare(item, None)
-            self._show_item(f'📌 장착 중 · {title}', "#9a9284")
-            return
-        title, diffs, verdict = compare(item, parse_item(base_text))
+        # 비교 대상: 칸이 여러 개면 가장 약한 쪽 (바꾼다면 그걸 뺀다)
+        filled = [k for k in keys if k in c.gear]
+        target = min(filled, key=lambda k: defense_score(parse_item(c.gear[k])))
+        self.compare_target = target
+        title, diffs, verdict = compare(item, parse_item(c.gear[target]))
         color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
         mark = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷")
-        body = f'{mark} · {item.slot} {title}'
+        body = f'{mark} · {item.slot} {title}' + (f" ({label(target)} 대비)" if len(keys) > 1 else "")
         if diffs:
             body += "<br>" + " · ".join(diffs)
         body += f'<br><span style="color:#9a9284">장착했다면 {HOTKEYS["equip"]} 로 기준 갱신</span>'
@@ -365,10 +373,16 @@ class Controller:
         item = parse_item(self.last_item_text) if self.last_item_text else None
         if c is None or item is None:
             return
-        c.gear[item.slot] = self.last_item_text
+        keys = slot_keys(item.slot)
+        if any(c.gear.get(k) == self.last_item_text for k in keys):
+            return
+        empty = [k for k in keys if k not in c.gear]
+        # 빈 칸 > 마지막으로 비교한 칸(가장 약한 쪽) > 첫 칸
+        key = empty[0] if empty else (self.compare_target if self.compare_target in keys else keys[0])
+        c.gear[key] = self.last_item_text
         self.dirty = True
         title, _, _ = compare(item, None)
-        self._show_item(f'📌 {item.slot} 장착 기준 갱신 · {title}', "#8fd18b")
+        self._show_item(f'📌 {key.replace("#", " ")} 장착 기준 갱신 · {title}', "#8fd18b")
 
     def _clear_flash(self) -> None:
         self.flash = ""

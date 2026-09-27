@@ -137,6 +137,21 @@ def parse_item(text: str) -> Optional[Item]:
     return item
 
 
+SLOT_COUNT = {"반지": 2}  # 같은 종류를 두 개 끼는 부위
+
+
+def slot_keys(slot: str) -> list[str]:
+    """저장 키: 반지 -> ["반지", "반지#2"]."""
+    n = SLOT_COUNT.get(slot, 1)
+    return [slot] + [f"{slot}#{k}" for k in range(2, n + 1)]
+
+
+def defense_score(it: Item) -> float:
+    """방어구·장신구 비교 점수 (compare 의 판정과 같은 가중치)."""
+    return (it.life + it.res_total + it.move_speed + it.added_avg) * 2 + \
+        (it.armour + it.evasion + it.energy_shield) / 10
+
+
 def _pct(new: float, old: float) -> str:
     if old <= 0:
         return ""
