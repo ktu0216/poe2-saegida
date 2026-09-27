@@ -6,7 +6,7 @@ import re
 from typing import Callable, Optional
 
 from PySide6.QtCore import QPoint, QRectF, Qt, Signal
-from PySide6.QtGui import QAction, QColor, QFont, QGuiApplication, QIcon, QPainter, QPainterPath, QPixmap
+from PySide6.QtGui import QAction, QColor, QCursor, QFont, QGuiApplication, QIcon, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QPushButton, QVBoxLayout, QWidget,
 )
@@ -489,14 +489,19 @@ class Overlay(QWidget):
         line += f'<br><span style="color:{DIM};font-size:small">{html.escape(stage)} · {html.escape(gems.build.label)}</span>'
         self.gem_lbl.setText(line)
 
-    def clamp_to_screen(self) -> None:
-        """창이 화면 밖으로 나가 잘리지 않게 (위쪽이 잘리면 캐릭터 줄이 안 보인다)."""
-        screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
+    def _clamped(self, pos: QPoint) -> QPoint:
+        """pos 에 창을 두었을 때 화면 안에 들어오는 위치 (위쪽이 잘리면 캐릭터 줄이 안 보인다)."""
+        center = pos + QPoint(self.width() // 2, self.height() // 2)
+        screen = QGuiApplication.screenAt(center) or QGuiApplication.screenAt(QCursor.pos())             or QGuiApplication.primaryScreen()
         a = screen.availableGeometry()
-        x = min(max(self.x(), a.left()), a.right() - self.width())
-        y = min(max(self.y(), a.top()), a.bottom() - min(self.height(), a.height()))
-        if (x, y) != (self.x(), self.y()):
-            self.move(x, y)
+        x = min(max(pos.x(), a.left()), a.right() + 1 - self.width())
+        y = min(max(pos.y(), a.top()), a.bottom() + 1 - min(self.height(), a.height()))
+        return QPoint(x, y)
+
+    def clamp_to_screen(self) -> None:
+        p = self._clamped(self.pos())
+        if p != self.pos():
+            self.move(p)
 
     def _follow(self) -> None:
         self.toast.follow(self.frameGeometry())
@@ -519,8 +524,10 @@ class Overlay(QWidget):
 
     def mouseMoveEvent(self, e):
         if self._drag is not None and e.buttons() & Qt.LeftButton:
-            self.move(e.globalPosition().toPoint() - self._drag)
-            self.clamp_to_screen()  # 끄는 동안에도 모니터 밖으로 나가지 않게
+            # 옮길 위치를 먼저 화면 안으로 맞춘 뒤 한 번만 옮긴다 (밖으로 갔다 되돌아오면 가장자리에서 떨린다)
+            p = self._clamped(e.globalPosition().toPoint() - self._drag)
+            if p != self.pos():
+                self.move(p)
 
     def mouseReleaseEvent(self, e):
         if self._drag is not None:

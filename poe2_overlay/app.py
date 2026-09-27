@@ -145,7 +145,7 @@ class Controller:
         self.overlay.show()
         set_click_through(int(self.overlay.winId()), False)  # 클릭해도 게임 포커스를 뺏지 않게
         set_click_through(int(self.overlay.toast.winId()), True)  # 알림 창은 보기만: 항상 클릭 통과
-        # 저장된 위치가 없으면 게임 창 오른쪽 위(미니맵 자리)에 붙인다. 게임 창을 찾을 때까지 tick 에서 재시도.
+        # 저장된 위치가 없으면 게임 창 왼쪽 위(버프·스킬 아이콘 아래)에 붙인다. 게임 창을 찾을 때까지 tick 에서 재시도.
         self.auto_pos = self.settings["window"].get("x") is None
         self._auto_placed = False
         if self.auto_pos:
@@ -719,7 +719,7 @@ class Controller:
         m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
         m.addAction(f"젬 카드  ({HOTKEYS['gems']})", self.toggle_gem_card)
         m.addSeparator()
-        m.addAction("위치 초기화 (미니맵 아래)", self.reset_position)
+        m.addAction("위치 초기화 (왼쪽 위 기본 위치)", self.reset_position)
         m.addAction("가이드 CSV 선택…", self.choose_guide)
         m.addAction("가이드 파일 열기", lambda: os.startfile(self.guide.source))
         m.addAction("로그 파일 선택…", self.choose_log)
