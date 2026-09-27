@@ -34,6 +34,7 @@ HOTKEYS = {
     "copy_regex": "Ctrl+Alt+C",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
+MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
 PROGRESS_VERSION = 4  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
@@ -247,22 +248,23 @@ class Controller:
         self.refresh()
 
     def place_top_right(self) -> None:
-        """게임 창(없으면 주 모니터) 오른쪽 위. 게임 창 좌표는 물리 픽셀이라 모니터 배율로 나눈다."""
+        """게임 창(없으면 주 모니터) 오른쪽, 미니맵 바로 아래. 게임 창 좌표는 물리 픽셀이라 모니터 배율로 나눈다."""
         margin = 8
+        ratio = float(self.settings.get("minimap_ratio", MINIMAP_RATIO))  # 미니맵이 차지하는 게임 창 높이 비율
         rect = game_window_rect()
-        right = top = None
+        right = top = height = None
         if rect:
             cx, cy = (rect[0] + rect[2]) // 2, (rect[1] + rect[3]) // 2
             for s in self.app.screens():
                 g, d = s.geometry(), s.devicePixelRatio()
                 if g.x() * d <= cx < (g.x() + g.width()) * d and g.y() * d <= cy < (g.y() + g.height()) * d:
-                    right, top = int(rect[2] / d), int(rect[1] / d)
+                    right, top, height = int(rect[2] / d), int(rect[1] / d), (rect[3] - rect[1]) / d
                     break
             self._auto_placed = right is not None
         if right is None:
             g = self.app.primaryScreen().availableGeometry()
-            right, top = g.x() + g.width(), g.y()
-        self.overlay.move(right - self.overlay.width() - margin, top + margin)
+            right, top, height = g.x() + g.width(), g.y(), g.height()
+        self.overlay.move(right - self.overlay.width() - margin, top + int(height * ratio))
 
     def reset_position(self) -> None:
         self.settings["window"].update(x=None, y=None)
@@ -459,7 +461,7 @@ class Controller:
         m.addAction(ah)
         m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
         m.addSeparator()
-        m.addAction("위치 초기화 (게임 창 오른쪽 위)", self.reset_position)
+        m.addAction("위치 초기화 (미니맵 아래)", self.reset_position)
         m.addAction("가이드 CSV 선택…", self.choose_guide)
         m.addAction("가이드 파일 열기", lambda: os.startfile(self.guide.source))
         m.addAction("로그 파일 선택…", self.choose_log)
