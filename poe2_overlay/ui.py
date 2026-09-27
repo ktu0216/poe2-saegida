@@ -5,7 +5,7 @@ import html
 import re
 from typing import Callable, Optional
 
-from PySide6.QtCore import QPoint, QRectF, Qt, Signal
+from PySide6.QtCore import QPoint, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QAction, QColor, QCursor, QFont, QGuiApplication, QIcon, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QPushButton, QVBoxLayout, QWidget,
@@ -183,6 +183,7 @@ class Overlay(QWidget):
         self.opacity = float(settings.get("opacity", 0.88))
         self.click_through = False
         self._drag: Optional[QPoint] = None
+        self._anchor: Optional[QPoint] = None  # 프로그램/드래그로 정한 위치 (창 높이가 바뀔 때 Windows 가 옮기면 되돌린다)
         self.menu_builder: Optional[Callable[[QMenu], None]] = None
 
         fs = int(settings.get("font_size", 13))
@@ -506,9 +507,20 @@ class Overlay(QWidget):
     def _follow(self) -> None:
         self.toast.follow(self.frameGeometry())
 
+    def move(self, *args) -> None:
+        super().move(*args)
+        self._anchor = self.pos()
+
     def moveEvent(self, e):
         super().moveEvent(e)
         self._follow()
+        # 높이가 커질 때 Windows 가 창을 위로 끌어올리는 경우가 있다 (화면 위로 잘림) → 정한 위치로 되돌린다
+        if self._drag is None and self._anchor is not None and e.pos() != self._anchor:
+            QTimer.singleShot(0, self._restore_anchor)
+
+    def _restore_anchor(self) -> None:
+        if self._drag is None and self._anchor is not None and self.pos() != self._anchor:
+            super().move(self._anchor)
 
     def setVisible(self, visible: bool) -> None:
         super().setVisible(visible)
