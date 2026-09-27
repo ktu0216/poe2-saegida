@@ -520,6 +520,7 @@ class Overlay(QWidget):
     def mouseMoveEvent(self, e):
         if self._drag is not None and e.buttons() & Qt.LeftButton:
             self.move(e.globalPosition().toPoint() - self._drag)
+            self.clamp_to_screen()  # 끄는 동안에도 모니터 밖으로 나가지 않게
 
     def mouseReleaseEvent(self, e):
         if self._drag is not None:

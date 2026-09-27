@@ -51,6 +51,13 @@
                   {"speaker": "일어난 왕 자만라", "text": "그것이 오늘은 아니다", "label": "", "kill": true}
                 ]},
     "g2_5_2":  {"bosses": ["죽음군주 이크탑"]},
+    "g2_9_2":  {"bosses": ["일어난 왕 자만라"], "label": "토르 굴"},
+    "g2_12":   {"bosses": ["흉물 자만라"],
+                "markers": [
+                  {"speaker": "백작 부인", "text": "또 너냐", "label": "", "soon": true},
+                  {"speaker": "흉물 자만라", "text": "모래여, 내 뜻대로", "label": "2페이즈", "phase": true},
+                  {"speaker": "흉물 자만라", "text": "아무것도 이루지 못했다", "label": "", "kill": true}
+                ]},
     "g2_4_1":  {"bosses": ["위압자 여왕 카발라"], "book_kill": "engaged"},
     "g2_4_3":  {"bosses": ["버림받은 아들 아자리안"],
                 "markers": [
