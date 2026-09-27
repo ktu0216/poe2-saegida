@@ -37,12 +37,15 @@ class LogTail:
 
 
 def iter_lines(path: Path, start: int, end: int, chunk: int = 8 * 1024 * 1024) -> Iterator[str]:
-    """[start, end) 구간의 완전한 줄만 돌려준다 (처음 잘린 줄은 버림)."""
+    """[start, end) 구간의 완전한 줄만 돌려준다 (줄 중간에서 시작하면 처음 잘린 조각은 버림)."""
     with open(path, "rb") as f:
+        first = False
+        if start > 0:  # 줄 중간에서 시작할 때만 첫 조각을 버린다 (줄 경계면 첫 줄도 온전한 줄)
+            f.seek(start - 1)
+            first = f.read(1) != b"\n"
         f.seek(start)
         pos = start
         partial = b""
-        first = start > 0
         while pos < end:
             data = f.read(min(chunk, end - pos))
             if not data:
