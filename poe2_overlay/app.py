@@ -40,6 +40,7 @@ HOTKEYS = {
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
+DOUBLE_COPY_SEC = 0.8  # 이보다 느린 재복사는 '다시 비교'로 본다
 PROGRESS_VERSION = 13  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
@@ -330,7 +331,7 @@ class Controller:
             if gap < 0.25:  # 복사 한 번에 알림이 여러 번 오는 경우
                 return
             self._last_copy_at = now
-            if gap <= 2.5:  # 같은 아이템을 빠르게 두 번 복사 = 장착 기준 등록
+            if gap <= DOUBLE_COPY_SEC:  # 같은 아이템을 연달아 두 번 (더블클릭처럼) = 장착 기준 등록
                 self.set_equipped(via="두 번 복사")
             return
         self._last_copy_at = now
