@@ -174,6 +174,7 @@ class Controller:
                 if c := self.tracker.chars.get(name):
                     c.mode = old.get("mode", "") or c.mode
                     c.league = old.get("league", "") or c.league
+                    c.gear = old.get("gear") or c.gear  # Ctrl+C 로 지정한 장착 기준도 로그로는 되살릴 수 없다
         self.tail = LogTail(self.log_path, size)
         self.dirty = True
         self._pbs_for = None
@@ -271,7 +272,11 @@ class Controller:
             return
         self.last_item_text = text
         base_text = c.gear.get(item.slot)
-        if base_text is None:  # 이 부위 첫 복사 = 지금 장착 중인 아이템으로 본다
+        if base_text is None and is_town(c.zone):  # 마을에서 복사한 건 대부분 상점/창고 아이템
+            title, _, _ = compare(item, None)
+            self._show_item(f'{item.slot} {title}<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템을 Ctrl+C 한 뒤 {HOTKEYS["equip"]}</span>', "#ece6da")
+            return
+        if base_text is None:  # 마을 밖 첫 복사 = 지금 장착 중인 아이템으로 본다
             c.gear[item.slot] = text
             self.dirty = True
             title, _, _ = compare(item, None)
