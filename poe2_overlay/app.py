@@ -18,6 +18,7 @@ from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .regex import RegexBook
 from .encounters import Encounters
+from .items import compare, is_item_text, parse_item
 from .rewards import RewardTable
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
@@ -34,6 +35,7 @@ HOTKEYS = {
     "opacity_down": "Ctrl+Alt+Down",
     "copy_regex": "Ctrl+Alt+C",
     "auto_hide": "Ctrl+Alt+A",
+    "equip": "Ctrl+Alt+E",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
@@ -84,6 +86,14 @@ class Controller:
         self.hotkeys.register(HOTKEYS["click_through"], self.toggle_click_through)
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
         self.hotkeys.register(HOTKEYS["auto_hide"], self.toggle_auto_hide)
+        self.hotkeys.register(HOTKEYS["equip"], self.set_equipped)
+        # 게임에서 아이템에 Ctrl+C → 클립보드 감시로 장착 아이템과 비교
+        self.item_msg = ""
+        self.last_item_text = ""
+        self._item_clear = QTimer()
+        self._item_clear.setSingleShot(True)
+        self._item_clear.timeout.connect(self._clear_item)
+        app.clipboard().dataChanged.connect(self.on_clipboard)
         self.hotkeys.register(HOTKEYS["opacity_up"], lambda: self.change_opacity(0.1))
         self.hotkeys.register(HOTKEYS["opacity_down"], lambda: self.change_opacity(-0.1))
         # 다른 프로그램이 이미 쓰는 키면 다음 후보로 (실제 등록된 키를 메뉴에 표시)
@@ -123,6 +133,7 @@ class Controller:
         if self.settings.get("click_through"):
             self.toggle_click_through()
         self.refresh()
+        QTimer.singleShot(500, self.on_clipboard)  # 켜기 전에 복사해 둔 아이템도 처리
 
         # 개발용: 화면 캡처를 파일로 남긴다.
         if os.environ.get("POE2_OVERLAY_SHOW_REWARDS"):
@@ -227,7 +238,7 @@ class Controller:
         self.current_regex = rule
         in_town = bool(c and is_town(c.zone))
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
-                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash)
+                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg)
 
     def copy_regex(self, auto: bool) -> None:
         """정규식을 클립보드에. auto 는 상인 인사로 호출된 경우 (마을에서만, 20초에 한 번)."""
@@ -246,6 +257,55 @@ class Controller:
         self.flash = f"📋 {rule.name} 정규식 복사됨 — 검색창에 Ctrl+V"
         QTimer.singleShot(4000, self._clear_flash)
         self.refresh()
+
+    def on_clipboard(self) -> None:
+        text = self.app.clipboard().text()
+        if not is_item_text(text) or text == self.last_item_text:
+            return
+        item = parse_item(text)
+        c = self.tracker.snapshot().character
+        if item is None or c is None:
+            return
+        self.last_item_text = text
+        base_text = c.gear.get(item.slot)
+        if base_text is None:  # 이 부위 첫 복사 = 지금 장착 중인 아이템으로 본다
+            c.gear[item.slot] = text
+            self.dirty = True
+            title, _, _ = compare(item, None)
+            self._show_item(f'📌 {item.slot} 장착 기준 저장 · {title}', "#8fd18b")
+            return
+        if base_text == text:
+            title, _, _ = compare(item, None)
+            self._show_item(f'📌 장착 중 · {title}', "#9a9284")
+            return
+        title, diffs, verdict = compare(item, parse_item(base_text))
+        color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
+        mark = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷")
+        body = f'{mark} · {item.slot} {title}'
+        if diffs:
+            body += "<br>" + " · ".join(diffs)
+        body += f'<br><span style="color:#9a9284">장착했다면 {HOTKEYS["equip"]} 로 기준 갱신</span>'
+        self._show_item(body, color)
+
+    def _show_item(self, html_text: str, color: str) -> None:
+        self.item_msg = f'<span style="color:{color}">⚔ {html_text}</span>'
+        self._item_clear.start(30000)
+        self.refresh()
+
+    def _clear_item(self) -> None:
+        self.item_msg = ""
+        self.refresh()
+
+    def set_equipped(self) -> None:
+        """마지막으로 복사한 아이템을 그 부위의 장착 기준으로."""
+        c = self.tracker.snapshot().character
+        item = parse_item(self.last_item_text) if self.last_item_text else None
+        if c is None or item is None:
+            return
+        c.gear[item.slot] = self.last_item_text
+        self.dirty = True
+        title, _, _ = compare(item, None)
+        self._show_item(f'📌 {item.slot} 장착 기준 갱신 · {title}', "#8fd18b")
 
     def _clear_flash(self) -> None:
         self.flash = ""

@@ -70,6 +70,7 @@ class Character:
     splits: dict[str, float] = field(default_factory=dict)  # 액트 -> 처음 들어갔을 때의 play_seconds
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
     step_flags: dict[str, dict] = field(default_factory=dict)
+    gear: dict[str, str] = field(default_factory=dict)  # 부위 -> 장착 기준 아이템 텍스트 (Ctrl+C)
 
     def to_dict(self) -> dict:
         return asdict(self)

@@ -181,6 +181,10 @@ class Overlay(QWidget):
         self.next_lbl = _label(fs - 1, DIM)
         root.addWidget(self.next_lbl)
 
+        self.item_lbl = _label(fs - 1, TEXT)  # Ctrl+C 한 아이템과 장착 아이템 비교
+        self.item_lbl.setStyleSheet(f"color:{TEXT}; background:rgba(255,255,255,18); border-radius:4px; padding:4px;")
+        root.addWidget(self.item_lbl)
+
         self.regex_lbl = _label(fs - 3, DIM)  # 마을에서만: 상점 검색 정규식
         self.regex_lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
         root.addWidget(self.regex_lbl)
@@ -201,8 +205,11 @@ class Overlay(QWidget):
     # ------------------------------------------------------------ 표시
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
                passive_total: int = 0, timer: Optional[TimerView] = None,
-               regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "") -> None:
+               regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
+               item_msg: str = "") -> None:
         rewards = rewards or []
+        self.item_lbl.setVisible(bool(item_msg))
+        self.item_lbl.setText(item_msg)
         self.regex_lbl.setVisible(bool(regex or flash))
         if flash:
             self.regex_lbl.setText(f'<b style="color:{OK}">{html.escape(flash)}</b>')
