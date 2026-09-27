@@ -336,6 +336,8 @@ class Tracker:
                  if not (self.league and c.league and c.league != self.league)]
         for c in sorted(cands, key=lambda c: c.last_seen, reverse=True):
             score = self._match_score(c, codes)
+            if score > 0 and c.name == self.current:
+                score += 4  # 캐릭터 선택에 다녀온 경우(맵 초기화 등)는 대부분 같은 캐릭터
             if score > best_score:
                 best, best_score = c, score
         if best is None or best_score <= 0:

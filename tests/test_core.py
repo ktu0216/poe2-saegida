@@ -165,6 +165,17 @@ def test_guess_skips_other_league():
     assert t.snapshot().character.name == UNKNOWN_CHAR
 
 
+def test_relog_prefers_previous_character_over_similar_one():
+    t = Tracker(GUIDE)
+    for pid, name in (("1", "other"), ("2", "me")):  # 둘 다 클리어펠 야영지 근처
+        t.feed(area("G1_1", pid=pid))
+        t.feed(LevelUp("t", pid, name, "머서너리", 2))
+        t.feed(area("G1_town", pid=pid))
+    t.feed(LoginConnect("t", "2"))  # 맵 초기화하러 캐릭터 선택
+    t.feed(area("G1_town", pid="2"))
+    assert t.snapshot().character.name == "me"
+
+
 def test_party_member_levelup_ignored():
     t = Tracker(GUIDE)
     t.feed(area("G1_1"))
