@@ -92,6 +92,7 @@ class Character:
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
     step_flags: dict[str, dict] = field(default_factory=dict)
     gear: dict[str, str] = field(default_factory=dict)  # 부위 -> 장착 기준 아이템 텍스트 (Ctrl+C)
+    jump_from: int = -1  # 단계를 건너뛰며 전진하기 직전 단계 (원래 지역으로 돌아오면 되돌린다)
     ascendancy: list[str] = field(default_factory=list)  # 찍은 전직 노드 ID (로그의 전직 패시브 줄)
 
     @property
@@ -331,6 +332,12 @@ class Tracker:
             subs = flags.get("sub", {})
             if subs.get(sub.label) == "engaged":
                 subs[sub.label] = "killed"
+        jf = c.jump_from
+        if 0 <= jf < c.cursor and steps[jf].zone == code.lower():
+            # 단계를 건너뛰어 앞 지역에 들어갔다가(거점만 찍기 등) 원래 지역으로 돌아옴 → 원래 단계로
+            c.jump_from = -1
+            c.cursor, c.cursor_zone = jf, steps[jf].zone
+            return
         new = self.guide.next_position(c.cursor, code)
         if new is not None and cur and cur.is_town and new == c.cursor - 1:
             prev_flags = c.step_flags.get(str(new), {})
@@ -341,6 +348,8 @@ class Tracker:
             if enc and enc.bosses and flags.get("boss") != "killed":
                 new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is not None:
+            skipped = any(not steps[k].is_town for k in range(c.cursor + 1, new))
+            c.jump_from = c.cursor if skipped else -1
             c.cursor = new
             c.cursor_zone = self.guide.steps[new].zone
 

@@ -234,3 +234,29 @@ def test_ascendancy_nodes_set_class_and_stage():
     t.feed(parse_line(line.format("un", "Notable2_1")))
     t.feed(parse_line(line.format("un", "Notable2")))
     assert c.ascension == 2 and "AscendancyMercenary3Notable2" not in c.ascendancy
+
+
+def test_skip_ahead_then_return_restores_step():
+    g = Guide(parse_csv("""id,area_name,quest
+g3_town,지구라트 야영지,밀림 유적으로
+g3_3,밀림 유적,은빛 주먹 → 독액 지하실
+g3_4,독액 지하실,독액
+g3_3,밀림 유적,들끓는 불모지 입구
+g3_2_1,들끓는 불모지,키메랄 습지대로
+g3_5,키메랄 습지대,마을로
+"""), "t")
+    t = Tracker(g)
+    t.feed(area("G3_town", pid="9"))
+    t.feed(LevelUp("t", "9", "hc", "머서너리", 29))
+    t.feed(area("G3_3", pid="9"))
+    c = t.chars["hc"]
+    assert c.cursor == 1
+    t.feed(area("G3_2_1", pid="9"))  # 거점만 찍으러 먼저 들어감
+    assert c.cursor == 4
+    t.feed(area("G3_3", pid="9"))  # 돌아옴 → 은빛 주먹 단계로
+    assert c.cursor == 1
+    for z in ("G3_4", "G3_3", "G3_2_1"):  # 정상 순서로 진행
+        t.feed(area(z, pid="9"))
+    assert c.cursor == 4
+    t.feed(area("G3_3", pid="9"))  # 건너뛰지 않고 온 경우엔 되돌리지 않는다
+    assert c.cursor == 4
