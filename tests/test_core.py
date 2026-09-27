@@ -215,3 +215,22 @@ def test_new_character_keeps_boss_fight_from_before_name():
     t.feed(area("G1_town", pid="1"))
     s = t.snapshot()
     assert s.character.name == "fresh" and s.step.zone == "g1_town"
+
+
+def test_ascendancy_nodes_set_class_and_stage():
+    line = I + "Successfully {}allocated passive skill id: AscendancyMercenary3{}, name: 이름"
+    ev = parse_line(line.format("", "Small1"))
+    assert ev.asc == "Mercenary3" and ev.node == "AscendancyMercenary3Small1" and ev.allocated
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="26920"))
+    t.feed(LevelUp("t", "26920", "hc", "머서너리", 27))
+    for node in ("Small1", "Notable1_"):
+        t.feed(parse_line(line.format("", node)))
+    c = t.chars["hc"]
+    assert c.cls == "젬링 리저네어" and c.ascension == 1
+    for node in ("Small2", "Notable2", "Notable2_1"):  # 선택지 노드는 포인트를 쓰지 않는다
+        t.feed(parse_line(line.format("", node)))
+    assert c.ascension == 2
+    t.feed(parse_line(line.format("un", "Notable2_1")))
+    t.feed(parse_line(line.format("un", "Notable2")))
+    assert c.ascension == 2 and "AscendancyMercenary3Notable2" not in c.ascendancy

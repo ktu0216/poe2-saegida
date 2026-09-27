@@ -29,6 +29,9 @@ _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포
 _NPC = re.compile(r"^(?P<who>[^:#@%$&\[\]\s][^:]{0,40}?): (?P<text>.+)$")
 _AFK_ON = re.compile(r"^: (?:자리 비움 모드를 설정했습니다|AFK mode is now ON)")
 _AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mode is now OFF)")
+# 전직 패시브: "Successfully allocated passive skill id: AscendancyMercenary3Small1, name: 스킬 젬 퀄리티"
+_ASCEND = re.compile(r"^Successfully (?P<un>un)?allocated passive skill id: "
+                     r"(?P<node>Ascendancy(?P<asc>[A-Za-z]+\d)\w*), name: (?P<name>.*)$")
 _PASSIVE_EN =re.compile(r"^: You have received (?P<n>\d+) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
 
 # [Resistances|냉기] -> 냉기
@@ -116,6 +119,17 @@ class Afk:
 
 
 @dataclass(frozen=True)
+class AscendancyNode:
+    """전직 패시브 찍기/빼기. asc 는 "Mercenary3" 같은 전직 ID."""
+    ts: str
+    pid: str
+    node: str
+    asc: str
+    name: str
+    allocated: bool
+
+
+@dataclass(frozen=True)
 class Activity:
     """캐릭터 상태와 무관한 줄. 플레이 시간 계산의 시각 표시로만 쓴다."""
     ts: str
@@ -123,10 +137,11 @@ class Activity:
 
 
 Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, NewCharacter,
-              NpcLine, Afk, Activity]
+              NpcLine, Afk, AscendancyNode, Activity]
 
 # 빠른 사전 필터: 이 문자열이 하나도 없으면 정규식을 돌리지 않는다.
-_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]", "complete all tutorials")
+_HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]", "complete all tutorials",
+          "passive skill id: Ascendancy")
 
 
 def _parse_npc(line: str) -> Optional[NpcLine]:
@@ -162,6 +177,8 @@ def parse_line(line: str) -> Optional[Event]:
         return LoginConnect(ts, pid)
     if body.startswith("Requesting to complete all tutorials"):
         return NewCharacter(ts, pid)
+    if a := _ASCEND.match(body):
+        return AscendancyNode(ts, pid, a["node"], a["asc"], a["name"].strip(), not a["un"])
     if not body.startswith(": "):
         return Activity(ts, pid)
     if _AFK_ON.match(body):

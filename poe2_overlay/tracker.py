@@ -7,6 +7,7 @@
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional
@@ -16,6 +17,7 @@ from .guide import Guide, Step, act_label, is_town
 from .logparse import (
     Afk,
     AreaEntered,
+    AscendancyNode,
     Death,
     Event,
     LevelUp,
@@ -30,6 +32,24 @@ from .logparse import (
 NEW_CHAR = "(새 캐릭터)"
 UNKNOWN_CHAR = "(확인 중)"
 PLACEHOLDERS = (NEW_CHAR, UNKNOWN_CHAR)
+# 전직 ID -> 한국어 전직 이름 (레벨업 줄 "(젬링 리저네어)" 에서 확인한 것). 모르는 전직은 다음 레벨업 때 채워진다.
+ASCENDANCY_KO = {
+    "Mercenary2": "위치헌터", "Mercenary3": "젬링 리저네어", "Warrior1": "타이탄", "Warrior2": "워브링어",
+    "Warrior3": "스미스 오브 키타바", "Sorceress1": "스톰위버", "Huntress1": "아마존", "Witch3": "리치",
+    "Druid1": "오라클", "Druid2": "샤먼",
+}
+ASCENSION_MAX = 4  # 전직 시련 1~4차, 한 번에 2포인트
+
+
+def _ascension_points(nodes: list[str]) -> int:
+    """찍은 전직 노드 → 사용한 포인트. 시작 노드와 선택지 노드(Notable2_1 등)는 포인트를 쓰지 않는다."""
+    return sum(1 for n in nodes if not n.endswith("Start") and not re.search(r"Notable\d+_\d", n))
+
+
+def ascension_stage(nodes: list[str]) -> int:
+    return min(ASCENSION_MAX, (_ascension_points(nodes) + 1) // 2)
+
+
 HC_DEATH = {"하드코어": "소프트코어", "HC SSF": "SSF"}
 FIRST_ZONE = "g1_1"
 MAX_GAP = 30 * 60  # 이보다 긴 로그 공백은 플레이 시간에서 뺀다
@@ -72,6 +92,12 @@ class Character:
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
     step_flags: dict[str, dict] = field(default_factory=dict)
     gear: dict[str, str] = field(default_factory=dict)  # 부위 -> 장착 기준 아이템 텍스트 (Ctrl+C)
+    ascendancy: list[str] = field(default_factory=list)  # 찍은 전직 노드 ID (로그의 전직 패시브 줄)
+
+    @property
+    def ascension(self) -> int:
+        """전직 단계 (0 = 전직 전, 1~4차)."""
+        return ascension_stage(self.ascendancy)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -159,6 +185,14 @@ class Tracker:
             self._on_new_character()
         elif isinstance(ev, Afk):
             self.afk = ev.on
+        elif isinstance(ev, AscendancyNode):
+            if c := self._active():
+                if ev.allocated and ev.node not in c.ascendancy:
+                    c.ascendancy.append(ev.node)
+                elif not ev.allocated and ev.node in c.ascendancy:
+                    c.ascendancy.remove(ev.node)
+                if ev.allocated and (ko := ASCENDANCY_KO.get(ev.asc)):
+                    c.cls = ko
         elif isinstance(ev, PassivePoints):
             if c := self._active():
                 if ev.weapon_set:

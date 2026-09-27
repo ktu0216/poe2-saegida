@@ -345,6 +345,8 @@ class Overlay(QWidget):
 
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
         cls = f" · {html.escape(c.cls)}" if c.cls else ""
+        if c.ascension:
+            cls += f' <span style="color:{DIM};font-weight:normal">({c.ascension}차 전직)</span>'
         tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
         league = _league_line(s.league, c.mode)
         self.char_lbl.setText(f"{name}{cls} · Lv {c.level}{tag}{league}")
