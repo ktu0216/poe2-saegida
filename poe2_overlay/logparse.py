@@ -25,6 +25,8 @@ _DEATH_EN = re.compile(r"^: (?P<name>\S+) has been slain\.")
 _REWARD_KO = re.compile(r"^: (?P<name>\S+) 님이 (?P<text>.+?)을\(를\) 획득했습니다\.")
 _REWARD_EN = re.compile(r"^: (?P<name>\S+) has received (?P<text>.+?)\.$")
 _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포인트(?:를)? ?(?P<n>\d+)(?:포인트를)? ?획득했습니다\.)")
+# NPC 대사: 화자 이름은 한글 등 비ASCII 포함, 숫자 없음 ("Tile hash: 123" 같은 기술 로그 제외)
+_NPC = re.compile(r"^(?P<who>[^:#@%$&\[\]\s][^:]{0,40}?): (?P<text>.+)$")
 _AFK_ON = re.compile(r"^: (?:자리 비움 모드를 설정했습니다|AFK mode is now ON)")
 _AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mode is now OFF)")
 _PASSIVE_EN =re.compile(r"^: You have received (?P<n>\d+) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
@@ -98,6 +100,15 @@ class NewCharacter:
 
 
 @dataclass(frozen=True)
+class NpcLine:
+    """NPC/보스 대사 (`렌리: 둘러보게나.`). 내 캐릭터의 대사는 로그에 남지 않는다."""
+    ts: str
+    pid: str
+    who: str
+    text: str
+
+
+@dataclass(frozen=True)
 class Afk:
     ts: str
     pid: str
@@ -112,14 +123,26 @@ class Activity:
 
 
 Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, NewCharacter,
-              Afk, Activity]
+              NpcLine, Afk, Activity]
 
 # 빠른 사전 필터: 이 문자열이 하나도 없으면 정규식을 돌리지 않는다.
 _HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]", "complete all tutorials")
 
 
+def _parse_npc(line: str) -> Optional[NpcLine]:
+    m = _PREFIX.match(line.rstrip("\r\n"))
+    if not m or m["lvl"] != "INFO":
+        return None
+    n = _NPC.match(m["body"])
+    if not n or n["who"].isascii() or any(ch.isdigit() for ch in n["who"]):
+        return None
+    return NpcLine(f"{m['date']} {m['time']}", m["pid"], n["who"], n["text"])
+
+
 def parse_line(line: str) -> Optional[Event]:
     if not any(h in line for h in _HINTS):
+        if "[INFO Client " in line and ": " in line:
+            return _parse_npc(line)
         return None
     m = _PREFIX.match(line.rstrip("\r\n"))
     if not m:

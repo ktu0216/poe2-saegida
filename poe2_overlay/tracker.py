@@ -11,6 +11,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional
 
+from .encounters import Encounters
 from .guide import Guide, Step, act_label, is_town
 from .logparse import (
     Afk,
@@ -20,6 +21,7 @@ from .logparse import (
     LevelUp,
     LoginConnect,
     NewCharacter,
+    NpcLine,
     PassivePoints,
     Reward,
     SceneName,
@@ -66,6 +68,8 @@ class Character:
     mode: str = ""  # 사용자가 지정: 소프트코어/하드코어/SSF/HC SSF
     play_seconds: float = 0.0  # 자리 비움·로그아웃·긴 공백을 뺀 플레이 시간
     splits: dict[str, float] = field(default_factory=dict)  # 액트 -> 처음 들어갔을 때의 play_seconds
+    # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
+    step_flags: dict[str, dict] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -86,12 +90,15 @@ class Snapshot:
     off_route: bool
     total: int
     league: str = ""
+    flags: dict = field(default_factory=dict)  # 현재 단계의 보스/진행 상태
+    boss: str = ""  # 현재 단계 지역의 보스 이름
 
 
 class Tracker:
     def __init__(self, guide: Guide, characters: Optional[dict[str, Character]] = None,
-                 current: Optional[str] = None):
+                 current: Optional[str] = None, encounters: Optional[Encounters] = None):
         self.guide = guide
+        self.encounters = encounters or Encounters()
         self.chars: dict[str, Character] = characters or {}
         self.current: Optional[str] = current if current in self.chars else None
         self.confirmed = self.current is not None
@@ -128,11 +135,16 @@ class Tracker:
         elif isinstance(ev, Death):
             if c := self._identify(ev.name, ev.ts):
                 c.deaths += 1
+                f = self._flags(c)
+                if f is not None and f.get("boss") == "engaged":
+                    f["boss"] = "died"
                 # 하드코어 캐릭터는 죽으면 일반 리그로 옮겨진다
                 c.mode = HC_DEATH.get(c.mode, c.mode)
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)
+        elif isinstance(ev, NpcLine):
+            self._on_npc(ev)
         elif isinstance(ev, NewCharacter):
             self._on_new_character()
         elif isinstance(ev, Afk):
@@ -167,6 +179,27 @@ class Tracker:
         self.confirmed = False
         self.pending = []
         self.provisional = Character(name=UNKNOWN_CHAR)
+
+    def _flags(self, c: Character) -> Optional[dict]:
+        """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때만)."""
+        steps = self.guide.steps
+        if not steps or not (0 <= c.cursor < len(steps)) or steps[c.cursor].zone != c.zone:
+            return None
+        return c.step_flags.setdefault(str(c.cursor), {})
+
+    def _on_npc(self, ev: NpcLine) -> None:
+        c = self._active()
+        enc = self.encounters.get(c.zone) if c else None
+        if not enc:
+            return
+        f = self._flags(c)
+        if f is None:
+            return
+        if ev.who in enc.bosses:
+            f["boss"] = "engaged"
+        for m in enc.markers:
+            if ev.who == m.speaker and m.text in ev.text:
+                f["marker"] = m.label
 
     def _on_new_character(self) -> None:
         """새 캐릭터 확정 (이름은 아직 모름). 이번 세션의 지역 이동을 새 캐릭터에 다시 적용한다."""
@@ -211,7 +244,16 @@ class Tracker:
             c.cursor = len(self.guide.steps) - 1
             c.cursor_zone = self.guide.steps[c.cursor].zone
             return
+        steps = self.guide.steps
+        cur = steps[c.cursor] if steps and 0 <= c.cursor < len(steps) else None
+        flags = c.step_flags.get(str(c.cursor), {}) if cur else {}
+        if cur and flags.get("boss") == "engaged" and code.lower() != cur.zone:
+            flags["boss"] = "killed"  # 보스와 싸우다 죽지 않고 지역을 떠남 = 처치
         new = self.guide.next_position(c.cursor, code)
+        if new is not None and cur and new == c.cursor + 1 and steps[new].is_town:
+            enc = self.encounters.get(cur.zone)
+            if enc and enc.bosses and flags.get("boss") != "killed":
+                new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is not None:
             c.cursor = new
             c.cursor_zone = self.guide.steps[new].zone
@@ -393,4 +435,6 @@ class Tracker:
             off_route=off,
             total=len(steps),
             league=c.league or self.league,
+            flags=dict(c.step_flags.get(str(i), {})),
+            boss=self.encounters.boss_name(step.zone),
         )

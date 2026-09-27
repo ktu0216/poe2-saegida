@@ -267,9 +267,22 @@ class Overlay(QWidget):
         if step:
             self.step_area.setText(html.escape(step.area))
             self.step_text.setText(rich(step.text) or "이동")
+            parts = []
+            if marker := s.flags.get("marker"):
+                parts.append(f'<span style="color:{TEXT}">◆ {html.escape(marker)}</span>')
+            boss = html.escape(s.boss)
+            state = s.flags.get("boss")
+            if state == "engaged":
+                parts.append(f'<span style="color:{WARN}">⚔ {boss} 전투 중</span>')
+            elif state == "killed":
+                parts.append(f'<span style="color:{OK}">✓ {boss} 처치</span>')
+            elif state == "died":
+                parts.append(f'<span style="color:{WARN}">☠ {boss}에게 사망</span>')
             gifts = [r.slot for r in rewards if not r.done and r.slot.zone == step.zone]
             if gifts:
-                self.step_gift.setText("🎁 " + " · ".join(html.escape(g.label) for g in gifts))
+                parts.append("🎁 " + " · ".join(html.escape(g.label) for g in gifts))
+            if parts:
+                self.step_gift.setText(" · ".join(parts))
                 self.step_gift.setVisible(True)
         rows = []
         for i, st in enumerate(s.upcoming):

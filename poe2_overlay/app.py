@@ -17,6 +17,7 @@ from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .regex import RegexBook
+from .encounters import Encounters
 from .rewards import RewardTable
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
@@ -36,7 +37,7 @@ HOTKEYS = {
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
-PROGRESS_VERSION = 4  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리 (이전 저장본은 로그 전체를 다시 읽는다)
+PROGRESS_VERSION = 5  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
@@ -51,7 +52,8 @@ class Controller:
         self.current_regex = None
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
-        self.tracker = Tracker(self.guide)
+        self.encounters = Encounters.load(config.resource_dir() / "guides" / "encounters_ko.json")
+        self.tracker = Tracker(self.guide, encounters=self.encounters)
         self.tail: Optional[LogTail] = None
         self.dirty = False
         self.notice = ""
@@ -141,7 +143,7 @@ class Controller:
         migrate = saved.get("version", 1) < PROGRESS_VERSION
         if not migrate and saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
-            self.tracker = Tracker(self.guide, chars, saved.get("current"))
+            self.tracker = Tracker(self.guide, chars, saved.get("current"), self.encounters)
             self.tracker.pid = saved.get("pid")
             self.tracker.last_ts = parse_ts(saved.get("last_ts") or "")
             self.tracker.afk = bool(saved.get("afk"))
@@ -386,7 +388,7 @@ class Controller:
             self.settings["log_path"] = path
             config.save_settings(self.settings)
             self.log_path = Path(path)
-            self.tracker = Tracker(self.guide)
+            self.tracker = Tracker(self.guide, encounters=self.encounters)
             self.notice = ""
             self.bootstrap()
             self.refresh()
