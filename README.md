@@ -90,6 +90,15 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
 - 캐릭터·부위별로 처음 복사한 아이템을 '장착 기준'으로 저장. 새 아이템을 장착했으면 Ctrl+Alt+E 로 마지막 복사한 아이템을 기준으로.
 - 스킬 젬·패시브를 반영한 실제 스킬 DPS 가 아니라 아이템 자체 수치 비교.
 
+## 빌드 젬 안내
+
+게임 빌드 플래너 폴더(`Documents\My Games\Path of Exile 2\BuildPlanner`)의 `.build` 파일을 읽는다. 빌드 사이트(poe.ninja 등)에서 `.build` 로 받아 두면 된다.
+
+- 캐릭터의 빌드 묶음: 메뉴 `빌드 (젬 안내)` 에서 고른 것 > 게임에 연결된 빌드(`active_builds`).
+- 같은 묶음의 구간 파일(`Act 1 - …`, `Act 2 - …`, `Interludes - …`, `Budget Endgame - …`, `LvL 1~42 - …`) 중 현재 액트·레벨에 맞는 것을 자동 선택.
+- 패널에 지금 쓸 젬 / 다음 레벨에 쓸 젬, 전체 목록에 보조 젬까지. 레벨업으로 새 젬을 쓸 수 있게 되면 알림.
+- 젬 한국어 이름은 레임 가이드의 `pob_leveling/ko_names.json`, `gems_ko.json` 을 읽는다(없으면 영어).
+
 ## 단축키
 
 | 키 | 동작 |

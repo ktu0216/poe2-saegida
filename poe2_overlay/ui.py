@@ -61,6 +61,18 @@ def _split_table(t: TimerView) -> str:
     return "".join(out)
 
 
+def _gem_table(gems, names) -> str:
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>젬</b> <span style="color:{DIM}">'
+           f'{html.escape(gems.build.name)}</span></div>']
+    for g in gems.now:
+        sup = ", ".join(html.escape(names(s)) for s in g.supports)
+        out.append(f'<div style="color:{TEXT}">● {html.escape(names(g.id))}'
+                   + (f' <span style="color:{DIM}">+ {sup}</span>' if sup else "") + "</div>")
+    for g in gems.upcoming[:6]:
+        out.append(f'<div style="color:{DIM}">Lv {g.lo} · {html.escape(names(g.id))}</div>')
+    return "".join(out)
+
+
 def _reward_list(rewards: list[SlotState]) -> str:
     """액트별 전체 보상 체크리스트."""
     out, act = [], None
@@ -178,6 +190,9 @@ class Overlay(QWidget):
         cl.addWidget(self.step_gift)
         root.addWidget(card)
 
+        self.gem_lbl = _label(fs - 2, DIM)  # 빌드 플래너 기준 젬 안내
+        root.addWidget(self.gem_lbl)
+
         self.next_lbl = _label(fs - 1, DIM)
         root.addWidget(self.next_lbl)
 
@@ -202,8 +217,9 @@ class Overlay(QWidget):
     def render(self, s: Snapshot, notice: str = "", rewards: Optional[list[SlotState]] = None,
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
-               item_msg: str = "") -> None:
+               item_msg: str = "", gems=None, gem_names=None) -> None:
         rewards = rewards or []
+        self._render_gems(gems, gem_names)
         toast = []
         if item_msg:
             toast.append(item_msg)
@@ -311,7 +327,8 @@ class Overlay(QWidget):
                     f'<span style="color:{GIFT}">{html.escape(sl.label)}</span>' for sl in left)
             foot.append(line)
             if self.show_rewards:
-                self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else ""))
+                self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else "")
+                                        + (_gem_table(gems, gem_names) if gems else ""))
                 self.reward_lbl.setVisible(True)
         if notice:
             foot.append(notice)
@@ -342,6 +359,21 @@ class Overlay(QWidget):
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
+
+    def _render_gems(self, gems, names) -> None:
+        self.gem_lbl.setVisible(gems is not None)
+        if gems is None:
+            return
+        now = " · ".join(html.escape(names(g.id)) for g in gems.now) or "-"
+        line = f'💎 <span style="color:{TEXT}">{now}</span>'
+        if gems.upcoming:
+            nxt = gems.upcoming[0].lo
+            soon = [g for g in gems.upcoming if g.lo == nxt]
+            line += (f' <span style="color:{DIM}">│ Lv {nxt}: </span>'
+                     f'<span style="color:{GIFT}">{" · ".join(html.escape(names(g.id)) for g in soon)}</span>')
+        stage = gems.build.stage or gems.build.label
+        line += f'<br><span style="color:{DIM};font-size:small">{html.escape(stage)} · {html.escape(gems.build.label)}</span>'
+        self.gem_lbl.setText(line)
 
     def clamp_to_screen(self) -> None:
         """창이 화면 밖으로 나가 잘리지 않게 (위쪽이 잘리면 캐릭터 줄이 안 보인다)."""

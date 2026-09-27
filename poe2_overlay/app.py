@@ -17,6 +17,7 @@ from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .regex import RegexBook
+from .builds import GemNames, families, family_of, pick_stage, plan, scan
 from .encounters import Encounters
 from .items import compare, is_item_text, parse_item
 from .rewards import RewardTable
@@ -51,6 +52,9 @@ class Controller:
         self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
         self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
         self.active_builds: dict[str, str] = {}
+        self.gem_names = GemNames.load(config.find_reim_gem_data())
+        self.build_files = scan(config.build_planner_dir() or Path())
+        self._last_level: dict[str, int] = {}
         self.current_regex = None
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
@@ -193,6 +197,7 @@ class Controller:
             return False
         self._cfg_mtime = mtime
         self.active_builds = config.read_active_builds(cfg)  # 캐릭터 -> 빌드 플래너 이름
+        self.build_files = scan(config.build_planner_dir() or Path())  # 빌드를 새로 받았을 수 있다
         league = config.read_league(cfg)
         if league == self.tracker.league:
             return True
@@ -241,8 +246,50 @@ class Controller:
             rule = self.regex_book.select(self.active_builds.get(c.name, ""), c.cls, snap.step.act)
         self.current_regex = rule
         in_town = bool(c and is_town(c.zone))
+        gems = self.gem_plan(c, snap.step.act if snap.step else "")
+        self._notify_level_up(c, gems)
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
-                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg)
+                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
+                            gems, self.gem_names)
+
+    # ---------------------------------------------------------- 빌드 젬 안내
+    def build_family(self, c) -> Optional[str]:
+        """캐릭터의 빌드 묶음: 메뉴에서 고른 것 > 게임에 연결된 빌드."""
+        chosen = self.settings.get("char_builds", {}).get(c.name)
+        if chosen:
+            return chosen
+        name = self.active_builds.get(c.name)
+        return family_of(self.build_files, name) if name else None
+
+    def gem_plan(self, c, act: str):
+        if c is None or c.name in PLACEHOLDERS:
+            return None
+        fam = self.build_family(c)
+        files = families(self.build_files).get(fam) if fam else None
+        stage = pick_stage(files, act, c.level) if files else None
+        return plan(stage, c.level) if stage else None
+
+    def _notify_level_up(self, c, gems) -> None:
+        if c is None or gems is None:
+            return
+        prev = self._last_level.get(c.name)
+        self._last_level[c.name] = c.level
+        if prev is not None and c.level > prev and gems.unlocked_at:
+            names = " · ".join(self.gem_names(g.id) for g in gems.unlocked_at)
+            self.flash = f"💎 Lv {c.level} — {names} 장착 가능"
+            QTimer.singleShot(10000, self._clear_flash)
+
+    def set_char_build(self, family: Optional[str]) -> None:
+        c = self.tracker.snapshot().character
+        if c is None:
+            return
+        cb = self.settings.setdefault("char_builds", {})
+        if family:
+            cb[c.name] = family
+        else:
+            cb.pop(c.name, None)
+        config.save_settings(self.settings)
+        self.refresh()
 
     def copy_regex(self, auto: bool) -> None:
         """정규식을 클립보드에. auto 는 상인 인사로 호출된 경우 (마을에서만, 20초에 한 번)."""
@@ -510,6 +557,23 @@ class Controller:
             a.triggered.connect(lambda _=False, md=mode: self.set_mode(md))
             mgrp.addAction(a)
             mm.addAction(a)
+
+        bm = m.addMenu("빌드 (젬 안내)")
+        cur_c = self.tracker.snapshot().character
+        cur_f = self.settings.get("char_builds", {}).get(cur_c.name) if cur_c else None
+        bgrp = QActionGroup(bm)
+        auto_b = QAction("게임에 연결된 빌드 따라가기", bm, checkable=True)
+        auto_b.setChecked(not cur_f)
+        auto_b.triggered.connect(lambda: self.set_char_build(None))
+        bgrp.addAction(auto_b)
+        bm.addAction(auto_b)
+        bm.addSeparator()
+        for fam, files in families(self.build_files).items():
+            a = QAction(f"{files[0].label}  ({len(files)}개 구간)", bm, checkable=True)
+            a.setChecked(fam == cur_f)
+            a.triggered.connect(lambda _=False, f=fam: self.set_char_build(f))
+            bgrp.addAction(a)
+            bm.addAction(a)
 
         cur_op = float(self.settings.get("window_opacity", 1.0))
         om = m.addMenu(f"투명도: {round(cur_op * 100)}%  ({HOTKEYS['opacity_up']} / Down)")

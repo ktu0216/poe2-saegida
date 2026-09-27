@@ -154,6 +154,20 @@ def _reim_guide_candidates() -> list[Path]:
     return out
 
 
+def build_planner_dir() -> Optional[Path]:
+    cfg = find_game_config()
+    return cfg.parent / "BuildPlanner" if cfg else None
+
+
+def find_reim_gem_data() -> Optional[Path]:
+    """레임 가이드의 젬 한국어 이름 데이터 폴더 (data_editable/pob_leveling)."""
+    for f in _reim_guide_candidates():
+        d = f.parents[1] / "pob_leveling"
+        if d.is_dir():
+            return d
+    return None
+
+
 def find_guide(configured: str = "") -> Path:
     if configured and Path(configured).is_file():
         return Path(configured)
