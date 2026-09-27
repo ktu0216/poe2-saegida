@@ -200,3 +200,18 @@ def test_new_character_gets_mode_prompt_existing_does_not():
     assert t.snapshot().character.mode_prompt  # 이름 확정 전(새 캐릭터)에도 표시
     t.feed(LevelUp("t", "1", "fresh", "머서너리", 2))
     assert t.chars["fresh"].mode_prompt
+
+
+def test_new_character_keeps_boss_fight_from_before_name():
+    from poe2_overlay.config import resource_dir
+    from poe2_overlay.encounters import Encounters
+    from poe2_overlay.logparse import NewCharacter, NpcLine
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_ko.json")
+    t = Tracker(GUIDE, encounters=enc)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(NewCharacter("t", "1"))
+    t.feed(NpcLine("t", "1", "불어 터진 방아꾼", "베어 주마!"))
+    t.feed(LevelUp("t", "1", "fresh", "머서너리", 2))  # 이름 확정
+    t.feed(area("G1_town", pid="1"))
+    s = t.snapshot()
+    assert s.character.name == "fresh" and s.step.zone == "g1_town"

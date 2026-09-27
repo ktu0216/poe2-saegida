@@ -307,11 +307,14 @@ class Tracker:
             c.name = archived
             self.chars[archived] = c
             c = None
-        if c is None:
-            c = Character(name=name)
-            p0 = self.provisional
-            # 새 캐릭터면 모드 선택 안내 (확정 전에 이미 고르거나 건너뛴 상태는 이어받음)
-            c.mode_prompt = p0.mode_prompt if p0 is not None and p0.name == NEW_CHAR else self.new_char_session
+        if c is None and self.provisional is not None and self.provisional.name == NEW_CHAR:
+            # 새 캐릭터 임시본을 그대로 이어받는다 (보스 전투 기록, 플레이 시간, 모드 선택 등 유지)
+            c = self.provisional
+            c.name = name
+            self.chars[name] = c
+            replay = []
+        elif c is None:
+            c = Character(name=name, mode_prompt=self.new_char_session)
             self.chars[name] = c
             replay = self.pending
         elif self.provisional is not None and self.provisional.name == name:
