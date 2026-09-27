@@ -34,7 +34,8 @@
                 "engage_after_soon": ["지오너 백작"],
                 "markers": [
                   {"speaker": "백작 부인", "text": "", "label": "", "soon": true},
-                  {"speaker": "악취 나는 늑대 지오너", "text": "", "label": "2페이즈 (늑대)", "phase": true}
+                  {"speaker": "악취 나는 늑대 지오너", "text": "", "label": "2페이즈 (늑대)", "phase": true},
+                  {"speaker": "두건 쓴 자", "text": "", "label": "", "kill": true}
                 ]},
     "g2_10_2": {"bosses": ["공포의 기술자 룻자"]},
     "g2_2":    {"bosses": ["발바라", "자문관 발바라"]},
