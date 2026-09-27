@@ -288,6 +288,10 @@ class Tracker:
             if subs.get(sub.label) == "engaged":
                 subs[sub.label] = "killed"
         new = self.guide.next_position(c.cursor, code)
+        if new is not None and cur and cur.is_town and new == c.cursor - 1:
+            prev_flags = c.step_flags.get(str(new), {})
+            if prev_flags.get("boss") == "killed":
+                new = None  # 보스를 이미 잡은 단계로는 되돌리지 않는다 (마을 갔다가 다시 들른 경우)
         if new is not None and cur and new == c.cursor + 1 and steps[new].is_town:
             enc = self.encounters.get(cur.zone)
             if enc and enc.bosses and flags.get("boss") != "killed":

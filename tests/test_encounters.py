@@ -118,3 +118,13 @@ def test_soon_marker_before_rust_king():
     assert s.flags.get("soon") and s.in_step_zone and s.boss == "녹왕"
     feed(t, AreaEntered("t", "1", "G1_town", 15))
     assert not t.snapshot().in_step_zone  # 마을로 나가면 간단 모드 조건에서 빠진다
+
+
+def test_no_revert_to_step_whose_boss_is_killed():
+    t = Tracker(GUIDE12, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_11", 10), LevelUp("t", "1", "me", "머서너리", 10),
+         AreaEntered("t", "1", "G1_12", 11),
+         NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
+         NpcLine("t", "1", "연무 속의 왕", "우리는 다시 만나게 될 것이다..."),
+         AreaEntered("t", "1", "G1_town", 15), AreaEntered("t", "1", "G1_12", 11))
+    assert t.snapshot().step.zone == "g1_town"
