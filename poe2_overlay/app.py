@@ -40,7 +40,7 @@ HOTKEYS = {
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 MINIMAP_RATIO = 0.25  # 기본 위치: 게임 창 위에서 25% (미니맵 아래)
-PROGRESS_VERSION = 11  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
+PROGRESS_VERSION = 12  # 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
@@ -168,7 +168,10 @@ class Controller:
             self.tracker.afk = bool(saved.get("afk"))
             if not saved.get("confirmed", True):
                 self.tracker.restore_pending(saved.get("pending", []), saved.get("pending_scene", ""))
-                if self.tracker.provisional:
+                if saved.get("provisional"):  # 저장해 둔 추정본이 있으면 그대로 (재계산보다 정확)
+                    self.tracker.provisional = Character.from_dict(saved["provisional"])
+                    self.tracker._pending_play = float(saved.get("pending_play", 0.0))
+                elif self.tracker.provisional:
                     self.tracker.provisional.mode = saved.get("pending_mode", "")
             start = saved["offset"]
         for ln in iter_lines(self.log_path, start, size):
@@ -431,6 +434,9 @@ class Controller:
             "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
             "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
             "pending_mode": self.tracker.provisional.mode if self.tracker.provisional else "",
+            # 추정 상태의 캐릭터(모드 지정·퀘스트 패시브 등 확정 전 변경 포함)를 통째로 저장
+            "provisional": self.tracker.provisional.to_dict() if self.tracker.provisional else None,
+            "pending_play": self.tracker._pending_play,
             "characters": chars,
         })
         self.dirty = False
