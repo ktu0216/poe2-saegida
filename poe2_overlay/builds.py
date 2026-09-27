@@ -143,50 +143,63 @@ def _english(gem_id: str) -> str:
 
 
 class GemNames:
-    """젬 ID → 한국어 이름. 레임 가이드의 gems_ko.json 이 있으면 쓰고, 없으면 영어 이름."""
+    """젬 ID → 게임 검색용 한국어 이름.
+
+    1) 보정 파일 names (게임에서 직접 확인) 2) 거래소 데이터(표시 영어 이름 → 한국어)
+    3) 레임 가이드 이름 사전 4) 없으면 영어 이름 + 표시.
+    빌드 파일의 ID 는 게임 내부 이름이라 표시 이름과 다를 수 있어(Scattershot → Multishot) 보정 파일 ids 로 바꾼다.
+    """
 
     def __init__(self, mapping: Optional[dict[str, str]] = None):
-        self.map = mapping or {}
+        self.map = mapping or {}  # 레임: 소문자 영어 이름 / 젬 ID 끝부분 → 한국어
+        self.trade: dict[str, str] = {}  # 거래소: 표시 영어 이름(등급 포함) → 한국어
+        self.ids: dict[str, str] = {}  # 내부 이름 → 표시 영어 이름
+        self.names: dict[str, str] = {}  # 게임에서 확인한 한국어 (소문자 영어 키)
         self.unknown_mark = ""  # 한국어 이름을 모를 때 영어 이름 뒤에 붙일 표시
 
+    @staticmethod
+    def _read(path: Optional[Path]) -> dict:
+        try:
+            return json.loads(path.read_text(encoding="utf-8")) if path and path.is_file() else {}
+        except (OSError, ValueError):
+            return {}
+
     @classmethod
-    def load(cls, folder: Optional[Path], overrides: Optional[Path] = None) -> "GemNames":
-        """레임 가이드 pob_leveling 폴더: gems_ko.json (젬 ID→이름), ko_names.json (영어 이름→한국어)."""
+    def load(cls, folder: Optional[Path], overrides: Optional[Path] = None,
+             trade: Optional[Path] = None) -> "GemNames":
+        """folder: 레임 가이드 pob_leveling (gems_ko.json, ko_names.json)."""
         mapping: dict[str, str] = {}
         if folder and folder.is_dir():
-            try:
-                d = json.loads((folder / "ko_names.json").read_text(encoding="utf-8"))
-                for en, ko in (d.get("gems") or {}).items():
-                    mapping[en.lower()] = ko
-            except (OSError, ValueError):
-                pass
-            try:
-                d = json.loads((folder / "gems_ko.json").read_text(encoding="utf-8"))
-                for key, v in d.items():
-                    if isinstance(v, dict) and v.get("name"):
-                        mapping[key.rsplit("/", 1)[-1]] = v["name"]
-            except (OSError, ValueError):
-                pass
-        if overrides and overrides.is_file():  # 게임에서 확인한 이름이 가장 우선
-            try:
-                for en, ko in json.loads(overrides.read_text(encoding="utf-8")).get("names", {}).items():
-                    mapping[en.lower()] = ko
-            except (OSError, ValueError):
-                pass
+            for en, ko in (cls._read(folder / "ko_names.json").get("gems") or {}).items():
+                mapping[en.lower()] = ko
+            for key, v in cls._read(folder / "gems_ko.json").items():
+                if isinstance(v, dict) and v.get("name"):
+                    mapping[key.rsplit("/", 1)[-1]] = v["name"]
         names = cls(mapping)
+        ov = cls._read(overrides)
+        names.ids = {k.lower(): v for k, v in (ov.get("ids") or {}).items()}
+        names.names = {k.lower(): v for k, v in (ov.get("names") or {}).items()}
+        names.trade = dict(cls._read(trade).get("names") or {})
         names.unknown_mark = " (한글명 미확인)"
         return names
 
     def __call__(self, gem_id: str) -> str:
         en = _english(gem_id)
+        m = re.match(r"^(.*?)( (?:II|III|IV))?$", en)
+        base, tier = m[1], m[2] or ""
+        shown = self.ids.get(base.lower(), base)  # 게임 표시 영어 이름
+        if ko := self.names.get(shown.lower()) or self.names.get(base.lower()):
+            return ko + tier
+        for key in ((f"{shown}{tier}",) if tier else (shown, f"{shown} I")):
+            if ko := self.trade.get(key):
+                return ko
         if ko := self.map.get(gem_id.rsplit("/", 1)[-1]):
             return ko
-        base = re.sub(r" (II|III|IV)$", "", en)
-        ko = self.map.get(en.lower()) or self.map.get(base.lower())
-        if ko:
-            return (ko + en[len(base):]) if en != base and not self.map.get(en.lower()) else ko
-        return en + self.unknown_mark
-
+        if ko := self.map.get(en.lower()):
+            return ko
+        if ko := self.map.get(base.lower()):
+            return ko + tier
+        return shown + tier + self.unknown_mark
 
 @dataclass
 class GemPlan:

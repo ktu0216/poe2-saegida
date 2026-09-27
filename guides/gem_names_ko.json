@@ -1,7 +1,11 @@
 {
-  "_comment": "젬 한국어 이름 보정. 게임(한국어 클라이언트)에서 직접 확인한 이름만 적는다. 키는 영어 이름(등급 II/III 제외), 값은 게임 젬 검색에 쓰는 한국어 이름. 레임 가이드 이름 사전보다 우선.",
-  "names": {
-    "Scattershot": "다중사격",
-    "Primal Armament": "원소 병기"
-  }
+  "_comment": "젬 이름 보정. ids: 빌드 파일의 내부 젬 ID(영어) → 게임 표시 영어 이름 (등급 I/II 제외). names: 게임에서 직접 확인한 한국어 이름(가장 우선). 표시 이름 → 한국어는 guides/gem_names_trade.json(거래소 데이터)을 쓴다.",
+  "ids": {
+    "Scattershot": "Multishot",
+    "Primal Armament": "Elemental Armament",
+    "Expedite": "Short Fuse",
+    "Overpower": "Stun"
+  },
+  "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정.",
+  "names": {}
 }
