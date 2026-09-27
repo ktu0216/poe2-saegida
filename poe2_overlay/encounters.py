@@ -14,10 +14,17 @@ class Marker:
     label: str
 
 
+@dataclass(frozen=True)
+class SubZone:
+    boss: str
+    label: str
+
+
 @dataclass
 class ZoneEncounter:
     bosses: tuple[str, ...] = ()
     markers: tuple[Marker, ...] = ()
+    subzones: dict[str, SubZone] = field(default_factory=dict)  # 하위 지역 코드 -> 보스
 
 
 @dataclass
@@ -31,7 +38,8 @@ class Encounters:
         for code, z in d.get("zones", {}).items():
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
-                tuple(Marker(m["speaker"], m["text"], m["label"]) for m in z.get("markers", [])))
+                tuple(Marker(m["speaker"], m["text"], m["label"]) for m in z.get("markers", [])),
+                {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()})
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:

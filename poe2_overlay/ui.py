@@ -270,6 +270,10 @@ class Overlay(QWidget):
             parts = []
             if marker := s.flags.get("marker"):
                 parts.append(f'<span style="color:{TEXT}">◆ {html.escape(marker)}</span>')
+            for label, st in s.flags.get("sub", {}).items():  # 하위 지역 보스 (집정관, 배우자 등)
+                icon, color, word = {"engaged": ("⚔", WARN, "전투 중"), "killed": ("✓", OK, "처치"),
+                                     "died": ("☠", WARN, "에게 사망")}.get(st, ("", DIM, st))
+                parts.append(f'<span style="color:{color}">{icon} {html.escape(label)} {word}</span>')
             boss = html.escape(s.boss)
             state = s.flags.get("boss")
             if state == "engaged":

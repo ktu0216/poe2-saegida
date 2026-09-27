@@ -138,6 +138,10 @@ class Tracker:
                 f = self._flags(c)
                 if f is not None and f.get("boss") == "engaged":
                     f["boss"] = "died"
+                if f is not None:
+                    for k, v in f.get("sub", {}).items():
+                        if v == "engaged":
+                            f["sub"][k] = "died"
                 # 하드코어 캐릭터는 죽으면 일반 리그로 옮겨진다
                 c.mode = HC_DEATH.get(c.mode, c.mode)
         elif isinstance(ev, Reward):
@@ -183,17 +187,29 @@ class Tracker:
     def _flags(self, c: Character) -> Optional[dict]:
         """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때만)."""
         steps = self.guide.steps
-        if not steps or not (0 <= c.cursor < len(steps)) or steps[c.cursor].zone != c.zone:
+        if not steps or not (0 <= c.cursor < len(steps)):
+            return None
+        zone = steps[c.cursor].zone
+        if zone != c.zone and not self._subzone(zone, c.zone):
             return None
         return c.step_flags.setdefault(str(c.cursor), {})
 
+    def _subzone(self, step_zone: str, zone: str):
+        enc = self.encounters.get(step_zone)
+        return enc.subzones.get(zone.lower()) if enc else None
+
     def _on_npc(self, ev: NpcLine) -> None:
         c = self._active()
-        enc = self.encounters.get(c.zone) if c else None
-        if not enc:
-            return
-        f = self._flags(c)
+        f = self._flags(c) if c else None
         if f is None:
+            return
+        step_zone = self.guide.steps[c.cursor].zone
+        if sub := self._subzone(step_zone, c.zone):  # 하위 지역 보스 (집정관의 능묘 등)
+            if ev.who == sub.boss:
+                f.setdefault("sub", {})[sub.label] = "engaged"
+            return
+        enc = self.encounters.get(c.zone)
+        if not enc:
             return
         if ev.who in enc.bosses:
             f["boss"] = "engaged"
@@ -230,6 +246,7 @@ class Tracker:
                 c.area_name = ev.name
 
     def _apply_area(self, c: Character, code: str, level: int, ts: str) -> None:
+        prev_zone = c.zone
         c.zone = code.lower()
         c.area_name = self.guide.area_name(code) or ""
         c.area_level = level
@@ -249,6 +266,10 @@ class Tracker:
         flags = c.step_flags.get(str(c.cursor), {}) if cur else {}
         if cur and flags.get("boss") == "engaged" and code.lower() != cur.zone:
             flags["boss"] = "killed"  # 보스와 싸우다 죽지 않고 지역을 떠남 = 처치
+        if cur and (sub := self._subzone(cur.zone, prev_zone)) and code.lower() != prev_zone:
+            subs = flags.get("sub", {})
+            if subs.get(sub.label) == "engaged":
+                subs[sub.label] = "killed"
         new = self.guide.next_position(c.cursor, code)
         if new is not None and cur and new == c.cursor + 1 and steps[new].is_town:
             enc = self.encounters.get(cur.zone)
@@ -424,7 +445,7 @@ class Tracker:
                             (c.league if c else "") or self.league)
         i = max(0, min(c.cursor, len(steps) - 1))
         step = steps[i]
-        off = bool(c.zone) and c.zone != step.zone and not (
+        off = bool(c.zone) and c.zone != step.zone and not self._subzone(step.zone, c.zone) and not (
             i + 1 < len(steps) and steps[i + 1].zone == c.zone)
         return Snapshot(
             character=c,

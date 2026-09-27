@@ -57,3 +57,22 @@ def test_death_to_boss_does_not_advance():
     s = t.snapshot()
     assert s.step.zone == "g1_5"
     assert t.chars["me"].step_flags["1"]["boss"] == "died"
+
+GUIDE7 = Guide(parse_csv("""
+g1_6,으스스한 덩굴,공동묘지 입구 찾기
+g1_7,영원한 자의 공동묘지,배우자와 집정관 처치 → 사냥터
+g1_11,사냥터,까마귀 종 처치
+"""), "t")
+
+
+def test_subzone_bosses_under_parent_step():
+    t = Tracker(GUIDE7, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_6", 6), LevelUp("t", "1", "me", "머서너리", 6),
+         AreaEntered("t", "1", "G1_7", 7), AreaEntered("t", "1", "G1_8", 8))
+    s = t.snapshot()
+    assert s.step.zone == "g1_7" and not s.off_route
+    feed(t, NpcLine("t", "1", "영원의 집정관 드레이븐", "무릎 꿇어라!"))
+    assert t.snapshot().flags["sub"] == {"집정관": "engaged"}
+    feed(t, AreaEntered("t", "1", "G1_7", 7), AreaEntered("t", "1", "G1_9", 8),
+         NpcLine("t", "1", "집정관의 배우자 아시니아", "..."), Death("t", "1", "me"))
+    assert t.snapshot().flags["sub"] == {"집정관": "killed", "배우자": "died"}
