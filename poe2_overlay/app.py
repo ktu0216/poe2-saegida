@@ -96,6 +96,7 @@ class Controller:
         self.item_msg = ""
         self.last_item_text = ""
         self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
+        self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
@@ -335,9 +336,19 @@ class Controller:
             self._show_item(f'📌 장착 중 ({label(k)}) · {title}', "#9a9284")
             return
         empty = [k for k in keys if k not in c.gear]
+        prev_text = self.prev_copied.get(item.slot)
+        self.prev_copied[item.slot] = text
         if empty and is_town(c.zone) and len(empty) == len(keys):  # 마을에서 복사한 건 대부분 상점/창고 아이템
+            hint = f'<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템이면 {HOTKEYS["equip"]} 로 등록</span>'
+            if prev_text and prev_text != text:  # 기준이 없으면 직전에 복사한 같은 부위 아이템과 비교
+                title, diffs, verdict = compare(item, parse_item(prev_text))
+                color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
+                mark = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷")
+                body = f'{mark} · {item.slot} {title} (직전 복사 대비)' + ("<br>" + " · ".join(diffs) if diffs else "")
+                self._show_item(body + hint, color)
+                return
             title, _, _ = compare(item, None)
-            self._show_item(f'{item.slot} {title}<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템을 Ctrl+C 한 뒤 {HOTKEYS["equip"]}</span>', "#ece6da")
+            self._show_item(f'{item.slot} {title}' + hint, "#ece6da")
             return
         if empty and not is_town(c.zone):  # 마을 밖: 빈 칸 = 지금 장착 중인 아이템으로 본다
             c.gear[empty[0]] = text
