@@ -6,7 +6,7 @@ import re
 from typing import Callable, Optional
 
 from PySide6.QtCore import QPoint, QRectF, Qt, Signal
-from PySide6.QtGui import QAction, QColor, QFont, QIcon, QPainter, QPainterPath, QPixmap
+from PySide6.QtGui import QAction, QColor, QFont, QGuiApplication, QIcon, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
     QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QVBoxLayout, QWidget,
 )
@@ -181,14 +181,6 @@ class Overlay(QWidget):
         self.next_lbl = _label(fs - 1, DIM)
         root.addWidget(self.next_lbl)
 
-        self.item_lbl = _label(fs - 1, TEXT)  # Ctrl+C 한 아이템과 장착 아이템 비교
-        self.item_lbl.setStyleSheet(f"color:{TEXT}; background:rgba(255,255,255,18); border-radius:4px; padding:4px;")
-        root.addWidget(self.item_lbl)
-
-        self.regex_lbl = _label(fs - 3, DIM)  # 마을에서만: 상점 검색 정규식
-        self.regex_lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        root.addWidget(self.regex_lbl)
-
         self.foot_lbl = _label(fs - 3, DIM)
         root.addWidget(self.foot_lbl)
 
@@ -198,6 +190,10 @@ class Overlay(QWidget):
         self.show_rewards = False
 
         self.setFixedWidth(int(settings["window"].get("w", 420)))
+        self._grow_key = None  # 이 값(캐릭터)이 같은 동안은 창 높이를 줄이지 않는다 (흔들림 방지)
+        self._min_h = 0
+        # 아이템 비교·정규식·알림은 패널 아래에 붙는 별도 창에 (패널 크기가 변하지 않도록)
+        self.toast = Toast(fs, self.width())
         w = settings["window"]
         if w.get("x") is not None:
             self.move(int(w["x"]), int(w.get("y") or 0))
@@ -208,20 +204,23 @@ class Overlay(QWidget):
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
                item_msg: str = "") -> None:
         rewards = rewards or []
-        self.item_lbl.setVisible(bool(item_msg))
-        self.item_lbl.setText(item_msg)
-        self.regex_lbl.setVisible(bool(regex or flash))
+        toast = []
+        if item_msg:
+            toast.append(item_msg)
         if flash:
-            self.regex_lbl.setText(f'<b style="color:{OK}">{html.escape(flash)}</b>')
+            toast.append(f'<b style="color:{OK}">{html.escape(flash)}</b>')
         elif regex:
-            self.regex_lbl.setText(
+            toast.append(
                 f'🔎 <b style="color:{TEXT}">{html.escape(regex.name)}</b> '
                 f'<span style="color:{ACCENT};font-family:Consolas">{html.escape(regex.regex)}</span>'  # 맑은 고딕은 \ 를 ₩ 로 그린다
                 f' <span style="color:{DIM}">· {html.escape(regex_key)} 복사</span>')
-        self.timer_lbl.setVisible(timer is not None)
-        if timer:
-            self.timer_lbl.setText(_timer_line(timer))
-        self.step_gift.setVisible(False)
+        self.toast.set_content("<br>".join(toast), self.isVisible())
+        self._follow()
+        self.timer_lbl.setText(_timer_line(timer) if timer else "&nbsp;")  # 비어도 자리 유지
+        self.step_gift.setText("&nbsp;")
+        key = s.character.name if s.character else None
+        if key != self._grow_key:
+            self._grow_key, self._min_h = key, 0
         self.reward_lbl.setVisible(False)
         c = s.character
         if c is None:
@@ -294,7 +293,6 @@ class Overlay(QWidget):
                 parts.append("🎁 " + " · ".join(html.escape(g.label) for g in gifts))
             if parts:
                 self.step_gift.setText(" · ".join(parts))
-                self.step_gift.setVisible(True)
         rows = []
         for i, st in enumerate(s.upcoming):
             size = "" if i == 0 else ' style="font-size:small"'
@@ -328,7 +326,12 @@ class Overlay(QWidget):
         lay = self.layout()
         lay.activate()
         h = lay.heightForWidth(self.width()) if lay.hasHeightForWidth() else lay.sizeHint().height()
-        self.setFixedHeight(max(h, lay.minimumSize().height()))
+        h = max(h, lay.minimumSize().height())
+        if not self.show_rewards:  # 전체 목록을 펼친 경우만 예외
+            h = max(h, self._min_h)
+            self._min_h = h
+        self.setFixedHeight(h)
+        self._follow()
 
     # ------------------------------------------------------------ 그리기/조작
     def paintEvent(self, _):
@@ -339,6 +342,30 @@ class Overlay(QWidget):
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
+
+    def clamp_to_screen(self) -> None:
+        """창이 화면 밖으로 나가 잘리지 않게 (위쪽이 잘리면 캐릭터 줄이 안 보인다)."""
+        screen = QGuiApplication.screenAt(self.frameGeometry().center()) or QGuiApplication.primaryScreen()
+        a = screen.availableGeometry()
+        x = min(max(self.x(), a.left()), a.right() - self.width())
+        y = min(max(self.y(), a.top()), a.bottom() - min(self.height(), a.height()))
+        if (x, y) != (self.x(), self.y()):
+            self.move(x, y)
+
+    def _follow(self) -> None:
+        self.toast.follow(self.frameGeometry())
+
+    def moveEvent(self, e):
+        super().moveEvent(e)
+        self._follow()
+
+    def setVisible(self, visible: bool) -> None:
+        super().setVisible(visible)
+        self.toast.set_content(self.toast.content, visible)
+
+    def setWindowOpacity(self, value: float) -> None:
+        super().setWindowOpacity(value)
+        self.toast.setWindowOpacity(value)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
@@ -351,6 +378,7 @@ class Overlay(QWidget):
     def mouseReleaseEvent(self, e):
         if self._drag is not None:
             self._drag = None
+            self.clamp_to_screen()
             self.moved.emit(self.x(), self.y())
 
     def contextMenuEvent(self, e):
@@ -358,3 +386,45 @@ class Overlay(QWidget):
             m = QMenu(self)
             self.menu_builder(m)
             m.exec(e.globalPos())
+
+
+class Toast(QWidget):
+    """가이드 패널 바로 아래(공간이 없으면 위)에 붙는 알림 창. 내용이 없으면 숨는다."""
+
+    def __init__(self, fs: int, width: int):
+        super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_ShowWithoutActivating)
+        self.setWindowTitle("POE2 가이드 알림")
+        self.content = ""
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(12, 8, 12, 8)
+        self.lbl = _label(fs - 1, TEXT)
+        lay.addWidget(self.lbl)
+        self.setFixedWidth(width)
+
+    def set_content(self, html_text: str, parent_visible: bool) -> None:
+        self.content = html_text
+        if html_text:
+            self.lbl.setText(html_text)
+            lay = self.layout()
+            lay.activate()
+            self.setFixedHeight(lay.heightForWidth(self.width()) if lay.hasHeightForWidth()
+                                else lay.sizeHint().height())
+        self.setVisible(bool(html_text) and parent_visible)
+
+    def follow(self, g) -> None:
+        screen = self.screen().availableGeometry() if self.screen() else None
+        y = g.bottom() + 6
+        if screen is not None and y + self.height() > screen.bottom():
+            y = g.top() - self.height() - 6
+        self.move(g.left(), y)
+
+    def paintEvent(self, _):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        bg = QColor(BG)
+        bg.setAlphaF(0.92)
+        p.setBrush(bg)
+        p.setPen(QColor(ACCENT))
+        p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)

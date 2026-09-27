@@ -44,3 +44,27 @@ def test_armour_resists():
     it = parse_item(boots)
     assert it.evasion == 40 and it.res == {"화염": 12} and it.life == 20 and it.move_speed == 10
     assert parse_item("그냥 텍스트") is None
+
+
+RING = """아이템 종류: 반지
+아이템 희귀도: 마법
+서리 내린 철제 반지 - 새끼용
+--------
+아이템 레벨: 7
+--------
+{ 고정 속성 부여 — 피해, 물리, 공격 }
+공격 시 물리 피해 1~4 추가
+--------
+{ 접두어 속성 부여 "서리 내린" (등급: 9) — 피해, 원소, 냉기, 공격 }
+공격 시 냉기 피해 1~2(2-3) 추가
+{ 접미어 속성 부여 "- 새끼용" (등급: 8) — 원소, 화염, 저항 }
+화염 저항 +7(6-10)%
+"""
+
+
+def test_ring_with_roll_ranges():
+    it = parse_item(RING)
+    assert it.res == {"화염": 7} and it.added == {"물리": (1, 4), "냉기": (1, 2)}
+    title, _, _ = compare(it, None)
+    assert "저항 합 7" in title and "공격 추가 피해 4" in title
+    assert parse_item(CROSSBOW).added == {}  # 무기의 피해 추가 문구는 피해 줄에 이미 포함

@@ -23,7 +23,11 @@ _RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈) 피해: (\d+)-(\d+)"
 _NUM = re.compile(r"^([^:{]+): ([\d.]+)")
 _RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|모든 원소) 저항|(화염|냉기|번개|혼돈|모든 원소) 저항 \+(\d+)%)")
 _LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|최대 생명력 \+(\d+))")
-_MOVE = re.compile(r"이동 속도 (\d+)(?:\(\d+-\d+\))?% 증가")
+_MOVE = re.compile(r"이동 속도 (\d+)% 증가")
+# 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
+_ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
+# 옵션 수치 뒤의 등급 범위 표기 제거: "화염 저항 +7(6-10)%" -> "화염 저항 +7%"
+_ROLL = re.compile(r"\(\d+(?:\.\d+)?-\d+(?:\.\d+)?\)")
 
 
 @dataclass
@@ -40,6 +44,7 @@ class Item:
     life: int = 0
     move_speed: int = 0
     res: dict[str, int] = field(default_factory=dict)
+    added: dict[str, tuple[int, int]] = field(default_factory=dict)  # 공격 시 피해 추가 (장신구 등)
     item_level: int = 0
 
     @property
@@ -66,6 +71,10 @@ class Item:
     @property
     def dps(self) -> float:
         return sum(self.avg(k) for k in self.damage) * self.aps
+
+    @property
+    def added_avg(self) -> float:
+        return sum((lo + hi) / 2 for lo, hi in self.added.values())
 
     @property
     def res_total(self) -> int:
@@ -114,6 +123,10 @@ def parse_item(text: str) -> Optional[Item]:
             continue
         if ln.startswith("{"):
             continue  # 옵션 등급 설명 줄
+        ln = _ROLL.sub("", ln)
+        if not item.is_weapon and (m := _ADDED.search(ln)):  # 무기의 같은 문구는 이미 피해 줄에 포함
+            lo, hi = item.added.get(m[1], (0, 0))
+            item.added[m[1]] = (lo + int(m[2]), hi + int(m[3]))
         for m in _RES.finditer(ln):
             kind = m[2] or m[3]
             item.res[kind] = item.res.get(kind, 0) + int(m[1] or m[4])
@@ -149,15 +162,16 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
 
     def rows(it: Item):
         return {"방어도": it.armour, "회피": it.evasion, "에너지 보호막": it.energy_shield,
-                "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed}
+                "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed,
+                "공격 추가 피해": round(it.added_avg, 1)}
 
     cur = rows(new)
     if old is None:
         parts = [f"{k} {v}" for k, v in cur.items() if v]
         return " · ".join(parts) or new.item_class, [], 0
     prev = rows(old)
-    diffs = [f"{k} {cur[k] - prev[k]:+d}" for k in cur if cur[k] != prev[k]]
-    score = sum(cur[k] - prev[k] for k in ("생명력", "저항 합", "이동 속도")) * 2 + \
+    diffs = [f"{k} {cur[k] - prev[k]:+g}" for k in cur if cur[k] != prev[k]]
+    score = sum(cur[k] - prev[k] for k in ("생명력", "저항 합", "이동 속도", "공격 추가 피해")) * 2 + \
         sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
     verdict = 1 if score > 2 else (-1 if score < -2 else 0)
     return new.item_class, diffs, verdict

@@ -125,6 +125,7 @@ class Controller:
         self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
         set_click_through(int(self.overlay.winId()), False)  # 클릭해도 게임 포커스를 뺏지 않게
+        set_click_through(int(self.overlay.toast.winId()), True)  # 알림 창은 보기만: 항상 클릭 통과
         # 저장된 위치가 없으면 게임 창 오른쪽 위(미니맵 자리)에 붙인다. 게임 창을 찾을 때까지 tick 에서 재시도.
         self.auto_pos = self.settings["window"].get("x") is None
         self._auto_placed = False
@@ -134,6 +135,8 @@ class Controller:
             self.toggle_click_through()
         self.refresh()
         QTimer.singleShot(500, self.on_clipboard)  # 켜기 전에 복사해 둔 아이템도 처리
+        if not self.auto_pos:
+            QTimer.singleShot(300, self._clamp_saved)  # 저장된 위치가 화면 밖이면 안으로
 
         # 개발용: 화면 캡처를 파일로 남긴다.
         if os.environ.get("POE2_OVERLAY_SHOW_REWARDS"):
@@ -329,6 +332,11 @@ class Controller:
             g = self.app.primaryScreen().availableGeometry()
             right, top, height = g.x() + g.width(), g.y(), g.height()
         self.overlay.move(right - self.overlay.width() - margin, top + int(height * ratio))
+
+    def _clamp_saved(self) -> None:
+        self.overlay.clamp_to_screen()
+        self.settings["window"].update(x=self.overlay.x(), y=self.overlay.y())
+        config.save_settings(self.settings)
 
     def reset_position(self) -> None:
         self.settings["window"].update(x=None, y=None)
