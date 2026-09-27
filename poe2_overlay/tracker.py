@@ -66,6 +66,7 @@ class Character:
     last_seen: str = ""
     league: str = ""
     mode: str = ""  # 사용자가 지정: 소프트코어/하드코어/SSF/HC SSF
+    mode_prompt: bool = False  # 새 캐릭터: 모드 선택 버튼을 보여줄지 (선택/건너뛰기/진행하면 False)
     play_seconds: float = 0.0  # 자리 비움·로그아웃·긴 공백을 뺀 플레이 시간
     splits: dict[str, float] = field(default_factory=dict)  # 액트 -> 처음 들어갔을 때의 play_seconds
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
@@ -237,7 +238,8 @@ class Tracker:
         old = self.provisional
         if old is not None and old.name == NEW_CHAR:
             return
-        nc = Character(name=NEW_CHAR, league=self.league, mode=old.mode if old and old.name in PLACEHOLDERS else "")
+        nc = Character(name=NEW_CHAR, league=self.league, mode=old.mode if old and old.name in PLACEHOLDERS else "",
+                       mode_prompt=old.mode_prompt if old and old.name == NEW_CHAR else True)
         for p in self.pending:
             self._apply_area(nc, p.code, p.level, p.ts)
         nc.play_seconds = self._pending_play
@@ -307,6 +309,9 @@ class Tracker:
             c = None
         if c is None:
             c = Character(name=name)
+            p0 = self.provisional
+            # 새 캐릭터면 모드 선택 안내 (확정 전에 이미 고르거나 건너뛴 상태는 이어받음)
+            c.mode_prompt = p0.mode_prompt if p0 is not None and p0.name == NEW_CHAR else self.new_char_session
             self.chars[name] = c
             replay = self.pending
         elif self.provisional is not None and self.provisional.name == name:
@@ -341,7 +346,7 @@ class Tracker:
         if self.new_char_session or first == FIRST_ZONE:
             if self.provisional and self.provisional.name == NEW_CHAR:
                 return self.provisional
-            nc = Character(name=NEW_CHAR, league=self.league)
+            nc = Character(name=NEW_CHAR, league=self.league, mode_prompt=True)
             return nc
         best, best_score = None, -1
         cands = [c for c in self.chars.values()

@@ -8,7 +8,7 @@ from typing import Callable, Optional
 from PySide6.QtCore import QPoint, QRectF, Qt, Signal
 from PySide6.QtGui import QAction, QColor, QFont, QGuiApplication, QIcon, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QVBoxLayout, QWidget,
+    QFrame, QHBoxLayout, QLabel, QMenu, QProgressBar, QPushButton, QVBoxLayout, QWidget,
 )
 
 from .guide import Step, is_town
@@ -136,6 +136,7 @@ def _label(size: int, color: str = TEXT, bold: bool = False, wrap: bool = True) 
 
 class Overlay(QWidget):
     moved = Signal(int, int)
+    mode_chosen = Signal(str)  # 새 캐릭터 모드 선택 ("" = 건너뛰기)
 
     def __init__(self, settings: dict):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -160,6 +161,35 @@ class Overlay(QWidget):
         head.addWidget(self.char_lbl, 1)
         head.addWidget(self.act_lbl, 0, Qt.AlignRight)
         root.addLayout(head)
+
+        # 새 캐릭터: 모드 선택 (선택/건너뛰기/진행하면 사라짐)
+        self.mode_box = QFrame()
+        self.mode_box.setObjectName("modebox")
+        self.mode_box.setStyleSheet(
+            f"QFrame#modebox{{background:rgba(127,184,255,30);border:1px solid #7fb8ff;border-radius:4px}}"
+            f"QPushButton{{background:#2a2622;color:{TEXT};border:1px solid #5a5040;border-radius:3px;padding:2px 6px}}"
+            f"QPushButton:hover{{border-color:{ACCENT}}}")
+        ml = QVBoxLayout(self.mode_box)
+        ml.setContentsMargins(8, 5, 8, 6)
+        ml.setSpacing(4)
+        self.mode_msg = _label(fs - 2, TEXT, True)
+        self.mode_msg.setText("새 캐릭터 — 모드를 선택하세요")
+        ml.addWidget(self.mode_msg)
+        row = QHBoxLayout()
+        row.setSpacing(4)
+        for mode in ("소프트코어", "하드코어", "SSF", "HC SSF"):
+            b = QPushButton(mode)
+            b.setFont(QFont("Malgun Gothic", fs - 3))
+            b.clicked.connect(lambda _=False, md=mode: self.mode_chosen.emit(md))
+            row.addWidget(b)
+        row.addStretch(1)
+        skip = QPushButton("건너뛰기")
+        skip.setFont(QFont("Malgun Gothic", fs - 3))
+        skip.clicked.connect(lambda: self.mode_chosen.emit(""))
+        row.addWidget(skip)
+        ml.addLayout(row)
+        self.mode_box.setVisible(False)
+        root.addWidget(self.mode_box)
 
         self.bar = QProgressBar()
         self.bar.setTextVisible(False)
@@ -359,6 +389,15 @@ class Overlay(QWidget):
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
+
+    def show_mode_prompt(self, show: bool) -> None:
+        if show:
+            self.mode_msg.setText("새 캐릭터 — 모드를 선택하세요" + (
+                " (Ctrl+Alt+T 로 클릭 통과를 끄고 선택)" if self.click_through else ""))
+        if show != self.mode_box.isVisible():
+            self.mode_box.setVisible(show)
+            self._min_h = 0  # 선택 줄이 사라지면 창을 줄인다
+            self._fit()
 
     def _render_gems(self, gems, names) -> None:
         self.gem_lbl.setVisible(gems is not None)

@@ -74,6 +74,7 @@ class Controller:
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
         self.overlay.moved.connect(self.on_moved)
+        self.overlay.mode_chosen.connect(self.choose_new_char_mode)
 
         self.tray = QSystemTrayIcon(make_icon())
         self.tray.setToolTip("POE2 캠페인 가이드")
@@ -246,6 +247,10 @@ class Controller:
             rule = self.regex_book.select(self.active_builds.get(c.name, ""), c.cls, snap.step.act)
         self.current_regex = rule
         in_town = bool(c and is_town(c.zone))
+        if c is not None and c.mode_prompt and (c.mode or c.cursor > 0):
+            c.mode_prompt = False  # 이미 정했거나, 고르지 않고 다음 단계로 진행 → 비워 둔다
+            self.dirty = True
+        self.overlay.show_mode_prompt(bool(c and c.mode_prompt))
         gems = self.gem_plan(c, snap.step.act if snap.step else "")
         self._notify_level_up(c, gems)
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
@@ -494,6 +499,17 @@ class Controller:
     def select_character(self, name: Optional[str]) -> None:
         self.tracker.select_character(name)
         self.dirty = True
+        self.refresh()
+
+    def choose_new_char_mode(self, mode: str) -> None:
+        c = self.tracker.snapshot().character
+        if c is None:
+            return
+        c.mode_prompt = False
+        if mode:
+            c.mode = mode
+        self.dirty = True
+        self.save()
         self.refresh()
 
     def set_mode(self, mode: str) -> None:

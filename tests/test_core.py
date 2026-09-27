@@ -182,3 +182,21 @@ def test_party_member_levelup_ignored():
     t.feed(LevelUp("t", "26920", "alice", "소서리스", 2))
     t.feed(LevelUp("t", "26920", "partyguy", "워리어", 30))
     assert t.current == "alice" and "partyguy" not in t.chars
+
+
+def test_new_character_gets_mode_prompt_existing_does_not():
+    from poe2_overlay.logparse import NewCharacter
+    t = Tracker(GUIDE)
+    t.feed(area("G1_1", pid="1"))
+    t.feed(LevelUp("t", "1", "old", "워리어", 2))
+    assert t.chars["old"].mode_prompt  # 강둑에서 시작한 새 캐릭터
+    t.chars["old"].mode_prompt = False  # 앱이 다음 단계 진행/선택 시 끈다
+    t.feed(LoginConnect("t", "1"))
+    t.feed(area("G1_town", pid="1"))
+    assert not t.snapshot().character.mode_prompt  # 기존 캐릭터 재접속
+    t.feed(LoginConnect("t", "1"))
+    t.feed(area("G1_1", pid="1"))
+    t.feed(NewCharacter("t", "1"))
+    assert t.snapshot().character.mode_prompt  # 이름 확정 전(새 캐릭터)에도 표시
+    t.feed(LevelUp("t", "1", "fresh", "머서너리", 2))
+    assert t.chars["fresh"].mode_prompt
