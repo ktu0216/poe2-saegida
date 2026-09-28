@@ -26,3 +26,18 @@ def test_resist_plus_five_does_not_steal_other_slots():
     st = TABLE.evaluate(["냉기 저항 +5%", "냉기 저항 +10%"])
     assert by_source(st, "썩은 무리 베이라")[0].got == ["냉기 저항 +10%"]
     assert by_source(st, "죽음의 전당 (택1)")[0].got == ["냉기 저항 +5%"]
+
+
+def test_passive_sources_cover_24_points_and_match_guide_steps():
+    from poe2_overlay.config import find_guide, resource_dir
+    from poe2_overlay.guide import Guide
+    from poe2_overlay.rewards import load_passive_sources
+    srcs = load_passive_sources(resource_dir() / "guides" / "quest_passives_ko.json")
+    assert len(srcs) * 2 == 24
+    guides = [resource_dir() / "guides" / "default_ko.csv"]
+    if reim := find_guide(""):  # 레임 가이드가 설치된 PC 면 함께 확인
+        guides.append(reim)
+    for path in guides:
+        steps = Guide.load(path).steps
+        for s in srcs:  # 각 출처가 가이드 단계 하나 이상에 붙는다
+            assert any(s.on(st.zone, st.text) for st in steps), (path.name, s)

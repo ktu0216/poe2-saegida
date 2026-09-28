@@ -21,7 +21,7 @@ from .regex import RegexBook
 from .builds import GemNames, families, family_of, pick_stage, plan, scan
 from .encounters import Encounters
 from .items import compare, defense_score, is_item_text, parse_item, slot_keys
-from .rewards import RewardTable
+from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
 from .ui import Overlay, make_icon
 from .timing import personal_bests, timer_view
@@ -77,6 +77,8 @@ class Controller:
 
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
+        self.overlay.passive_sources = load_passive_sources(
+            config.resource_dir() / "guides" / "quest_passives_ko.json")
         self.overlay.moved.connect(self.on_moved)
         self.overlay.mode_chosen.connect(self.choose_new_char_mode)
 

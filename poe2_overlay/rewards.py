@@ -28,6 +28,25 @@ class SlotState:
         return bool(self.got)
 
 
+@dataclass(frozen=True)
+class PassiveSource:
+    """퀘스트 패시브(+2)를 주는 곳. match 가 있으면 그 말이 들어간 단계에만 표시한다."""
+    zone: str
+    match: str
+    label: str
+
+    def on(self, zone: str, text: str) -> bool:
+        return zone == self.zone and (not self.match or self.match in text)
+
+
+def load_passive_sources(path: Path) -> list[PassiveSource]:
+    try:
+        d = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    return [PassiveSource(s["zone"].lower(), s.get("match", ""), s["label"]) for s in d.get("sources", [])]
+
+
 class RewardTable:
     def __init__(self, slots: list[Slot], quest_passive_total: int):
         self.slots = slots

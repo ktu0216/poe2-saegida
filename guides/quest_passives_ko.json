@@ -1,5 +1,5 @@
 {
-  "_comment": "퀘스트 패시브(패시브 스킬 포인트 N포인트를 획득했습니다) 출처 기록. 진행하면서 직접 확인한 것만 적는다. 12곳·24포인트(캠페인 완주 기준)가 채워지면 가이드 🎁 표시에 쓴다.",
+  "_comment": "퀘스트 패시브(패시브 스킬 포인트 2 + 무기 세트 2) 출처. sources: 가이드 단계에 🎁 표시할 12곳 (zone = 지역 코드, match = 같은 지역 단계가 여러 개일 때 단계 문구에 들어 있어야 하는 말). observed: 로그로 직접 확인한 기록. 출처 교차 확인: 모발리틱스 빌드 가이드 보상 목록, POE2Radar zone_notes.json(MIT), 레임 가이드 문구.",
   "observed": [
     {
       "act": "액트 1",
@@ -50,6 +50,92 @@
       "points": 2,
       "weapon_set_points": 2,
       "log": "2026/09/28 00:17:19 (char_c, 지구라트 야영지에서 사용): 패시브 +2, 무기 세트 +2 동시에 찍힘. 은빛 주먹 전투·처치 대사는 없음"
+    }
+  ],
+  "sources": [
+    {
+      "act": "액트 1",
+      "zone": "g1_11",
+      "match": "",
+      "label": "까마귀 종 → 특화의 서",
+      "observed": true
+    },
+    {
+      "act": "액트 1",
+      "zone": "g1_town",
+      "match": "우나와 렌리",
+      "label": "우나의 류트 → 특화의 서",
+      "observed": true
+    },
+    {
+      "act": "액트 2",
+      "zone": "g2_4_1",
+      "match": "",
+      "label": "카발라 → 특화의 서",
+      "observed": true
+    },
+    {
+      "act": "액트 2",
+      "zone": "g2_town",
+      "match": "샴브린",
+      "label": "마지막 편지 → 특화의 서",
+      "observed": true
+    },
+    {
+      "act": "액트 3",
+      "zone": "g3_3",
+      "match": "은빛 주먹",
+      "label": "은빛 주먹 → 특화의 서",
+      "observed": true
+    },
+    {
+      "act": "액트 3",
+      "zone": "g3_16",
+      "match": "",
+      "label": "희생의 심장",
+      "observed": false
+    },
+    {
+      "act": "액트 4",
+      "zone": "g4_2_2",
+      "match": "투젠",
+      "label": "투젠 대화",
+      "observed": false
+    },
+    {
+      "act": "액트 4",
+      "zone": "g4_4_2",
+      "match": "",
+      "label": "하얀 야마",
+      "observed": false
+    },
+    {
+      "act": "액트 4",
+      "zone": "g4_4_3",
+      "match": "",
+      "label": "나발리 (히네코라의 문신)",
+      "observed": false
+    },
+    {
+      "act": "막간 1",
+      "zone": "p1_5",
+      "match": "",
+      "label": "오스윈",
+      "observed": false
+    },
+    {
+      "act": "막간 2",
+      "zone": "p2_town",
+      "match": "리수",
+      "label": "아크티와 아눈드르 → 리수 보상",
+      "observed": false
+    },
+    {
+      "act": "막간 3",
+      "zone": "p3_4",
+      "match": "",
+      "label": "흉물스러운 설인",
+      "observed": false
     }
   ]
 }

@@ -183,6 +183,7 @@ class Overlay(QWidget):
         self.opacity = float(settings.get("opacity", 0.88))
         self.click_through = False
         self._drag: Optional[QPoint] = None
+        self.passive_sources: list = []  # rewards.PassiveSource: 🎁 퀘스트 패시브 표시
         self._anchor: Optional[QPoint] = None  # 프로그램/드래그로 정한 위치 (창 높이가 바뀔 때 Windows 가 옮기면 되돌린다)
         self.menu_builder: Optional[Callable[[QMenu], None]] = None
 
@@ -388,9 +389,11 @@ class Overlay(QWidget):
                 parts.append(f'<span style="color:{OK}">✓ {boss} 처치</span>')
             elif state == "died":
                 parts.append(f'<span style="color:{WARN}">☠ {boss}에게 사망</span>')
-            gifts = [r.slot for r in rewards if not r.done and r.slot.zone == step.zone]
+            gifts = [html.escape(r.slot.label) for r in rewards if not r.done and r.slot.zone == step.zone]
+            gifts += [f"퀘스트 패시브 +2 ({html.escape(src.label)})"
+                      for src in self.passive_sources if src.on(step.zone, step.text)]
             if gifts:
-                parts.append("🎁 " + " · ".join(html.escape(g.label) for g in gifts))
+                parts.append("🎁 " + " · ".join(gifts))
             if parts:
                 self.step_gift.setText(" · ".join(parts))
         rows = []
