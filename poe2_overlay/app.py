@@ -22,7 +22,7 @@ from .builds import GemNames, families, family_of, pick_stage, plan, scan
 from .encounters import Encounters
 from .items import compare, defense_score, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable, load_passive_sources
-from .tracker import MAX_GAP, Character, PLACEHOLDERS, Tracker, parse_ts
+from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
 from .ui import Overlay, make_icon
 from .timing import personal_bests, timer_view
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
@@ -71,7 +71,7 @@ class Controller:
         self._cfg_mtime = None
         self._ticks = 0
         self.user_hidden = False  # Ctrl+Alt+H 로 직접 숨긴 상태
-        self.game_running = False
+        self.game_running = bool(game_pids())  # 게임이 꺼져 있으면 지난 캐릭터 대신 실행 대기 화면
         self._pbs: dict[str, float] = {}
         self._pbs_for: Optional[str] = None
 
@@ -253,6 +253,13 @@ class Controller:
 
     def refresh(self) -> None:
         snap = self.tracker.snapshot(int(self.settings.get("upcoming", 3)))
+        if not self.game_running:  # 게임을 켜기 전: 지난 캐릭터 정보 대신 대기 화면
+            self.overlay.show_mode_prompt(False)
+            self.overlay.leave_compact()
+            self.overlay.waiting = True
+            self.overlay.render(Snapshot(None, False, None, [], None, False, snap.total), self.notice, [])
+            return
+        self.overlay.waiting = False
         c = snap.character
         states = self.rewards.evaluate(c.rewards) if c else []
         timer = None

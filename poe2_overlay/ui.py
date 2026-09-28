@@ -183,6 +183,7 @@ class Overlay(QWidget):
         self.opacity = float(settings.get("opacity", 0.88))
         self.click_through = False
         self._drag: Optional[QPoint] = None
+        self.waiting = False  # 게임이 꺼져 있음 (실행 대기 화면)
         self.passive_sources: list = []  # rewards.PassiveSource: 🎁 퀘스트 패시브 표시
         self.zone_tips: dict[str, str] = {}  # 지역 코드 → 🧭 길 찾기 메모 (비우면 표시 안 함)
         self._anchor: Optional[QPoint] = None  # 프로그램/드래그로 정한 위치 (창 높이가 바뀔 때 Windows 가 옮기면 되돌린다)
@@ -327,9 +328,13 @@ class Overlay(QWidget):
         self.reward_lbl.setVisible(False)
         c = s.character
         if c is None:
-            self.char_lbl.setText("캐릭터 없음")
+            if self.waiting:
+                self.char_lbl.setText("PoE2 실행 대기 중")
+                self.loc_lbl.setText("게임에 접속하면 캐릭터를 자동으로 이어서 추적합니다.")
+            else:
+                self.char_lbl.setText("캐릭터 없음")
+                self.loc_lbl.setText("게임에서 지역을 이동하면 자동으로 인식합니다.")
             self.act_lbl.setText("")
-            self.loc_lbl.setText("게임에서 지역을 이동하면 자동으로 인식합니다.")
             self.step_area.setText("")
             self.step_text.setText("대기 중…")
             self.next_lbl.setText("")
