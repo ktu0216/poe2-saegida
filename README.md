@@ -81,6 +81,14 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
 과거 로그에서 '보상 → 받은 지역'을 뽑아 만들었고, 캠페인을 끝낸 캐릭터 기준 16칸 + 퀘스트 패시브 24포인트.
 택1 보상(지구라트 야영지, 버려진 감옥, 죽음의 전당, 키마 등)은 선택지 중 하나를 받으면 완료.
 현재 단계 지역에 남은 보상이 있으면 할 일 아래 🎁 로 표시.
+퀘스트 패시브(+2)를 주는 12곳(`guides/quest_passives_ko.json` 의 `sources`)도 해당 단계에 🎁 로 표시.
+
+## 지역 길 찾기 메모 (🧭)
+
+현재 지역(하위 지역 포함)에 메모가 있으면 할 일 카드 아래에 작게 표시한다. 메뉴에서 끌 수 있다.
+메모는 `guides/zone_tips_ko.json`: [POE2Radar](https://github.com/Sikaka/POE2Radar) 의
+`zone_notes.json`(MIT, 원문은 Path of Levelling 2 메모)의 요지를 한국어로 줄여 옮긴 것.
+그 프로젝트의 게임 메모리 읽기 기능은 쓰지 않는다(이용약관 위반·계정 위험). 막간은 원문에 지역 메모가 없다.
 
 ## 상점 검색 정규식
 

@@ -184,6 +184,7 @@ class Overlay(QWidget):
         self.click_through = False
         self._drag: Optional[QPoint] = None
         self.passive_sources: list = []  # rewards.PassiveSource: 🎁 퀘스트 패시브 표시
+        self.zone_tips: dict[str, str] = {}  # 지역 코드 → 🧭 길 찾기 메모 (비우면 표시 안 함)
         self._anchor: Optional[QPoint] = None  # 프로그램/드래그로 정한 위치 (창 높이가 바뀔 때 Windows 가 옮기면 되돌린다)
         self.menu_builder: Optional[Callable[[QMenu], None]] = None
 
@@ -252,9 +253,11 @@ class Overlay(QWidget):
         self.step_area = _label(fs - 1, ACCENT, True)
         self.step_text = _label(fs + 2, TEXT, True)
         self.step_gift = _label(fs - 1, GIFT, True)
+        self.step_tip = _label(fs - 2, DIM)  # 🧭 지역 길 찾기 메모
         cl.addWidget(self.step_area)
         cl.addWidget(self.step_text)
         cl.addWidget(self.step_gift)
+        cl.addWidget(self.step_tip)
         root.addWidget(card)
 
         self.gem_lbl = _label(fs - 2, DIM)  # 빌드 플래너 기준 젬 안내
@@ -317,6 +320,7 @@ class Overlay(QWidget):
         self._follow()
         self.timer_lbl.setText(_timer_line(timer) if timer else "&nbsp;")  # 비어도 자리 유지
         self.step_gift.setText("&nbsp;")
+        self.step_tip.setVisible(False)
         key = s.character.name if s.character else None
         if key != self._grow_key:
             self._grow_key, self._min_h = key, 0
@@ -374,6 +378,10 @@ class Overlay(QWidget):
         if step:
             self.step_area.setText(html.escape(step.area))
             self.step_text.setText(rich(step.text) or "이동")
+            here = s.character.zone if s.character else ""  # 하위 지역(집정관의 능묘 등)에 있으면 그 지역 메모
+            if tip := self.zone_tips.get(here) or self.zone_tips.get(step.zone):
+                self.step_tip.setText("🧭 " + html.escape(tip))
+                self.step_tip.setVisible(True)
             parts = []
             if marker := s.flags.get("marker"):
                 parts.append(f'<span style="color:{TEXT}">◆ {html.escape(marker)}</span>')

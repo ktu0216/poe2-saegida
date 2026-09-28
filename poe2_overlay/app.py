@@ -79,6 +79,7 @@ class Controller:
         self.overlay.menu_builder = self.build_menu
         self.overlay.passive_sources = load_passive_sources(
             config.resource_dir() / "guides" / "quest_passives_ko.json")
+        self.zone_tips = config.load_zone_tips(config.resource_dir() / "guides" / "zone_tips_ko.json")
         self.overlay.moved.connect(self.on_moved)
         self.overlay.mode_chosen.connect(self.choose_new_char_mode)
 
@@ -274,6 +275,7 @@ class Controller:
         self._notify_level_up(c, gems)
         if self._boss_compact(snap):
             return
+        self.overlay.zone_tips = self.zone_tips if self.settings.get("zone_tips", True) else {}
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
                             gems, self.gem_names, self.show_gem_card, self.item_color)
@@ -695,7 +697,8 @@ class Controller:
             ogrp.addAction(a)
             om.addAction(a)
 
-        for key, text in (("boss_compact", "보스전 간단 모드 (한 줄)"), ("tab_hint", "보스전 시작 시 Tab → 미니맵 안내")):
+        for key, text in (("boss_compact", "보스전 간단 모드 (한 줄)"), ("tab_hint", "보스전 시작 시 Tab → 미니맵 안내"),
+                          ("zone_tips", "지역 길 찾기 메모 (🧭)")):
             act = QAction(text, m, checkable=True)
             act.setChecked(self.settings.get(key, True))
             act.triggered.connect(lambda _=False, k=key: self.toggle_setting(k))

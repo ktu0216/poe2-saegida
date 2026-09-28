@@ -175,3 +175,8 @@ def find_guide(configured: str = "") -> Path:
     if reim:
         return max(reim, key=lambda p: p.stat().st_mtime)
     return resource_dir() / "guides" / "default_ko.csv"
+
+
+def load_zone_tips(path: Path) -> dict[str, str]:
+    """지역 코드(소문자) → 길 찾기 메모."""
+    return {k.lower(): v for k, v in (_read_json(path).get("tips") or {}).items()}
