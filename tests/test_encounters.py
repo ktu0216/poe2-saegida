@@ -187,3 +187,15 @@ def test_jiquani_sanctum_markers():
     t.feed(NpcLine("t", "9", "알바", "이런. 이제 저 거대한 구조물에서 제거하기만 하면 되는데... 행운을 빌게!"))
     f = t.chars["a"].step_flags["0"]
     assert f["marker"] == "발전기 완료" and f["soon"]
+
+
+def test_riverbank_mortimer_signals():
+    g = Guide(parse_csv("id,area_name,quest\ng1_1,강둑,방아꾼 처치\ng1_town,클리어펠 야영지,렌리"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G1_1", 1), LevelUp("t", "9", "n", "소서리스", 2))
+    t.feed(NpcLine("t", "9", "모티머", "거기 너! 도와다오!"))
+    assert t.chars["n"].step_flags["0"].get("soon")
+    t.feed(NpcLine("t", "9", "불어 터진 방아꾼", "반으로 잘라 주마!"))
+    assert t.chars["n"].step_flags["0"]["boss"] == "engaged"
+    t.feed(NpcLine("t", "9", "모티머", "잘했다! 안으로 들어와."))
+    assert t.chars["n"].step_flags["0"]["boss"] == "killed"
