@@ -18,7 +18,7 @@ from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .regex import RegexBook
-from .builds import GemNames, families, family_of, pick_stage, plan, scan
+from .builds import GemNames, families, family_for_class, family_of, pick_stage, plan, scan
 from .encounters import Encounters
 from .items import compare, defense_score, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable, load_passive_sources
@@ -328,7 +328,10 @@ class Controller:
         if chosen:
             return chosen
         name = self.active_builds.get(c.name)
-        return family_of(self.build_files, name) if name else None
+        if name:
+            return family_of(self.build_files, name)
+        # 게임은 빌드 연결을 로그아웃할 때만 저장한다 → 그 전에는 직업이 맞는 빌드가 하나뿐이면 그것으로
+        return family_for_class(self.build_files, c.cls)
 
     def gem_plan(self, c, act: str):
         if c is None or c.name in PLACEHOLDERS:

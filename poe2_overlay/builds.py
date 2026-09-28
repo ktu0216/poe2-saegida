@@ -142,6 +142,21 @@ def family_of(builds: list[BuildFile], build_name: str) -> Optional[str]:
     return None
 
 
+# 레벨업 줄의 직업 이름 → .build 의 ascendancy 앞부분 (전직 이름은 tracker.ASCENDANCY_KO 로 되짚는다)
+CLASS_IDS = {"워리어": "Warrior", "머서너리": "Mercenary", "레인저": "Ranger", "헌트리스": "Huntress",
+             "위치": "Witch", "소서리스": "Sorceress", "몽크": "Monk", "드루이드": "Druid"}
+
+
+def family_for_class(builds: list[BuildFile], cls: str) -> Optional[str]:
+    """직업(또는 전직)이 맞는 빌드 묶음이 딱 하나면 그 묶음."""
+    from .tracker import ASCENDANCY_KO
+    ids = [k for k, v in ASCENDANCY_KO.items() if v == cls]  # 전직 이름이면 정확히
+    prefix = CLASS_IDS.get(cls)
+    fams = {b.family for b in builds
+            if b.ascendancy and (b.ascendancy in ids or (prefix and b.ascendancy.startswith(prefix)))}
+    return fams.pop() if len(fams) == 1 else None
+
+
 def pick_stage(files: list[BuildFile], act: str, level: int) -> Optional[BuildFile]:
     """현재 액트(없으면 레벨)에 맞는 구간 파일. 맞는 게 없으면 가장 가까운 앞 구간."""
     if not files:

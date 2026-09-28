@@ -56,3 +56,16 @@ def test_numbered_names_group_and_pick(tmp_path):
     assert pick_stage(files, "액트 3", 34).stage == "LvL 1~42"
     assert pick_stage(files, "막간 2", 50).stage == "LvL 43~62"
     assert pick_stage(files, "엔드게임", 70).stage == "Early Endgame"
+
+
+def test_family_for_class_only_when_unique(tmp_path):
+    from poe2_overlay.builds import family_for_class
+    (tmp_path / "s.build").write_text(json.dumps({"name": "Act 1 - Navira", "ascendancy": "Sorceress3", "skills": []}),
+                                      encoding="utf-8")
+    write(tmp_path, "m1", "젬링 유탄 1. Lv 1-42", [])
+    write(tmp_path, "m2", "Act 1 - TWISTER", [])
+    b = scan(tmp_path)
+    assert family_for_class(b, "소서리스") == "Navira"
+    assert family_for_class(b, "머서너리") is None  # 두 묶음 → 모름
+    assert family_for_class(b, "젬링 리저네어") is None
+    assert family_for_class(b, "워리어") is None
