@@ -60,6 +60,7 @@ class Controller:
                                        config.resource_dir() / "guides" / "gem_names_trade.json",
                                        config.resource_dir() / "guides" / "gem_ids_pob.json")
         self.build_files = scan(config.build_planner_dir() or Path())
+        self._builds_sig = self._build_dir_sig()
         self._last_level: dict[str, int] = {}
         self.current_regex = None
         self._regex_copied_at = 0.0
@@ -209,6 +210,23 @@ class Controller:
         self._cfg_mtime = None
         self.check_league()
 
+    @staticmethod
+    def _build_dir_sig() -> tuple:
+        """빌드 플래너 폴더의 .build 파일 이름·수정 시각 (추가·삭제·이름 변경·수정 감지용)."""
+        folder = config.build_planner_dir()
+        try:
+            return tuple(sorted((f.name, f.stat().st_mtime) for f in folder.glob("*.build"))) if folder else ()
+        except OSError:
+            return ()
+
+    def rescan_builds(self, force: bool = False) -> bool:
+        sig = self._build_dir_sig()
+        if not force and sig == self._builds_sig:
+            return False
+        self._builds_sig = sig
+        self.build_files = scan(config.build_planner_dir() or Path())
+        return True
+
     def check_league(self) -> bool:
         """게임 설정 파일의 league_selected 가 바뀌면 현재 캐릭터에 반영한다."""
         cfg = self.game_cfg
@@ -220,7 +238,7 @@ class Controller:
             return False
         self._cfg_mtime = mtime
         self.active_builds = config.read_active_builds(cfg)  # 캐릭터 -> 빌드 플래너 이름
-        self.build_files = scan(config.build_planner_dir() or Path())  # 빌드를 새로 받았을 수 있다
+        self.rescan_builds(force=True)  # 빌드를 새로 받았을 수 있다
         league = config.read_league(cfg)
         if league == self.tracker.league:
             return True
@@ -235,6 +253,8 @@ class Controller:
             return
         self._ticks += 1
         changed = self._ticks % 7 == 0 and self.check_league()
+        if self._ticks % 7 == 3 and self.rescan_builds():  # 빌드 파일을 넣거나 지운 경우
+            changed = True
         for ln in self.tail.read_new():
             if self.regex_book.vendor_spoke(ln):
                 self.copy_regex(auto=True)
@@ -698,6 +718,7 @@ class Controller:
             mgrp.addAction(a)
             mm.addAction(a)
 
+        self.rescan_builds()  # 메뉴를 열 때는 항상 최신 목록
         bm = m.addMenu("빌드 (젬 안내)")
         cur_c = self.tracker.snapshot().character
         cur_f = self.settings.get("char_builds", {}).get(cur_c.name) if cur_c else None
