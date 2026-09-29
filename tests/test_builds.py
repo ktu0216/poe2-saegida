@@ -69,3 +69,22 @@ def test_family_for_class_only_when_unique(tmp_path):
     assert family_for_class(b, "머서너리") is None  # 두 묶음 → 모름
     assert family_for_class(b, "젬링 리저네어") is None
     assert family_for_class(b, "워리어") is None
+
+
+def test_uncut_gem_parse_and_advice(tmp_path):
+    from poe2_overlay.builds import parse_uncut, uncut_advice
+    ko = "아이템 종류: 미가공 스킬 젬\n아이템 희귀도: 화폐\n미가공 스킬 젬\n--------\n레벨: 5\n--------\n아이템 레벨: 30\n"
+    assert parse_uncut(ko) == ("skill", 5)
+    assert parse_uncut("Item Class: Uncut Gems\nRarity: Currency\nUncut Support Gem (Level 2)\n") == ("support", 2)
+    assert parse_uncut("아이템 종류: 반지\n") is None
+    write(tmp_path, "g", "LvL 1~42 - 젬링 유탄",
+          [gem("SkillGemExplosiveGrenade", 1, sup=["SupportGemScattershotTwo", "SupportGemExpedite"]),
+           gem("SkillGemHeraldOfAsh", 10), gem("SkillGemGasGrenade", 14, sup=["SupportGemDeliberation"])])
+    b = scan(tmp_path)[0]
+    names = lambda i: i.rsplit("/", 1)[-1]
+    skill = uncut_advice(b, "skill", 5, 12, names)
+    assert "SkillGemExplosiveGrenade" in skill and "SkillGemGasGrenade (Lv 14)" in skill
+    assert "HeraldOfAsh" not in skill  # 정신력 젬은 따로
+    assert "SkillGemHeraldOfAsh" in uncut_advice(b, "spirit", 8, 12, names)
+    sup = uncut_advice(b, "support", 1, 12, names)
+    assert "SupportGemExpedite" in sup and "더 높은 등급 필요: SupportGemScattershotTwo" in sup

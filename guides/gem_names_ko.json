@@ -4,8 +4,9 @@
     "Scattershot": "Multishot",
     "Primal Armament": "Elemental Armament",
     "Expedite": "Short Fuse",
-    "Overpower": "Stun"
+    "Overpower": "Stun",
+    "Wolf Pounce": "Pounce"
   },
-  "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정.",
+  "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정. Wolf Pounce → Pounce(급습)는 모발리틱스 가이드의 '급습 Pounce' 표기로 확인.",
   "names": {}
 }

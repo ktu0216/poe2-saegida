@@ -16,6 +16,7 @@ from .regex import RegexRule
 from .rewards import SlotState
 from .timing import CAMPAIGN, TimerView, fmt, fmt_delta
 from .tracker import NEW_CHAR, UNKNOWN_CHAR, Snapshot
+from .xp import full_xp_areas, xp_multiplier
 
 ACCENT = "#e8b04a"
 TEXT = "#ece6da"
@@ -125,6 +126,17 @@ def _reward_list(rewards: list[SlotState]) -> str:
 
 
 MODE_COLOR = {"하드코어": "#ff6b5b", "HC SSF": "#ff6b5b", "SSF": "#7fb8ff"}
+
+
+def _xp_badge(level: int, area_level: int) -> str:
+    """경험치 효율: 100% 초록, 80% 이상 노랑, 50% 이상 주황, 그 아래 빨강. 100% 가 아니면 범위도."""
+    pct = round(xp_multiplier(level, area_level) * 100)
+    color = OK if pct >= 100 else ACCENT if pct >= 80 else WARN if pct >= 50 else "#ff5252"
+    text = f'<span style="color:{color}">경험치 {pct}%</span>'
+    if pct < 100:
+        lo, hi = full_xp_areas(level)
+        text += f' <span style="color:{DIM}">(100%: 지역 {lo}~{hi})</span>'
+    return text
 
 
 def _league_line(league: str, mode: str) -> str:
@@ -370,12 +382,13 @@ class Overlay(QWidget):
 
         loc = html.escape(c.area_name or c.zone or "-")
         loc_html = f"📍 {loc}"
-        if c.area_level and not is_town(c.zone):  # 마을은 안전 지대라 레벨 경고 없음
+        if c.area_level and not is_town(c.zone):  # 마을은 안전 지대라 레벨·경험치 표시 없음
             gap = c.area_level - c.level
             color = WARN if gap >= 3 else (OK if gap <= 0 else DIM)
             loc_html += f' · <span style="color:{color}">지역 Lv {c.area_level}</span>'
             if gap >= 3:
                 loc_html += f' <span style="color:{WARN}">(레벨 {gap} 부족)</span>'
+            loc_html += " · " + _xp_badge(c.level, c.area_level)
         if s.off_route and not is_town(c.zone):
             loc_html += f' · <span style="color:{WARN}">가이드 경로 밖</span>'
         self.loc_lbl.setText(loc_html)

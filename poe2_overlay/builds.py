@@ -253,3 +253,66 @@ def plan(build: BuildFile, level: int) -> GemPlan:
     now = [g for g in build.gems if g.lo <= level <= g.hi]
     upcoming = sorted((g for g in build.gems if g.lo > level), key=lambda g: g.lo)
     return GemPlan(build, now, upcoming, [g for g in build.gems if g.lo == level])
+
+
+# ---------------------------------------------------------------- 미가공 젬 도우미
+_UNCUT = re.compile(r"미가공 (스킬|보조|정신력) 젬|Uncut (Skill|Support|Spirit) Gem")
+_UNCUT_KIND = {"스킬": "skill", "보조": "support", "정신력": "spirit",
+               "Skill": "skill", "Support": "support", "Spirit": "spirit"}
+_UNCUT_LEVEL = (re.compile(r"\((\d+)레벨\)"), re.compile(r"\(Level (\d+)\)"),
+                re.compile(r"^(?!아이템)(?:젬 )?레벨: ?(\d+)", re.M), re.compile(r"^(?!Item)Level: ?(\d+)", re.M))
+# 정신력(지속 효과) 젬: 빌드 파일에는 종류가 없어서 이름으로 가린다
+SPIRIT_HINTS = ("Herald", "Attrition", "Archmage", "Berserk", "Banner", "Invocation", "Ghost Dance", "Grim Feast",
+                "Iron Ward", "Magma Barrier", "Mana Remnants", "Wind Dancer", "Scavenged Plating", "Presence",
+                "Alchemist's Boon", "Arctic Armour", "Trinity", "Raging Spirits", "Sacrifice", "Time Of Need",
+                "Combat Frenzy", "Charge Infusion", "Elemental Conflux", "Convalescence", "Plague Bearer",
+                "Siphon Elements", "Lingering Illusion", "Cast On", "Blink", "Shard Scavenger")
+
+
+def parse_uncut(text: str) -> Optional[tuple[str, int]]:
+    """클립보드의 미가공 젬 → (skill|support|spirit, 레벨). 레벨을 못 읽으면 0."""
+    m = _UNCUT.search(text)
+    if not m:
+        return None
+    kind = _UNCUT_KIND[m[1] or m[2]]
+    for rx in _UNCUT_LEVEL:
+        if lv := rx.search(text):
+            return kind, int(lv[1])
+    return kind, 0
+
+
+def is_spirit(gem_id: str) -> bool:
+    return any(h.lower() in _english(gem_id).lower() for h in SPIRIT_HINTS)
+
+
+def _tier(gem_id: str) -> int:
+    t = _english(gem_id).rsplit(" ", 1)[-1]
+    return {"II": 2, "III": 3, "IV": 4}.get(t, 1)
+
+
+def uncut_advice(build: BuildFile, kind: str, level: int, char_level: int, names) -> str:
+    """미가공 젬으로 무엇을 만들지 빌드 기준으로 (HTML 한 덩어리)."""
+    import html
+    esc = lambda s: html.escape(s)
+    if kind == "support":
+        rows = []
+        for g in sorted(build.gems, key=lambda g: g.lo):
+            ok = [names(s) for s in g.supports if not level or _tier(s) <= level]
+            later = [names(s) for s in g.supports if level and _tier(s) > level]
+            if ok or later:
+                line = f"{esc(names(g.id))}: " + " · ".join(esc(n) for n in ok)
+                if later:
+                    line += f' <span style="color:#9a9284">(더 높은 등급 필요: {esc(" · ".join(later))})</span>'
+                rows.append(line)
+        return "<br>".join(rows) or "이 빌드에는 보조 젬이 없습니다"
+    gems = [g for g in build.gems if is_spirit(g.id) == (kind == "spirit")]
+    if not gems:
+        return "이 빌드에서 만들 젬이 없습니다"
+    now = [g for g in sorted(gems, key=lambda g: g.lo) if g.lo <= char_level]
+    nxt = [g for g in sorted(gems, key=lambda g: g.lo) if g.lo > char_level]
+    parts = []
+    if now:
+        parts.append("지금 쓰는 젬: " + " · ".join(f"<b>{esc(names(g.id))}</b>" for g in now))
+    if nxt:
+        parts.append("다음: " + " · ".join(f"{esc(names(g.id))} (Lv {g.lo})" for g in nxt))
+    return "<br>".join(parts)

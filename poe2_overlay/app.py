@@ -18,7 +18,8 @@ from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
 from .regex import RegexBook
-from .builds import GemNames, families, family_for_class, family_of, pick_stage, plan, scan
+from .builds import (GemNames, families, family_for_class, family_of, parse_uncut, pick_stage, plan, scan,
+                     uncut_advice)
 from .encounters import Encounters
 from .items import compare, defense_score, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable, load_passive_sources
@@ -395,6 +396,10 @@ class Controller:
                 self.set_equipped(via="두 번 복사")
             return
         self._last_copy_at = now
+        if uncut := parse_uncut(text):  # 미가공 젬: 빌드 기준으로 만들 젬 안내
+            self.last_item_text = text
+            self._show_uncut(*uncut)
+            return
         item = parse_item(text)
         c = self.tracker.snapshot().character
         if item is None or c is None or "젬" in item.item_class:  # 스킬 창의 젬 복사는 장비 비교 대상이 아니다
@@ -440,6 +445,18 @@ class Controller:
             body += "<br>" + " · ".join(diffs)
         body += f'<br><span style="color:#9a9284">장착했다면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 기준 갱신</span>'
         self._show_item(body, color)
+
+    def _show_uncut(self, kind: str, level: int) -> None:
+        snap = self.tracker.snapshot()
+        c = snap.character
+        title = {"skill": "미가공 스킬 젬", "support": "미가공 보조 젬", "spirit": "미가공 정신력 젬"}[kind]
+        title += f" ({level}레벨)" if level else ""
+        gp = self.gem_plan(c, snap.step.act if snap.step else "") if c else None
+        if gp is None:
+            body = "빌드가 연결되지 않았습니다 — 우클릭 메뉴 → 빌드 (젬 안내)"
+        else:
+            body = uncut_advice(gp.build, kind, level, c.level, self.gem_names)
+        self._show_item(f"💎 {title} → 빌드 기준<br>{body}", "#9fd3ff")
 
     def _show_item(self, html_text: str, color: str) -> None:
         self.item_color = color
