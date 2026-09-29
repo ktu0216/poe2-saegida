@@ -13,7 +13,8 @@ def test_build_name_wins_over_class():
 
 def test_class_fallback_and_none():
     assert BOOK.select("", "머서너리", "액트 2").name == "유탄 스타터"
-    assert BOOK.select("", "워리어", "액트 1") is None
+    assert BOOK.select("", "워리어", "액트 1").name == "쉴드 스미스"
+    assert BOOK.select("", "몽크", "액트 1") is None
 
 
 def test_vendor_line():

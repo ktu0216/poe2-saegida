@@ -20,7 +20,8 @@ _STAGE = re.compile(
     r"LvL \d+ ?~ ?\d+)\s+-\s+(?P<rest>.+)$", re.IGNORECASE)
 FAMILY_KEY_LEN = 14  # 파일 이름이 잘려 저장되므로 앞부분으로 묶는다
 
-# 직접 정한 이름 규칙: "<빌드 이름> <번호>. <구간>" (예: "젬링 유탄 1. Lv 1-42", "젬링 유탄 3. 엔드 초기")
+# 직접 정한 이름 규칙: "<빌드 이름> <번호>. <구간>" (예: "젬링 유탄 1. Lv 1-42", "젬링 유탄 3. 엔드 초기",
+# "쉴드 스미스 3. 액트 2 Lv 22+")
 # 게임 목록에서 같은 빌드끼리 번호 순으로 모인다. 이름은 40바이트 안쪽 (게임이 잘라 저장한다).
 _NUMBERED = re.compile(r"^(?P<family>.+?) (?P<n>\d+)\. (?P<stage>.+)$")
 _STAGE_KO = {"엔드 초기": "Early Endgame", "엔드 중기": "Mid Endgame", "엔드 후기": "Late Endgame",
@@ -32,8 +33,9 @@ def _numbered_stage(text: str) -> str:
     t = text.strip()
     if m := re.fullmatch(r"[Ll]v\.? ?(\d+) ?[-~] ?(\d+)", t):
         return f"LvL {m[1]}~{m[2]}"
-    if m := re.fullmatch(r"액트 (\d+(?: ?[-~] ?\d+)?)", t):
-        return "Act " + m[1].replace("-", " & ").replace("~", " & ")
+    if m := re.fullmatch(r"액트 (\d+(?: ?[-~] ?\d+)?)(?: [Ll]v\.? ?(\d+) ?(?:[-~] ?(\d+)|\+))?", t):
+        act = "Act " + m[1].replace("-", " & ").replace("~", " & ")
+        return f"{act} (LvL {m[2]}~{m[3] or 100})" if m[2] else act  # "액트 2 Lv 22+" → 액트 2 중 22레벨부터
     return _STAGE_KO.get(t, t)
 
 
@@ -75,7 +77,7 @@ class BuildFile:
 
     @property
     def levels(self) -> Optional[tuple[int, int]]:
-        m = re.match(r"lvl (\d+) ?~ ?(\d+)", self.stage.lower())
+        m = re.search(r"lvl (\d+) ?~ ?(\d+)", self.stage.lower())
         return (int(m[1]), int(m[2])) if m else None
 
     @property
@@ -161,7 +163,10 @@ def pick_stage(files: list[BuildFile], act: str, level: int) -> Optional[BuildFi
     """현재 액트(없으면 레벨)에 맞는 구간 파일. 맞는 게 없으면 가장 가까운 앞 구간."""
     if not files:
         return None
-    by_act = sorted((b for b in files if act in b.acts), key=lambda b: (b.order, len(b.acts)))
+    def off_level(b: BuildFile) -> bool:  # 같은 액트 파일이 레벨로 나뉜 경우 (액트 2 Lv 1-21 / Lv 22+)
+        return bool(b.levels) and not b.levels[0] <= level <= b.levels[1]
+
+    by_act = sorted((b for b in files if act in b.acts), key=lambda b: (off_level(b), b.order, len(b.acts)))
     if by_act:
         return by_act[0]
     by_lvl = [b for b in files if b.levels and b.levels[0] <= level <= b.levels[1]]
@@ -171,6 +176,11 @@ def pick_stage(files: list[BuildFile], act: str, level: int) -> Optional[BuildFi
 
 
 # ---------------------------------------------------------------- 젬 이름
+def _norm(name: str) -> str:
+    """Window Of Opportunity / Uul-Netol's Embrace 처럼 표기가 조금 달라도 같게."""
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
 def _english(gem_id: str) -> str:
     last = gem_id.rsplit("/", 1)[-1]
     last = re.sub(r"^(SkillGem|SupportGem)", "", last)
@@ -195,6 +205,7 @@ class GemNames:
         self.trade: dict[str, str] = {}  # 거래소: 표시 영어 이름(등급 포함) → 한국어
         self.ids: dict[str, str] = {}  # 내부 이름 → 표시 영어 이름
         self.names: dict[str, str] = {}  # 게임에서 확인한 한국어 (소문자 영어 키)
+        self.pob: dict[str, dict] = {}  # 내부 ID 끝부분 → {"name": 표시 영어 이름(등급 포함), "spirit": bool}
         self.unknown_mark = ""  # 한국어 이름을 모를 때 영어 이름 뒤에 붙일 표시
 
     @staticmethod
@@ -206,7 +217,7 @@ class GemNames:
 
     @classmethod
     def load(cls, folder: Optional[Path], overrides: Optional[Path] = None,
-             trade: Optional[Path] = None) -> "GemNames":
+             trade: Optional[Path] = None, pob: Optional[Path] = None) -> "GemNames":
         """folder: 레임 가이드 pob_leveling (gems_ko.json, ko_names.json)."""
         mapping: dict[str, str] = {}
         if folder and folder.is_dir():
@@ -220,10 +231,30 @@ class GemNames:
         names.ids = {k.lower(): v for k, v in (ov.get("ids") or {}).items()}
         names.names = {k.lower(): v for k, v in (ov.get("names") or {}).items()}
         names.trade = dict(cls._read(trade).get("names") or {})
+        names.trade.update({_norm(k): v for k, v in names.trade.items()})  # 대소문자·기호가 달라도 찾게
+        names.pob = dict(cls._read(pob).get("ids") or {})
         names.unknown_mark = " (한글명 미확인)"
         return names
 
+    def spirit(self, gem_id: str) -> bool:
+        """정신력(지속 효과) 젬인지: POB 표의 persistent 태그, 없으면 이름으로."""
+        if (e := self.pob.get(gem_id.rsplit("/", 1)[-1])) is not None:
+            return bool(e.get("spirit"))
+        return is_spirit(gem_id)
+
     def __call__(self, gem_id: str) -> str:
+        if (e := self.pob.get(gem_id.rsplit("/", 1)[-1])) is not None:  # 내부 ID → 표시 이름 (POB)
+            shown = e["name"]
+            if ko := self.names.get(shown.lower()):
+                return ko
+            for key in (shown, _norm(shown), _norm(shown + " I")):
+                if ko := self.trade.get(key):
+                    return ko
+        last = gem_id.rsplit("/", 1)[-1]
+        if "PlayerDefault" in last:  # 무기 기본 공격: 젬이 아니라 검색할 필요 없음
+            return "기본 공격 (젬 아님)"
+        if last.startswith("SkillGemAscendancy"):  # 전직 노드가 주는 스킬
+            return f"전직 스킬: {_english(gem_id).removeprefix('Ascendancy ')}"
         en = _english(gem_id)
         m = re.match(r"^(.*?)( (?:II|III|IV))?$", en)
         base, tier = m[1], m[2] or ""
@@ -305,7 +336,8 @@ def uncut_advice(build: BuildFile, kind: str, level: int, char_level: int, names
                     line += f' <span style="color:#9a9284">(더 높은 등급 필요: {esc(" · ".join(later))})</span>'
                 rows.append(line)
         return "<br>".join(rows) or "이 빌드에는 보조 젬이 없습니다"
-    gems = [g for g in build.gems if is_spirit(g.id) == (kind == "spirit")]
+    spirit = getattr(names, "spirit", is_spirit)
+    gems = [g for g in build.gems if spirit(g.id) == (kind == "spirit")]
     if not gems:
         return "이 빌드에서 만들 젬이 없습니다"
     now = [g for g in sorted(gems, key=lambda g: g.lo) if g.lo <= char_level]

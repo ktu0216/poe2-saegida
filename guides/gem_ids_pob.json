@@ -1,0 +1,3873 @@
+{
+ "_comment": "Path of Building(PoE2) Data/Gems.lua 에서 생성 — tools/update_gem_ids.py",
+ "ids": {
+  "SkillGemAlchemistsBoon": {
+   "name": "Alchemist's Boon",
+   "spirit": true
+  },
+  "SkillGemAncestralCry": {
+   "name": "Ancestral Cry",
+   "spirit": false
+  },
+  "SkillGemAncestralWarriorTotem": {
+   "name": "Ancestral Warrior Totem",
+   "spirit": false
+  },
+  "SkillGemAncientGifts": {
+   "name": "Wildwood's Gifts",
+   "spirit": true
+  },
+  "SkillGemAnimusExchange": {
+   "name": "Animus Exchange",
+   "spirit": false
+  },
+  "SkillGemAnimusSplinters": {
+   "name": "Animus Splinters",
+   "spirit": false
+  },
+  "SkillGemArc": {
+   "name": "Arc",
+   "spirit": false
+  },
+  "SkillGemArchmage": {
+   "name": "Archmage",
+   "spirit": true
+  },
+  "SkillGemArchonOfChayula": {
+   "name": "Archon of Chayula",
+   "spirit": false
+  },
+  "SkillGemArcticArmour": {
+   "name": "Arctic Armour",
+   "spirit": true
+  },
+  "SkillGemArmourBreaker": {
+   "name": "Armour Breaker",
+   "spirit": false
+  },
+  "SkillGemArmourPiercingRounds": {
+   "name": "Armour Piercing Rounds",
+   "spirit": false
+  },
+  "SkillGemArtilleryBallista": {
+   "name": "Siege Ballista",
+   "spirit": false
+  },
+  "SkillGemAscendancyAlignFate": {
+   "name": "Align Fate",
+   "spirit": true
+  },
+  "SkillGemAscendancyAncestralSpirits": {
+   "name": "Ancestral Spirits",
+   "spirit": false
+  },
+  "SkillGemAscendancyApocalypse": {
+   "name": "Apocalypse",
+   "spirit": false
+  },
+  "SkillGemAscendancyBleedingConcoction": {
+   "name": "Bleeding Concoction",
+   "spirit": false
+  },
+  "SkillGemAscendancyBloodBoil": {
+   "name": "Blood Boil",
+   "spirit": true
+  },
+  "SkillGemAscendancyCorpseBeetles": {
+   "name": "Kelari's Malediction",
+   "spirit": true
+  },
+  "SkillGemAscendancyDemonForm": {
+   "name": "Demon Form",
+   "spirit": false
+  },
+  "SkillGemAscendancyElementalExpression": {
+   "name": "Elemental Expression",
+   "spirit": false
+  },
+  "SkillGemAscendancyElementalStorm": {
+   "name": "Elemental Storm",
+   "spirit": false
+  },
+  "SkillGemAscendancyEncasedInJade": {
+   "name": "Encase in Jade",
+   "spirit": false
+  },
+  "SkillGemAscendancyExplosiveConcoction": {
+   "name": "Explosive Concoction",
+   "spirit": false
+  },
+  "SkillGemAscendancyFireSpellOnHit": {
+   "name": "Fire Spell on Hit",
+   "spirit": true
+  },
+  "SkillGemAscendancyFulminatingConcoction": {
+   "name": "Fulminating Concoction",
+   "spirit": false
+  },
+  "SkillGemAscendancyHollowFocus": {
+   "name": "Hollow Focus",
+   "spirit": true
+  },
+  "SkillGemAscendancyHollowForm": {
+   "name": "Hollow Form",
+   "spirit": false
+  },
+  "SkillGemAscendancyHollowResonance": {
+   "name": "Hollow Resonance",
+   "spirit": false
+  },
+  "SkillGemAscendancyInevitableAgony": {
+   "name": "Inevitable Agony",
+   "spirit": false
+  },
+  "SkillGemAscendancyInfuseWeapon": {
+   "name": "Elemental Surge",
+   "spirit": false
+  },
+  "SkillGemAscendancyIntoTheBreach": {
+   "name": "Into the Breach",
+   "spirit": true
+  },
+  "SkillGemAscendancyLifeRemnants": {
+   "name": "Life Remnants",
+   "spirit": true
+  },
+  "SkillGemAscendancyManifestWeapon": {
+   "name": "Manifest Weapon",
+   "spirit": true
+  },
+  "SkillGemAscendancyMeditate": {
+   "name": "Meditate",
+   "spirit": false
+  },
+  "SkillGemAscendancyMirageDeadeye": {
+   "name": "Mirage Deadeye",
+   "spirit": true
+  },
+  "SkillGemAscendancyMomentOfVulnerability": {
+   "name": "Moment of Vulnerability",
+   "spirit": false
+  },
+  "SkillGemAscendancyPoisonousConcoction": {
+   "name": "Acidic Concoction",
+   "spirit": false
+  },
+  "SkillGemAscendancyRitualSacrifice": {
+   "name": "Ritual Sacrifice",
+   "spirit": false
+  },
+  "SkillGemAscendancyShatteringConcoction": {
+   "name": "Shattering Concoction",
+   "spirit": false
+  },
+  "SkillGemAscendancySorceryWard": {
+   "name": "Sorcery Ward",
+   "spirit": true
+  },
+  "SkillGemAscendancySummonFireDjinn": {
+   "name": "Ruzhan, the Blazing Sword",
+   "spirit": true
+  },
+  "SkillGemAscendancySummonInfernalHound": {
+   "name": "Summon Infernal Hound",
+   "spirit": true
+  },
+  "SkillGemAscendancySummonSandDjinn": {
+   "name": "Kelari, the Tainted Sands",
+   "spirit": true
+  },
+  "SkillGemAscendancySummonWaterDjinn": {
+   "name": "Navira, the Last Mirage",
+   "spirit": true
+  },
+  "SkillGemAscendancySupportingFire": {
+   "name": "Supporting Fire",
+   "spirit": true
+  },
+  "SkillGemAscendancyTemperWeapon": {
+   "name": "Temper Weapon",
+   "spirit": false
+  },
+  "SkillGemAscendancyTemporalRift": {
+   "name": "Temporal Rift",
+   "spirit": true
+  },
+  "SkillGemAscendancyTimeFreeze": {
+   "name": "Time Freeze",
+   "spirit": false
+  },
+  "SkillGemAscendancyTimeSnap": {
+   "name": "Time Snap",
+   "spirit": false
+  },
+  "SkillGemAscendancyUnboundAvatar": {
+   "name": "Unbound Avatar",
+   "spirit": false
+  },
+  "SkillGemAscendancyVirtuousBarrier": {
+   "name": "Virtuous Barrier",
+   "spirit": true
+  },
+  "SkillGemAscendancyVividStampede": {
+   "name": "Vivid Stampede",
+   "spirit": false
+  },
+  "SkillGemAscendancyVoidIllusion": {
+   "name": "Void Illusion",
+   "spirit": true
+  },
+  "SkillGemAscendanyMetaDeadeyeMarks": {
+   "name": "Called Shots",
+   "spirit": true
+  },
+  "SkillGemAttrition": {
+   "name": "Attrition",
+   "spirit": true
+  },
+  "SkillGemAzmerianSwarm": {
+   "name": "Azmerian Swarms",
+   "spirit": true
+  },
+  "SkillGemAzmerianWolf": {
+   "name": "Azmerian Wolf",
+   "spirit": true
+  },
+  "SkillGemBallLightning": {
+   "name": "Ball Lightning",
+   "spirit": false
+  },
+  "SkillGemBarkskin": {
+   "name": "Barkskin",
+   "spirit": true
+  },
+  "SkillGemBarrage": {
+   "name": "Barrage",
+   "spirit": false
+  },
+  "SkillGemBarrierInvocation": {
+   "name": "Barrier Invocation",
+   "spirit": true
+  },
+  "SkillGemBearFuryOfTheMountain": {
+   "name": "Fury of the Mountain",
+   "spirit": false
+  },
+  "SkillGemBearMaul": {
+   "name": "Maul",
+   "spirit": false
+  },
+  "SkillGemBearRampage": {
+   "name": "Rampage",
+   "spirit": false
+  },
+  "SkillGemBerserk": {
+   "name": "Berserk",
+   "spirit": true
+  },
+  "SkillGemBitterDead": {
+   "name": "Bitter Dead",
+   "spirit": false
+  },
+  "SkillGemBlackPowderBlitz": {
+   "name": "Black Powder Blitz",
+   "spirit": true
+  },
+  "SkillGemBlasphemy": {
+   "name": "Blasphemy",
+   "spirit": true
+  },
+  "SkillGemBlink": {
+   "name": "Blink",
+   "spirit": true
+  },
+  "SkillGemBloodHunt": {
+   "name": "Blood Hunt",
+   "spirit": false
+  },
+  "SkillGemBloodhoundsMark": {
+   "name": "Bloodhound's Mark",
+   "spirit": false
+  },
+  "SkillGemBoneBlast": {
+   "name": "Bone Blast",
+   "spirit": false
+  },
+  "SkillGemBoneCage": {
+   "name": "Bone Cage",
+   "spirit": false
+  },
+  "SkillGemBoneOffering": {
+   "name": "Bone Offering",
+   "spirit": false
+  },
+  "SkillGemBoneshatter": {
+   "name": "Boneshatter",
+   "spirit": false
+  },
+  "SkillGemBonestorm": {
+   "name": "Bonestorm",
+   "spirit": false
+  },
+  "SkillGemBriarpatch": {
+   "name": "Briarpatch",
+   "spirit": true
+  },
+  "SkillGemCastCurseOnBlock": {
+   "name": "Curse on Block",
+   "spirit": true
+  },
+  "SkillGemCastOnBlock": {
+   "name": "Cast on Block",
+   "spirit": true
+  },
+  "SkillGemCastOnCharmUse": {
+   "name": "Cast on Charm Use",
+   "spirit": true
+  },
+  "SkillGemCastOnCritical": {
+   "name": "Cast on Critical",
+   "spirit": true
+  },
+  "SkillGemCastOnDodge": {
+   "name": "Cast on Dodge",
+   "spirit": true
+  },
+  "SkillGemCastOnElementalAilment": {
+   "name": "Cast on Elemental Ailment",
+   "spirit": true
+  },
+  "SkillGemCastOnMeleeKill": {
+   "name": "Cast on Melee Kill",
+   "spirit": true
+  },
+  "SkillGemCastOnMeleeStun": {
+   "name": "Cast on Melee Stun",
+   "spirit": true
+  },
+  "SkillGemCastOnMinionDeath": {
+   "name": "Cast on Minion Death",
+   "spirit": true
+  },
+  "SkillGemChaosbolt": {
+   "name": "Chaos Bolt",
+   "spirit": false
+  },
+  "SkillGemChaoticInfusion": {
+   "name": "Chaotic Surge",
+   "spirit": false
+  },
+  "SkillGemChargeInfusion": {
+   "name": "Charge Regulation",
+   "spirit": true
+  },
+  "SkillGemChargedStaff": {
+   "name": "Charged Staff",
+   "spirit": false
+  },
+  "SkillGemClusterGrenade": {
+   "name": "Cluster Grenade",
+   "spirit": false
+  },
+  "SkillGemCoilingBolts": {
+   "name": "Coiling Bolts",
+   "spirit": false
+  },
+  "SkillGemColdSnap": {
+   "name": "Snap",
+   "spirit": false
+  },
+  "SkillGemCombatFrenzy": {
+   "name": "Combat Frenzy",
+   "spirit": true
+  },
+  "SkillGemComet": {
+   "name": "Comet",
+   "spirit": false
+  },
+  "SkillGemConductiveRunes": {
+   "name": "Conductive Runes",
+   "spirit": false
+  },
+  "SkillGemContagion": {
+   "name": "Contagion",
+   "spirit": false
+  },
+  "SkillGemConvalescence": {
+   "name": "Convalescence",
+   "spirit": true
+  },
+  "SkillGemCorpseCloud": {
+   "name": "Decompose",
+   "spirit": false
+  },
+  "SkillGemCracklingPalm": {
+   "name": "Crackling Palm",
+   "spirit": true
+  },
+  "SkillGemCrossbowRequiem": {
+   "name": "Requiem",
+   "spirit": false
+  },
+  "SkillGemCrushingFear": {
+   "name": "Crushing Fear",
+   "spirit": false
+  },
+  "SkillGemCullTheWeak": {
+   "name": "Cull The Weak",
+   "spirit": false
+  },
+  "SkillGemDarkEffigy": {
+   "name": "Dark Effigy",
+   "spirit": false
+  },
+  "SkillGemDefianceBanner": {
+   "name": "Defiance Banner",
+   "spirit": true
+  },
+  "SkillGemDespair": {
+   "name": "Despair",
+   "spirit": false
+  },
+  "SkillGemDetonateDead": {
+   "name": "Detonate Dead",
+   "spirit": false
+  },
+  "SkillGemDetonateLiving": {
+   "name": "Detonate Living",
+   "spirit": false
+  },
+  "SkillGemDetonateMinion": {
+   "name": "Detonate Minion",
+   "spirit": false
+  },
+  "SkillGemDetonatingArrow": {
+   "name": "Detonating Arrow",
+   "spirit": false
+  },
+  "SkillGemDiscipline": {
+   "name": "Discipline",
+   "spirit": true
+  },
+  "SkillGemDisengage": {
+   "name": "Disengage",
+   "spirit": false
+  },
+  "SkillGemDreadBanner": {
+   "name": "Dread Banner",
+   "spirit": true
+  },
+  "SkillGemEarthquake": {
+   "name": "Earthquake",
+   "spirit": false
+  },
+  "SkillGemEarthshatter": {
+   "name": "Earthshatter",
+   "spirit": false
+  },
+  "SkillGemElectrocutingArrow": {
+   "name": "Electrocuting Arrow",
+   "spirit": false
+  },
+  "SkillGemElementalConflux": {
+   "name": "Elemental Conflux",
+   "spirit": true
+  },
+  "SkillGemElementalInvocation": {
+   "name": "Elemental Invocation",
+   "spirit": true
+  },
+  "SkillGemElementalSundering": {
+   "name": "Elemental Sundering",
+   "spirit": false
+  },
+  "SkillGemElementalWeakness": {
+   "name": "Elemental Weakness",
+   "spirit": false
+  },
+  "SkillGemEmberFusillade": {
+   "name": "Ember Fusillade",
+   "spirit": false
+  },
+  "SkillGemEmergencyReload": {
+   "name": "Emergency Reload",
+   "spirit": false
+  },
+  "SkillGemEnervatingNova": {
+   "name": "Enervating Nova",
+   "spirit": false
+  },
+  "SkillGemEnfeeble": {
+   "name": "Enfeeble",
+   "spirit": false
+  },
+  "SkillGemEntangle": {
+   "name": "Entangle",
+   "spirit": false
+  },
+  "SkillGemEscapeShot": {
+   "name": "Escape Shot",
+   "spirit": false
+  },
+  "SkillGemEssenceDrain": {
+   "name": "Essence Drain",
+   "spirit": false
+  },
+  "SkillGemEternalMarch": {
+   "name": "Eternal March",
+   "spirit": false
+  },
+  "SkillGemEternalRage": {
+   "name": "Eternal Rage",
+   "spirit": true
+  },
+  "SkillGemExplodingPoisonToad": {
+   "name": "Bursting Fen Toad",
+   "spirit": false
+  },
+  "SkillGemExplosiveGrenade": {
+   "name": "Explosive Grenade",
+   "spirit": false
+  },
+  "SkillGemExplosiveShot": {
+   "name": "Explosive Shot",
+   "spirit": false
+  },
+  "SkillGemExplosiveSpear": {
+   "name": "Explosive Spear",
+   "spirit": false
+  },
+  "SkillGemExplosiveTransmutation": {
+   "name": "Explosive Transmutation",
+   "spirit": true
+  },
+  "SkillGemExsanguinate": {
+   "name": "Exsanguinate",
+   "spirit": false
+  },
+  "SkillGemEyeOfWinter": {
+   "name": "Eye of Winter",
+   "spirit": false
+  },
+  "SkillGemFallingThunder": {
+   "name": "Falling Thunder",
+   "spirit": false
+  },
+  "SkillGemFangsOfFrost": {
+   "name": "Fangs of Frost",
+   "spirit": false
+  },
+  "SkillGemFeastOfFlesh": {
+   "name": "Feast of Flesh",
+   "spirit": false
+  },
+  "SkillGemFeralInvocation": {
+   "name": "Feral Invocation",
+   "spirit": true
+  },
+  "SkillGemFerociousRoar": {
+   "name": "Ferocious Roar",
+   "spirit": false
+  },
+  "SkillGemFireball": {
+   "name": "Fireball",
+   "spirit": false
+  },
+  "SkillGemFirebolt": {
+   "name": "Firebolt",
+   "spirit": false
+  },
+  "SkillGemFirestorm": {
+   "name": "Firestorm",
+   "spirit": false
+  },
+  "SkillGemFlameWall": {
+   "name": "Flame Wall",
+   "spirit": false
+  },
+  "SkillGemFlameblast": {
+   "name": "Flameblast",
+   "spirit": false
+  },
+  "SkillGemFlashGrenade": {
+   "name": "Flash Grenade",
+   "spirit": false
+  },
+  "SkillGemFlickerStrike": {
+   "name": "Flicker Strike",
+   "spirit": false
+  },
+  "SkillGemForgeHammer": {
+   "name": "Forge Hammer",
+   "spirit": false
+  },
+  "SkillGemFortifyingCry": {
+   "name": "Fortifying Cry",
+   "spirit": false
+  },
+  "SkillGemFragmentationRounds": {
+   "name": "Fragmentation Rounds",
+   "spirit": false
+  },
+  "SkillGemFragmentsOfThePast": {
+   "name": "Fragments Of The Past",
+   "spirit": false
+  },
+  "SkillGemFreezingMark": {
+   "name": "Freezing Mark",
+   "spirit": false
+  },
+  "SkillGemFreezingSalvo": {
+   "name": "Freezing Salvo",
+   "spirit": false
+  },
+  "SkillGemFreezingShards": {
+   "name": "Freezing Shards",
+   "spirit": false
+  },
+  "SkillGemFrostBomb": {
+   "name": "Frost Bomb",
+   "spirit": false
+  },
+  "SkillGemFrostDarts": {
+   "name": "Frost Darts",
+   "spirit": false
+  },
+  "SkillGemFrostWall": {
+   "name": "Frost Wall",
+   "spirit": false
+  },
+  "SkillGemFrostbolt": {
+   "name": "Frostbolt",
+   "spirit": false
+  },
+  "SkillGemFrostflameNova": {
+   "name": "Frostflame Nova",
+   "spirit": false
+  },
+  "SkillGemFrozenLocus": {
+   "name": "Frozen Locus",
+   "spirit": false
+  },
+  "SkillGemFulmination": {
+   "name": "Fulmination",
+   "spirit": true
+  },
+  "SkillGemFuriousSlam": {
+   "name": "Furious Slam",
+   "spirit": false
+  },
+  "SkillGemFuturePast": {
+   "name": "Future-Past",
+   "spirit": true
+  },
+  "SkillGemGalvanicField": {
+   "name": "Galvanic Field",
+   "spirit": false
+  },
+  "SkillGemGalvanicShards": {
+   "name": "Galvanic Shards",
+   "spirit": false
+  },
+  "SkillGemGasArrow": {
+   "name": "Gas Arrow",
+   "spirit": false
+  },
+  "SkillGemGasGrenade": {
+   "name": "Gas Grenade",
+   "spirit": false
+  },
+  "SkillGemGatheringStorm": {
+   "name": "Gathering Storm",
+   "spirit": false
+  },
+  "SkillGemGelidPalm": {
+   "name": "Gelid Palm",
+   "spirit": true
+  },
+  "SkillGemGeminiSurge": {
+   "name": "Gemini Surge",
+   "spirit": false
+  },
+  "SkillGemGhostDance": {
+   "name": "Ghost Dance",
+   "spirit": true
+  },
+  "SkillGemGlacialBolt": {
+   "name": "Glacial Bolt",
+   "spirit": false
+  },
+  "SkillGemGlacialCascade": {
+   "name": "Glacial Cascade",
+   "spirit": false
+  },
+  "SkillGemGlacialClash": {
+   "name": "Soaring Midnight",
+   "spirit": false
+  },
+  "SkillGemGlacialLance": {
+   "name": "Glacial Lance",
+   "spirit": false
+  },
+  "SkillGemGrimFeast": {
+   "name": "Grim Feast",
+   "spirit": true
+  },
+  "SkillGemGrimPillars": {
+   "name": "Grim Pillars",
+   "spirit": false
+  },
+  "SkillGemHailstormRounds": {
+   "name": "Hailstorm Rounds",
+   "spirit": false
+  },
+  "SkillGemHammerOfTheGods": {
+   "name": "Hammer of the Gods",
+   "spirit": false
+  },
+  "SkillGemHandOfChayula": {
+   "name": "Hand of Chayula",
+   "spirit": false
+  },
+  "SkillGemHarbingerOfMadness": {
+   "name": "Harbinger of Madness",
+   "spirit": true
+  },
+  "SkillGemHeartOfIce": {
+   "name": "Heart of Ice",
+   "spirit": true
+  },
+  "SkillGemHeraldOfAsh": {
+   "name": "Herald of Ash",
+   "spirit": true
+  },
+  "SkillGemHeraldOfBlood": {
+   "name": "Herald of Blood",
+   "spirit": true
+  },
+  "SkillGemHeraldOfIce": {
+   "name": "Herald of Ice",
+   "spirit": true
+  },
+  "SkillGemHeraldOfPlague": {
+   "name": "Herald of Plague",
+   "spirit": true
+  },
+  "SkillGemHeraldOfThunder": {
+   "name": "Herald of Thunder",
+   "spirit": true
+  },
+  "SkillGemHexblast": {
+   "name": "Hexblast",
+   "spirit": false
+  },
+  "SkillGemHighVelocityRounds": {
+   "name": "High Velocity Rounds",
+   "spirit": false
+  },
+  "SkillGemHisFoulEmergence": {
+   "name": "His Foul Emergence",
+   "spirit": false
+  },
+  "SkillGemHisWinnowingFlame": {
+   "name": "His Winnowing Flame",
+   "spirit": false
+  },
+  "SkillGemHollowShell": {
+   "name": "Hollow Shell",
+   "spirit": false
+  },
+  "SkillGemHyenaCackle": {
+   "name": "Cackling Companions",
+   "spirit": true
+  },
+  "SkillGemIceFragments": {
+   "name": "Ice Fragments",
+   "spirit": false
+  },
+  "SkillGemIceNova": {
+   "name": "Ice Nova",
+   "spirit": false
+  },
+  "SkillGemIceShards": {
+   "name": "Ice Shards",
+   "spirit": false
+  },
+  "SkillGemIceShot": {
+   "name": "Ice Shot",
+   "spirit": false
+  },
+  "SkillGemIceStrike": {
+   "name": "Ice Strike",
+   "spirit": false
+  },
+  "SkillGemIceTippedArrows": {
+   "name": "Ice-Tipped Arrows",
+   "spirit": false
+  },
+  "SkillGemIcestorm": {
+   "name": "Icestorm",
+   "spirit": false
+  },
+  "SkillGemImpurity": {
+   "name": "Impurity",
+   "spirit": true
+  },
+  "SkillGemIncendiaryShot": {
+   "name": "Incendiary Shot",
+   "spirit": false
+  },
+  "SkillGemIncinerate": {
+   "name": "Incinerate",
+   "spirit": false
+  },
+  "SkillGemInfernalCry": {
+   "name": "Infernal Cry",
+   "spirit": false
+  },
+  "SkillGemIronWard": {
+   "name": "Iron Ward",
+   "spirit": true
+  },
+  "SkillGemKillingPalm": {
+   "name": "Killing Palm",
+   "spirit": false
+  },
+  "SkillGemLeapSlam": {
+   "name": "Leap Slam",
+   "spirit": false
+  },
+  "SkillGemLeylines": {
+   "name": "Leylines",
+   "spirit": true
+  },
+  "SkillGemLightningArrow": {
+   "name": "Lightning Arrow",
+   "spirit": false
+  },
+  "SkillGemLightningBolt": {
+   "name": "Lightning Bolt",
+   "spirit": false
+  },
+  "SkillGemLightningConduit": {
+   "name": "Lightning Conduit",
+   "spirit": false
+  },
+  "SkillGemLightningRod": {
+   "name": "Lightning Rod",
+   "spirit": false
+  },
+  "SkillGemLightningSpear": {
+   "name": "Lightning Spear",
+   "spirit": false
+  },
+  "SkillGemLightningSpellOnHit": {
+   "name": "Thundergod's Wrath",
+   "spirit": true
+  },
+  "SkillGemLightningWarp": {
+   "name": "Lightning Warp",
+   "spirit": false
+  },
+  "SkillGemLingeringIllusion": {
+   "name": "Lingering Illusion",
+   "spirit": true
+  },
+  "SkillGemLivingBombPlayer": {
+   "name": "Living Bomb",
+   "spirit": false
+  },
+  "SkillGemLunarAssault": {
+   "name": "Lunar Assault",
+   "spirit": false
+  },
+  "SkillGemMagmaBarrier": {
+   "name": "Magma Barrier",
+   "spirit": true
+  },
+  "SkillGemMagneticSalvo": {
+   "name": "Magnetic Salvo",
+   "spirit": false
+  },
+  "SkillGemMalice": {
+   "name": "Malice",
+   "spirit": true
+  },
+  "SkillGemManaDrain": {
+   "name": "Mana Drain",
+   "spirit": false
+  },
+  "SkillGemManaRemnants": {
+   "name": "Mana Remnants",
+   "spirit": true
+  },
+  "SkillGemManaTempest": {
+   "name": "Mana Tempest",
+   "spirit": false
+  },
+  "SkillGemMantraOfDestruction": {
+   "name": "Mantra of Destruction",
+   "spirit": false
+  },
+  "SkillGemMidnightStar": {
+   "name": "Midnight Zenith",
+   "spirit": true
+  },
+  "SkillGemMirageArcher": {
+   "name": "Mirage Archer",
+   "spirit": true
+  },
+  "SkillGemMirrorOfRefraction": {
+   "name": "Mirror of Refraction",
+   "spirit": true
+  },
+  "SkillGemMistRaven": {
+   "name": "Mist Raven",
+   "spirit": true
+  },
+  "SkillGemMoltenBlast": {
+   "name": "Molten Blast",
+   "spirit": false
+  },
+  "SkillGemMoltenCrash": {
+   "name": "Molten Crash",
+   "spirit": false
+  },
+  "SkillGemMoltenShower": {
+   "name": "Molten Shower",
+   "spirit": false
+  },
+  "SkillGemMortarCannon": {
+   "name": "Mortar Cannon",
+   "spirit": false
+  },
+  "SkillGemOilBarrage": {
+   "name": "Oil Barrage",
+   "spirit": false
+  },
+  "SkillGemOilGrenade": {
+   "name": "Oil Grenade",
+   "spirit": false
+  },
+  "SkillGemOrbOfStorms": {
+   "name": "Orb of Storms",
+   "spirit": false
+  },
+  "SkillGemOverwhelmingPresence": {
+   "name": "Overwhelming Presence",
+   "spirit": true
+  },
+  "SkillGemPainOffering": {
+   "name": "Pain Offering",
+   "spirit": false
+  },
+  "SkillGemParry": {
+   "name": "Parry",
+   "spirit": false
+  },
+  "SkillGemPerfectStrike": {
+   "name": "Perfect Strike",
+   "spirit": false
+  },
+  "SkillGemPermafrostBolts": {
+   "name": "Permafrost Bolts",
+   "spirit": false
+  },
+  "SkillGemPhantasmalArrow": {
+   "name": "Phantasmal Arrow",
+   "spirit": false
+  },
+  "SkillGemPinnacleOfPower": {
+   "name": "Pinnacle of Power",
+   "spirit": false
+  },
+  "SkillGemPlagueBearer": {
+   "name": "Plague Bearer",
+   "spirit": true
+  },
+  "SkillGemPlasmaBlast": {
+   "name": "Plasma Blast",
+   "spirit": false
+  },
+  "SkillGemPlayerDefault1HMace": {
+   "name": "Mace Strike",
+   "spirit": false
+  },
+  "SkillGemPlayerDefault2HMace": {
+   "name": "Mace Strike",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultBow": {
+   "name": "Bow Shot",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultCrossbow": {
+   "name": "Crossbow Shot",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultGrenadeLauncher": {
+   "name": "Grenade",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultMaceMace": {
+   "name": "Mace Strike",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultQuarterstaff": {
+   "name": "Quarterstaff Strike",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultSpear": {
+   "name": "Spear Stab",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultSpearOffHand": {
+   "name": "Spear Stab",
+   "spirit": false
+  },
+  "SkillGemPlayerDefaultSpearThrow": {
+   "name": "Spear Throw",
+   "spirit": false
+  },
+  "SkillGemPoisonBurstArrow": {
+   "name": "Poisonburst Arrow",
+   "spirit": false
+  },
+  "SkillGemPowerSiphon": {
+   "name": "Power Siphon",
+   "spirit": false
+  },
+  "SkillGemPoweredByVerisium": {
+   "name": "Powered by Verisium",
+   "spirit": false
+  },
+  "SkillGemPrimalBounty": {
+   "name": "Primal Bounty",
+   "spirit": false
+  },
+  "SkillGemPrimalStrikes": {
+   "name": "Primal Strikes",
+   "spirit": false
+  },
+  "SkillGemProfaneRitual": {
+   "name": "Profane Ritual",
+   "spirit": false
+  },
+  "SkillGemPurityOfFire": {
+   "name": "Purity of Fire",
+   "spirit": true
+  },
+  "SkillGemPurityOfIce": {
+   "name": "Purity of Ice",
+   "spirit": true
+  },
+  "SkillGemPurityOfLightning": {
+   "name": "Purity of Lightning",
+   "spirit": true
+  },
+  "SkillGemRagingSpirits": {
+   "name": "Raging Spirits",
+   "spirit": true
+  },
+  "SkillGemRainOfArrows": {
+   "name": "Rain of Arrows",
+   "spirit": false
+  },
+  "SkillGemRainOfBlades": {
+   "name": "Rain of Blades",
+   "spirit": false
+  },
+  "SkillGemRaiseZombie": {
+   "name": "Raise Zombie",
+   "spirit": false
+  },
+  "SkillGemRake": {
+   "name": "Rake",
+   "spirit": false
+  },
+  "SkillGemRapidAssault": {
+   "name": "Rapid Assault",
+   "spirit": false
+  },
+  "SkillGemRapidShot": {
+   "name": "Rapid Shot",
+   "spirit": false
+  },
+  "SkillGemRavenousSwarm": {
+   "name": "Ravenous Swarm",
+   "spirit": true
+  },
+  "SkillGemReap": {
+   "name": "Reap",
+   "spirit": false
+  },
+  "SkillGemReapersInvocation": {
+   "name": "Reaper's Invocation",
+   "spirit": true
+  },
+  "SkillGemRefutation": {
+   "name": "Refutation",
+   "spirit": false
+  },
+  "SkillGemRemnantsOfKalguur": {
+   "name": "Remnants of Kalguur",
+   "spirit": true
+  },
+  "SkillGemRend": {
+   "name": "Rend",
+   "spirit": false
+  },
+  "SkillGemRepulsion": {
+   "name": "Repulsion",
+   "spirit": false
+  },
+  "SkillGemResonatingShield": {
+   "name": "Resonating Shield",
+   "spirit": false
+  },
+  "SkillGemRhoaMount": {
+   "name": "Rhoa Mount",
+   "spirit": true
+  },
+  "SkillGemRighteousDescent": {
+   "name": "Righteous Descent",
+   "spirit": false
+  },
+  "SkillGemRipwireBallista": {
+   "name": "Artillery Ballista",
+   "spirit": false
+  },
+  "SkillGemRollingMagma": {
+   "name": "Rolling Magma",
+   "spirit": false
+  },
+  "SkillGemRollingSlam": {
+   "name": "Rolling Slam",
+   "spirit": false
+  },
+  "SkillGemRunicReprieve": {
+   "name": "Runic Reprieve",
+   "spirit": false
+  },
+  "SkillGemRunicTempering": {
+   "name": "Runic Tempering",
+   "spirit": false
+  },
+  "SkillGemSacrifice": {
+   "name": "Sacrifice",
+   "spirit": true
+  },
+  "SkillGemSanguineRevelry": {
+   "name": "Sanguine Revelry",
+   "spirit": true
+  },
+  "SkillGemSavageFury": {
+   "name": "Savage Fury",
+   "spirit": true
+  },
+  "SkillGemScatteringCalamity": {
+   "name": "His Scattering Calamity",
+   "spirit": false
+  },
+  "SkillGemScavengedPlating": {
+   "name": "Scavenged Plating",
+   "spirit": true
+  },
+  "SkillGemSeismicCry": {
+   "name": "Seismic Cry",
+   "spirit": false
+  },
+  "SkillGemShardScavenger": {
+   "name": "Shard Scavenger",
+   "spirit": true
+  },
+  "SkillGemShatteringPalm": {
+   "name": "Shattering Palm",
+   "spirit": false
+  },
+  "SkillGemShatteringSpite": {
+   "name": "Shattering Spite",
+   "spirit": false
+  },
+  "SkillGemShieldBlock": {
+   "name": "Raise Shield",
+   "spirit": false
+  },
+  "SkillGemShieldCharge": {
+   "name": "Shield Charge",
+   "spirit": false
+  },
+  "SkillGemShieldWall": {
+   "name": "Shield Wall",
+   "spirit": false
+  },
+  "SkillGemShockburstRounds": {
+   "name": "Shockburst Rounds",
+   "spirit": false
+  },
+  "SkillGemShockchainArrow": {
+   "name": "Shockchain Arrow",
+   "spirit": false
+  },
+  "SkillGemShockwaveTotem": {
+   "name": "Shockwave Totem",
+   "spirit": false
+  },
+  "SkillGemSiegeCascade": {
+   "name": "Siege Cascade",
+   "spirit": false
+  },
+  "SkillGemSigilOfLife": {
+   "name": "Rite of Restoration",
+   "spirit": false
+  },
+  "SkillGemSigilOfPower": {
+   "name": "Sigil of Power",
+   "spirit": false
+  },
+  "SkillGemSiphonElements": {
+   "name": "Siphon Elements",
+   "spirit": true
+  },
+  "SkillGemSiphoningStrike": {
+   "name": "Siphoning Strike",
+   "spirit": false
+  },
+  "SkillGemSkeletalArsonist": {
+   "name": "Skeletal Arsonist",
+   "spirit": true
+  },
+  "SkillGemSkeletalBrute": {
+   "name": "Skeletal Brute",
+   "spirit": true
+  },
+  "SkillGemSkeletalCleric": {
+   "name": "Skeletal Cleric",
+   "spirit": true
+  },
+  "SkillGemSkeletalFrostMage": {
+   "name": "Skeletal Frost Mage",
+   "spirit": true
+  },
+  "SkillGemSkeletalReaver": {
+   "name": "Skeletal Reaver",
+   "spirit": true
+  },
+  "SkillGemSkeletalSniper": {
+   "name": "Skeletal Sniper",
+   "spirit": true
+  },
+  "SkillGemSkeletalStormMage": {
+   "name": "Skeletal Storm Mage",
+   "spirit": true
+  },
+  "SkillGemSkeletalWarrior": {
+   "name": "Skeletal Sniper",
+   "spirit": true
+  },
+  "SkillGemSkeletalWarriorWeaponSkill": {
+   "name": "Skeletal Warrior",
+   "spirit": true
+  },
+  "SkillGemSkyfall": {
+   "name": "Skyfall",
+   "spirit": false
+  },
+  "SkillGemSmashToSmithereens": {
+   "name": "Smash to Smithereens",
+   "spirit": false
+  },
+  "SkillGemSnipe": {
+   "name": "Snipe",
+   "spirit": false
+  },
+  "SkillGemSnipersMark": {
+   "name": "Sniper's Mark",
+   "spirit": false
+  },
+  "SkillGemSolarOrb": {
+   "name": "Solar Orb",
+   "spirit": false
+  },
+  "SkillGemSoulOffering": {
+   "name": "Soul Offering",
+   "spirit": false
+  },
+  "SkillGemSoulrend": {
+   "name": "Soulrend",
+   "spirit": false
+  },
+  "SkillGemSpark": {
+   "name": "Spark",
+   "spirit": false
+  },
+  "SkillGemSpearOfSolaris": {
+   "name": "Spear of Solaris",
+   "spirit": false
+  },
+  "SkillGemSpearfield": {
+   "name": "Spearfield",
+   "spirit": false
+  },
+  "SkillGemSpellTotem": {
+   "name": "Spell Totem",
+   "spirit": false
+  },
+  "SkillGemSpellslinger": {
+   "name": "Spellslinger",
+   "spirit": true
+  },
+  "SkillGemSpiralVolley": {
+   "name": "Spiral Volley",
+   "spirit": false
+  },
+  "SkillGemSpiralingConspiracy": {
+   "name": "Spiraling Conspiracy",
+   "spirit": true
+  },
+  "SkillGemSpiritVessel": {
+   "name": "Spirit Vessel",
+   "spirit": true
+  },
+  "SkillGemStaffConsecrate": {
+   "name": "Consecrate",
+   "spirit": false
+  },
+  "SkillGemStaffUnleash": {
+   "name": "Unleash",
+   "spirit": false
+  },
+  "SkillGemStaggeringPalm": {
+   "name": "Staggering Palm",
+   "spirit": false
+  },
+  "SkillGemStampede": {
+   "name": "Stampede",
+   "spirit": false
+  },
+  "SkillGemStarbornOnslaught": {
+   "name": "Starborn Onslaught",
+   "spirit": false
+  },
+  "SkillGemStormLance": {
+   "name": "Storm Lance",
+   "spirit": false
+  },
+  "SkillGemStormWave": {
+   "name": "Storm Wave",
+   "spirit": false
+  },
+  "SkillGemStormblastBolts": {
+   "name": "Stormblast Bolts",
+   "spirit": false
+  },
+  "SkillGemStormcallerArrow": {
+   "name": "Stormcaller Arrow",
+   "spirit": false
+  },
+  "SkillGemSummonBeast": {
+   "name": "Companion: {0}",
+   "spirit": true
+  },
+  "SkillGemSummonSpectre": {
+   "name": "Spectre: {0}",
+   "spirit": true
+  },
+  "SkillGemSunder": {
+   "name": "Sunder",
+   "spirit": false
+  },
+  "SkillGemSuperchargedSlam": {
+   "name": "Supercharged Slam",
+   "spirit": false
+  },
+  "SkillGemTameBeast": {
+   "name": "Tame Beast",
+   "spirit": true
+  },
+  "SkillGemTempestBell": {
+   "name": "Tempest Bell",
+   "spirit": false
+  },
+  "SkillGemTempestFlurry": {
+   "name": "Tempest Flurry",
+   "spirit": false
+  },
+  "SkillGemTemporalChains": {
+   "name": "Temporal Chains",
+   "spirit": false
+  },
+  "SkillGemTheStarsAnswer": {
+   "name": "The Stars Answer",
+   "spirit": false
+  },
+  "SkillGemThrashingVines": {
+   "name": "Thrashing Vines",
+   "spirit": false
+  },
+  "SkillGemThunderousLeap": {
+   "name": "Thunderous Leap",
+   "spirit": false
+  },
+  "SkillGemThunderstorm": {
+   "name": "Thunderstorm",
+   "spirit": false
+  },
+  "SkillGemTimeOfNeed": {
+   "name": "Time of Need",
+   "spirit": true
+  },
+  "SkillGemTornado": {
+   "name": "Tornado",
+   "spirit": false
+  },
+  "SkillGemTornadoShot": {
+   "name": "Tornado Shot",
+   "spirit": false
+  },
+  "SkillGemToxicDomain": {
+   "name": "Toxic Domain",
+   "spirit": false
+  },
+  "SkillGemToxicGrowth": {
+   "name": "Toxic Growth",
+   "spirit": false
+  },
+  "SkillGemTrailOfCaltrops": {
+   "name": "Trail of Caltrops",
+   "spirit": true
+  },
+  "SkillGemTriggeredAbyssalApparition": {
+   "name": "Abyssal Apparition",
+   "spirit": false
+  },
+  "SkillGemTrinity": {
+   "name": "Trinity",
+   "spirit": true
+  },
+  "SkillGemTriskelionCascade": {
+   "name": "Triskelion Cascade",
+   "spirit": false
+  },
+  "SkillGemTwister": {
+   "name": "Twister",
+   "spirit": false
+  },
+  "SkillGemUnearth": {
+   "name": "Unearth",
+   "spirit": false
+  },
+  "SkillGemUniqueAtziriHerald": {
+   "name": "Herald of the Royal Queen",
+   "spirit": true
+  },
+  "SkillGemUniqueBreachLightningBolt": {
+   "name": "Lightning Bolt",
+   "spirit": false
+  },
+  "SkillGemValakosCharge": {
+   "name": "Valako's Charge",
+   "spirit": false
+  },
+  "SkillGemVaultingImpact": {
+   "name": "Vaulting Impact",
+   "spirit": false
+  },
+  "SkillGemVerisiumManifestation": {
+   "name": "Verisium Manifestations",
+   "spirit": true
+  },
+  "SkillGemVileDisruption": {
+   "name": "His Vile Intrusion",
+   "spirit": false
+  },
+  "SkillGemVineArrow": {
+   "name": "Vine Arrow",
+   "spirit": false
+  },
+  "SkillGemVolatileDead": {
+   "name": "Volatile Dead",
+   "spirit": false
+  },
+  "SkillGemVolcanicFissure": {
+   "name": "Volcanic Fissure",
+   "spirit": false
+  },
+  "SkillGemVolcano": {
+   "name": "Volcano",
+   "spirit": false
+  },
+  "SkillGemVoltaicBarrier": {
+   "name": "Voltaic Barrier",
+   "spirit": false
+  },
+  "SkillGemVoltaicGrenade": {
+   "name": "Voltaic Grenade",
+   "spirit": false
+  },
+  "SkillGemVoltaicMark": {
+   "name": "Voltaic Mark",
+   "spirit": false
+  },
+  "SkillGemVulnerability": {
+   "name": "Vulnerability",
+   "spirit": false
+  },
+  "SkillGemWalkingCalamity": {
+   "name": "Walking Calamity",
+   "spirit": false
+  },
+  "SkillGemWarBanner": {
+   "name": "War Banner",
+   "spirit": true
+  },
+  "SkillGemWardboundMinions": {
+   "name": "Wardbound Minions",
+   "spirit": false
+  },
+  "SkillGemWaveOfFrost": {
+   "name": "Wave of Frost",
+   "spirit": false
+  },
+  "SkillGemWhirlingAssault": {
+   "name": "Whirling Assault",
+   "spirit": false
+  },
+  "SkillGemWhirlingSlash": {
+   "name": "Whirling Slash",
+   "spirit": false
+  },
+  "SkillGemWhirlwindLance": {
+   "name": "Whirlwind Lance",
+   "spirit": false
+  },
+  "SkillGemWildProtector": {
+   "name": "Wild Protector",
+   "spirit": true
+  },
+  "SkillGemWindBlast": {
+   "name": "Wind Blast",
+   "spirit": false
+  },
+  "SkillGemWindDancer": {
+   "name": "Wind Dancer",
+   "spirit": true
+  },
+  "SkillGemWindSerpentsFury": {
+   "name": "Wind Serpent's Fury",
+   "spirit": false
+  },
+  "SkillGemWingBlast": {
+   "name": "Wing Blast",
+   "spirit": false
+  },
+  "SkillGemWither": {
+   "name": "Wither",
+   "spirit": false
+  },
+  "SkillGemWitheringPresence": {
+   "name": "Withering Presence",
+   "spirit": true
+  },
+  "SkillGemWolfArcticHowl": {
+   "name": "Arctic Howl",
+   "spirit": false
+  },
+  "SkillGemWolfCrossSlash": {
+   "name": "Cross Slash",
+   "spirit": false
+  },
+  "SkillGemWolfLunarBlessing": {
+   "name": "Lunar Blessing",
+   "spirit": false
+  },
+  "SkillGemWolfPack": {
+   "name": "Wolf Pack",
+   "spirit": true
+  },
+  "SkillGemWolfPounce": {
+   "name": "Pounce",
+   "spirit": false
+  },
+  "SkillGemWolfShred": {
+   "name": "Shred",
+   "spirit": false
+  },
+  "SkillGemWyvernDevour": {
+   "name": "Devour",
+   "spirit": false
+  },
+  "SkillGemWyvernFlameBreath": {
+   "name": "Flame Breath",
+   "spirit": false
+  },
+  "SupportGemAbidingHex": {
+   "name": "Abiding Hex",
+   "spirit": false
+  },
+  "SupportGemAblation": {
+   "name": "Sacrificial Offering",
+   "spirit": false
+  },
+  "SupportGemAcceleration": {
+   "name": "Projectile Acceleration I",
+   "spirit": false
+  },
+  "SupportGemAccelerationThree": {
+   "name": "Projectile Acceleration III",
+   "spirit": false
+  },
+  "SupportGemAccelerationTwo": {
+   "name": "Projectile Acceleration II",
+   "spirit": false
+  },
+  "SupportGemAcrimony": {
+   "name": "Acrimony",
+   "spirit": false
+  },
+  "SupportGemAdhere": {
+   "name": "Adhesive Grenades I",
+   "spirit": false
+  },
+  "SupportGemAdhereTwo": {
+   "name": "Adhesive Grenades II",
+   "spirit": false
+  },
+  "SupportGemAdmixture": {
+   "name": "Admixture",
+   "spirit": false
+  },
+  "SupportGemAdvancingStorm": {
+   "name": "Advancing Storm",
+   "spirit": false
+  },
+  "SupportGemAftershock": {
+   "name": "Aftershock I",
+   "spirit": false
+  },
+  "SupportGemAftershockTwo": {
+   "name": "Aftershock II",
+   "spirit": false
+  },
+  "SupportGemAhnsCitadel": {
+   "name": "Ahn's Citadel",
+   "spirit": false
+  },
+  "SupportGemAilithLineage": {
+   "name": "Ailith's Chimes",
+   "spirit": false
+  },
+  "SupportGemAlignment": {
+   "name": "Alignment I",
+   "spirit": false
+  },
+  "SupportGemAlignmentThree": {
+   "name": "Alignment III",
+   "spirit": false
+  },
+  "SupportGemAlignmentTwo": {
+   "name": "Alignment II",
+   "spirit": false
+  },
+  "SupportGemAmanamusTithe": {
+   "name": "Amanamu's Tithe",
+   "spirit": true
+  },
+  "SupportGemAmbrosia": {
+   "name": "Ambrosia",
+   "spirit": false
+  },
+  "SupportGemAmbrosiaTwo": {
+   "name": "Ambrosia II",
+   "spirit": false
+  },
+  "SupportGemAmbush": {
+   "name": "Ambush",
+   "spirit": false
+  },
+  "SupportGemAmmoConservation": {
+   "name": "Ammo Conservation I",
+   "spirit": false
+  },
+  "SupportGemAmmoConservationFour": {
+   "name": "Arjun's Medal",
+   "spirit": false
+  },
+  "SupportGemAmmoConservationThree": {
+   "name": "Ammo Conservation III",
+   "spirit": false
+  },
+  "SupportGemAmmoConservationTwo": {
+   "name": "Ammo Conservation II",
+   "spirit": false
+  },
+  "SupportGemAncestralAid": {
+   "name": "Ancestral Aid",
+   "spirit": false
+  },
+  "SupportGemAncestralCall": {
+   "name": "Ancestral Call I",
+   "spirit": false
+  },
+  "SupportGemAncestralCallTwo": {
+   "name": "Ancestral Call II",
+   "spirit": false
+  },
+  "SupportGemAncestralUrgency": {
+   "name": "Urgent Totems I",
+   "spirit": false
+  },
+  "SupportGemAncestralUrgencyThree": {
+   "name": "Urgent Totems III",
+   "spirit": false
+  },
+  "SupportGemAncestralUrgencyTwo": {
+   "name": "Urgent Totems II",
+   "spirit": false
+  },
+  "SupportGemArakaalisLust": {
+   "name": "Arakaali's Lust",
+   "spirit": false
+  },
+  "SupportGemArbitersIgnition": {
+   "name": "Arbiter's Ignition",
+   "spirit": false
+  },
+  "SupportGemArbitersReach": {
+   "name": "Arbiter's Reach",
+   "spirit": true
+  },
+  "SupportGemArcaneSurge": {
+   "name": "Arcane Surge",
+   "spirit": false
+  },
+  "SupportGemArcaneTempo": {
+   "name": "Rapid Casting I",
+   "spirit": false
+  },
+  "SupportGemArcaneTempoThree": {
+   "name": "Rapid Casting III",
+   "spirit": false
+  },
+  "SupportGemArcaneTempoTwo": {
+   "name": "Rapid Casting II",
+   "spirit": false
+  },
+  "SupportGemArmourExplosion": {
+   "name": "Armour Explosion",
+   "spirit": false
+  },
+  "SupportGemArmsLength": {
+   "name": "Arms Length",
+   "spirit": false
+  },
+  "SupportGemAstralProjection": {
+   "name": "Astral Projection",
+   "spirit": false
+  },
+  "SupportGemAtaluiBloodletting": {
+   "name": "Atalui's Bloodletting",
+   "spirit": false
+  },
+  "SupportGemAtzirisAllure": {
+   "name": "Atziri's Allure",
+   "spirit": false
+  },
+  "SupportGemAtzirisCommunion": {
+   "name": "Atziri's Communion",
+   "spirit": true
+  },
+  "SupportGemAtzirisImpatience": {
+   "name": "Atziri's Impatience",
+   "spirit": false
+  },
+  "SupportGemAutoReload": {
+   "name": "Auto Reload",
+   "spirit": false
+  },
+  "SupportGemBarbs": {
+   "name": "Barbs I",
+   "spirit": false
+  },
+  "SupportGemBarbsThree": {
+   "name": "Barbs III",
+   "spirit": false
+  },
+  "SupportGemBarbsTwo": {
+   "name": "Barbs II",
+   "spirit": false
+  },
+  "SupportGemBattershout": {
+   "name": "Battershout",
+   "spirit": false
+  },
+  "SupportGemBehead": {
+   "name": "Behead I",
+   "spirit": false
+  },
+  "SupportGemBeheadTwo": {
+   "name": "Behead II",
+   "spirit": false
+  },
+  "SupportGemBhatairsVengeance": {
+   "name": "Bhatair's Vengeance",
+   "spirit": false
+  },
+  "SupportGemBidding": {
+   "name": "Bidding I",
+   "spirit": false
+  },
+  "SupportGemBiddingThree": {
+   "name": "Bidding III",
+   "spirit": false
+  },
+  "SupportGemBiddingTwo": {
+   "name": "Bidding II",
+   "spirit": false
+  },
+  "SupportGemBitingFrost": {
+   "name": "Biting Frost I",
+   "spirit": false
+  },
+  "SupportGemBitingFrostTwo": {
+   "name": "Biting Frost II",
+   "spirit": false
+  },
+  "SupportGemBlazingCritical": {
+   "name": "Blazing Critical",
+   "spirit": false
+  },
+  "SupportGemBlind": {
+   "name": "Blind I",
+   "spirit": false
+  },
+  "SupportGemBlindTwo": {
+   "name": "Blind II",
+   "spirit": false
+  },
+  "SupportGemBlindside": {
+   "name": "Blindside",
+   "spirit": false
+  },
+  "SupportGemBloodlust": {
+   "name": "Bloodlust",
+   "spirit": false
+  },
+  "SupportGemBludgeon": {
+   "name": "Knockback",
+   "spirit": false
+  },
+  "SupportGemBoneShrapnel": {
+   "name": "Bone Shrapnel",
+   "spirit": false
+  },
+  "SupportGemBounty": {
+   "name": "Bounty I",
+   "spirit": false
+  },
+  "SupportGemBountyTwo": {
+   "name": "Bounty II",
+   "spirit": false
+  },
+  "SupportGemBrambleslam": {
+   "name": "Brambleslam",
+   "spirit": false
+  },
+  "SupportGemBranchingFissures": {
+   "name": "Branching Fissures I",
+   "spirit": false
+  },
+  "SupportGemBranchingFissuresTwo": {
+   "name": "Branching Fissures II",
+   "spirit": false
+  },
+  "SupportGemBreachlordsAmalgam": {
+   "name": "Breachlord's Amalgam",
+   "spirit": false
+  },
+  "SupportGemBreachlordsRift": {
+   "name": "Breachlord's Rift",
+   "spirit": false
+  },
+  "SupportGemBrink": {
+   "name": "Brink I",
+   "spirit": false
+  },
+  "SupportGemBrinkTwo": {
+   "name": "Brink II",
+   "spirit": false
+  },
+  "SupportGemBrittleArmour": {
+   "name": "Brittle Armour",
+   "spirit": false
+  },
+  "SupportGemBrutality": {
+   "name": "Brutality I",
+   "spirit": false
+  },
+  "SupportGemBrutalityThree": {
+   "name": "Brutality III",
+   "spirit": false
+  },
+  "SupportGemBrutalityTwo": {
+   "name": "Brutality II",
+   "spirit": false
+  },
+  "SupportGemBrutusBrain": {
+   "name": "Brutus' Brain",
+   "spirit": false
+  },
+  "SupportGemBullseye": {
+   "name": "Heightened Accuracy I",
+   "spirit": false
+  },
+  "SupportGemBullseyeTwo": {
+   "name": "Heightened Accuracy II",
+   "spirit": false
+  },
+  "SupportGemBurgeon": {
+   "name": "Burgeon I",
+   "spirit": false
+  },
+  "SupportGemBurgeonTwo": {
+   "name": "Burgeon II",
+   "spirit": false
+  },
+  "SupportGemBurningInscription": {
+   "name": "Burning Inscription",
+   "spirit": false
+  },
+  "SupportGemBurstingPlague": {
+   "name": "Bursting Plague",
+   "spirit": false
+  },
+  "SupportGemCadence": {
+   "name": "Cadence",
+   "spirit": false
+  },
+  "SupportGemCaltrops": {
+   "name": "Caltrops",
+   "spirit": false
+  },
+  "SupportGemCannibalism": {
+   "name": "Cannibalism I",
+   "spirit": true
+  },
+  "SupportGemCannibalismTwo": {
+   "name": "Cannibalism II",
+   "spirit": true
+  },
+  "SupportGemCapacitor": {
+   "name": "Energy Capacitor",
+   "spirit": false
+  },
+  "SupportGemCatalysingElements": {
+   "name": "Catalysing Elements",
+   "spirit": false
+  },
+  "SupportGemCatharsis": {
+   "name": "Catharsis",
+   "spirit": false
+  },
+  "SupportGemCathasBrilliance": {
+   "name": "Catha's Brilliance",
+   "spirit": false
+  },
+  "SupportGemChain": {
+   "name": "Chain I",
+   "spirit": false
+  },
+  "SupportGemChainThree": {
+   "name": "Chain III",
+   "spirit": false
+  },
+  "SupportGemChainTwo": {
+   "name": "Chain II",
+   "spirit": false
+  },
+  "SupportGemChaosInfusion": {
+   "name": "Chaos Attunement",
+   "spirit": false
+  },
+  "SupportGemChaosMastery": {
+   "name": "Chaos Mastery",
+   "spirit": false
+  },
+  "SupportGemChaoticFreeze": {
+   "name": "Chaotic Freeze",
+   "spirit": false
+  },
+  "SupportGemChargedMark": {
+   "name": "Charged Mark",
+   "spirit": false
+  },
+  "SupportGemChargedShots": {
+   "name": "Charged Shots I",
+   "spirit": false
+  },
+  "SupportGemChargedShotsTwo": {
+   "name": "Charged Shots II",
+   "spirit": false
+  },
+  "SupportGemCharmBounty": {
+   "name": "Charm Bounty",
+   "spirit": false
+  },
+  "SupportGemClarity": {
+   "name": "Clarity I",
+   "spirit": true
+  },
+  "SupportGemClarityTwo": {
+   "name": "Clarity II",
+   "spirit": true
+  },
+  "SupportGemClash": {
+   "name": "Clash",
+   "spirit": false
+  },
+  "SupportGemCloseCombat": {
+   "name": "Close Combat I",
+   "spirit": false
+  },
+  "SupportGemCloseCombatTwo": {
+   "name": "Close Combat II",
+   "spirit": false
+  },
+  "SupportGemColdExposure": {
+   "name": "Cold Exposure",
+   "spirit": false
+  },
+  "SupportGemColdInfusion": {
+   "name": "Cold Attunement",
+   "spirit": false
+  },
+  "SupportGemColdMastery": {
+   "name": "Cold Mastery",
+   "spirit": false
+  },
+  "SupportGemColdPenetration": {
+   "name": "Cold Penetration",
+   "spirit": false
+  },
+  "SupportGemCombatReload": {
+   "name": "Ratha's Assault",
+   "spirit": false
+  },
+  "SupportGemComboFinisher": {
+   "name": "Combo Finisher I",
+   "spirit": false
+  },
+  "SupportGemComboFinisherTwo": {
+   "name": "Combo Finisher II",
+   "spirit": false
+  },
+  "SupportGemCommandment": {
+   "name": "Commandment",
+   "spirit": false
+  },
+  "SupportGemCommiserate": {
+   "name": "Commiserate",
+   "spirit": false
+  },
+  "SupportGemComorbidity": {
+   "name": "Escalating Poison",
+   "spirit": false
+  },
+  "SupportGemConcentratedEffect": {
+   "name": "Concentrated Area",
+   "spirit": false
+  },
+  "SupportGemConcoct": {
+   "name": "Concoct I",
+   "spirit": false
+  },
+  "SupportGemConcoctTwo": {
+   "name": "Concoct II",
+   "spirit": false
+  },
+  "SupportGemConcussiveRunes": {
+   "name": "Concussive Runes",
+   "spirit": false
+  },
+  "SupportGemConcussiveSpells": {
+   "name": "Concussive Spells",
+   "spirit": false
+  },
+  "SupportGemConduction": {
+   "name": "Shock",
+   "spirit": false
+  },
+  "SupportGemConsideredCasting": {
+   "name": "Considered Casting",
+   "spirit": false
+  },
+  "SupportGemControlledDestruction": {
+   "name": "Controlled Destruction",
+   "spirit": false
+  },
+  "SupportGemControlledHazard": {
+   "name": "Controlled Hazard",
+   "spirit": false
+  },
+  "SupportGemCoolHeaded": {
+   "name": "Cool Headed",
+   "spirit": true
+  },
+  "SupportGemCorpseConservation": {
+   "name": "Corpse Conservation",
+   "spirit": false
+  },
+  "SupportGemCorrosion": {
+   "name": "Corrosion",
+   "spirit": false
+  },
+  "SupportGemCorruptingCry": {
+   "name": "Corrupting Cry I",
+   "spirit": false
+  },
+  "SupportGemCorruptingCryThree": {
+   "name": "Paquate's Pact",
+   "spirit": false
+  },
+  "SupportGemCorruptingCryTwo": {
+   "name": "Corrupting Cry II",
+   "spirit": false
+  },
+  "SupportGemCoursingCurrent": {
+   "name": "Shock Conduction",
+   "spirit": false
+  },
+  "SupportGemCoursingCurrentTwo": {
+   "name": "Shock Conduction II",
+   "spirit": false
+  },
+  "SupportGemCracklingBarrier": {
+   "name": "Crackling Barrier",
+   "spirit": false
+  },
+  "SupportGemCrater": {
+   "name": "Crater",
+   "spirit": false
+  },
+  "SupportGemCrazedMinions": {
+   "name": "Crazed Minions",
+   "spirit": true
+  },
+  "SupportGemCreepingChill": {
+   "name": "Creeping Chill",
+   "spirit": false
+  },
+  "SupportGemCrescendo": {
+   "name": "Crescendo I",
+   "spirit": false
+  },
+  "SupportGemCrescendoThree": {
+   "name": "Crescendo III",
+   "spirit": false
+  },
+  "SupportGemCrescendoTwo": {
+   "name": "Crescendo II",
+   "spirit": false
+  },
+  "SupportGemCrystallineShards": {
+   "name": "Crystalline Shards",
+   "spirit": false
+  },
+  "SupportGemCullingStrike": {
+   "name": "Culling Strike I",
+   "spirit": false
+  },
+  "SupportGemCullingStrikeTwo": {
+   "name": "Culling Strike II",
+   "spirit": false
+  },
+  "SupportGemCulmination": {
+   "name": "Culmination I",
+   "spirit": false
+  },
+  "SupportGemCulminationTwo": {
+   "name": "Culmination II",
+   "spirit": false
+  },
+  "SupportGemCursedGround": {
+   "name": "Cursed Ground",
+   "spirit": false
+  },
+  "SupportGemDanseMacabre": {
+   "name": "Danse Macabre",
+   "spirit": false
+  },
+  "SupportGemDaressosPassion": {
+   "name": "Daresso's Passion",
+   "spirit": false
+  },
+  "SupportGemDauntless": {
+   "name": "Dauntless",
+   "spirit": false
+  },
+  "SupportGemDeadlyCurrent": {
+   "name": "Coursing Current",
+   "spirit": false
+  },
+  "SupportGemDeadlyHeralds": {
+   "name": "Deadly Herald",
+   "spirit": false
+  },
+  "SupportGemDeadlyPoison": {
+   "name": "Deadly Poison I",
+   "spirit": false
+  },
+  "SupportGemDeadlyPoisonTwo": {
+   "name": "Deadly Poison II",
+   "spirit": false
+  },
+  "SupportGemDeadlyResolve": {
+   "name": "Deadly Resolve",
+   "spirit": false
+  },
+  "SupportGemDeathmarch": {
+   "name": "Deathmarch",
+   "spirit": true
+  },
+  "SupportGemDecayingHex": {
+   "name": "Decaying Hex",
+   "spirit": false
+  },
+  "SupportGemDeceleration": {
+   "name": "Projectile Deceleration I",
+   "spirit": false
+  },
+  "SupportGemDecelerationTwo": {
+   "name": "Projectile Deceleration II",
+   "spirit": false
+  },
+  "SupportGemDeepCuts": {
+   "name": "Deep Cuts I",
+   "spirit": false
+  },
+  "SupportGemDeepCutsTwo": {
+   "name": "Deep Cuts II",
+   "spirit": false
+  },
+  "SupportGemDeepFreeze": {
+   "name": "Deep Freeze",
+   "spirit": false
+  },
+  "SupportGemDefy": {
+   "name": "Defy I",
+   "spirit": false
+  },
+  "SupportGemDefyTwo": {
+   "name": "Defy II",
+   "spirit": false
+  },
+  "SupportGemDelayedGratification": {
+   "name": "Delayed Gratification",
+   "spirit": false
+  },
+  "SupportGemDelayedReaction": {
+   "name": "Delayed Reaction",
+   "spirit": false
+  },
+  "SupportGemDeliberation": {
+   "name": "Deliberation",
+   "spirit": false
+  },
+  "SupportGemDemolisher": {
+   "name": "Armour Demolisher I",
+   "spirit": false
+  },
+  "SupportGemDemolisherTwo": {
+   "name": "Armour Demolisher II",
+   "spirit": false
+  },
+  "SupportGemDerange": {
+   "name": "Derange",
+   "spirit": false
+  },
+  "SupportGemDespoiler": {
+   "name": "Lasting Ground",
+   "spirit": false
+  },
+  "SupportGemDiallasDesire": {
+   "name": "Dialla's Desire",
+   "spirit": false
+  },
+  "SupportGemDireStrike": {
+   "name": "Direstrike I",
+   "spirit": true
+  },
+  "SupportGemDireStrikeTwo": {
+   "name": "Direstrike II",
+   "spirit": true
+  },
+  "SupportGemDiscombobulate": {
+   "name": "Daze",
+   "spirit": false
+  },
+  "SupportGemDissipate": {
+   "name": "Harmonic Remnants I",
+   "spirit": false
+  },
+  "SupportGemDissipateTwo": {
+   "name": "Harmonic Remnants II",
+   "spirit": false
+  },
+  "SupportGemDoedresUndoing": {
+   "name": "Doedre's Undoing",
+   "spirit": false
+  },
+  "SupportGemDomain": {
+   "name": "Persistent Ground I",
+   "spirit": false
+  },
+  "SupportGemDomainThree": {
+   "name": "Persistent Ground III",
+   "spirit": false
+  },
+  "SupportGemDomainTwo": {
+   "name": "Persistent Ground II",
+   "spirit": false
+  },
+  "SupportGemDoubleBarrel": {
+   "name": "Double Barrel I",
+   "spirit": false
+  },
+  "SupportGemDoubleBarrelThree": {
+   "name": "Double Barrel III",
+   "spirit": false
+  },
+  "SupportGemDoubleBarrelTwo": {
+   "name": "Double Barrel II",
+   "spirit": false
+  },
+  "SupportGemDrainAilments": {
+   "name": "Drain Ailments",
+   "spirit": false
+  },
+  "SupportGemDurability": {
+   "name": "Durability",
+   "spirit": false
+  },
+  "SupportGemEchoingCry": {
+   "name": "Echoing Cry",
+   "spirit": false
+  },
+  "SupportGemEinharsBeastrite": {
+   "name": "Einhar's Beastrite",
+   "spirit": false
+  },
+  "SupportGemElectrocute": {
+   "name": "Electrocute",
+   "spirit": false
+  },
+  "SupportGemElementalArmy": {
+   "name": "Elemental Army",
+   "spirit": false
+  },
+  "SupportGemElementalDischarge": {
+   "name": "Elemental Discharge",
+   "spirit": false
+  },
+  "SupportGemElementalFocus": {
+   "name": "Elemental Focus",
+   "spirit": false
+  },
+  "SupportGemEmbitter": {
+   "name": "Embitter",
+   "spirit": false
+  },
+  "SupportGemEmpoweredSparks": {
+   "name": "Empowered Sparks I",
+   "spirit": false
+  },
+  "SupportGemEncumbrance": {
+   "name": "Slow Potency",
+   "spirit": false
+  },
+  "SupportGemEnduringImpact": {
+   "name": "Enduring Impact I",
+   "spirit": false
+  },
+  "SupportGemEnduringImpactTwo": {
+   "name": "Enduring Impact II",
+   "spirit": false
+  },
+  "SupportGemEnergyRetention": {
+   "name": "Energy Retention",
+   "spirit": false
+  },
+  "SupportGemEnormity": {
+   "name": "Hulking Minions",
+   "spirit": true
+  },
+  "SupportGemEnragedWarcry": {
+   "name": "Enraged Warcry I",
+   "spirit": false
+  },
+  "SupportGemEnragedWarcryTwo": {
+   "name": "Enraged Warcry II",
+   "spirit": false
+  },
+  "SupportGemEnvenom": {
+   "name": "Poison I",
+   "spirit": false
+  },
+  "SupportGemEnvenomThree": {
+   "name": "Poison III",
+   "spirit": false
+  },
+  "SupportGemEnvenomTwo": {
+   "name": "Poison II",
+   "spirit": false
+  },
+  "SupportGemEonyrsThunder": {
+   "name": "Eonyr's Thunder",
+   "spirit": false
+  },
+  "SupportGemEshsProwess": {
+   "name": "Esh's Prowess",
+   "spirit": false
+  },
+  "SupportGemEshsRadiance": {
+   "name": "Esh's Radiance",
+   "spirit": false
+  },
+  "SupportGemEssenceHarvest": {
+   "name": "Essence Harvest",
+   "spirit": true
+  },
+  "SupportGemEternalFlame": {
+   "name": "Eternal Flame I",
+   "spirit": false
+  },
+  "SupportGemEternalFlameThree": {
+   "name": "Eternal Flame III",
+   "spirit": false
+  },
+  "SupportGemEternalFlameTwo": {
+   "name": "Eternal Flame II",
+   "spirit": false
+  },
+  "SupportGemEternalMark": {
+   "name": "Eternal Mark",
+   "spirit": false
+  },
+  "SupportGemExcise": {
+   "name": "Excise",
+   "spirit": false
+  },
+  "SupportGemExecrate": {
+   "name": "Execrate",
+   "spirit": false
+  },
+  "SupportGemExecute": {
+   "name": "Execute I",
+   "spirit": false
+  },
+  "SupportGemExecuteThree": {
+   "name": "Execute III",
+   "spirit": false
+  },
+  "SupportGemExecuteTwo": {
+   "name": "Execute II",
+   "spirit": false
+  },
+  "SupportGemExpand": {
+   "name": "Expand",
+   "spirit": false
+  },
+  "SupportGemExpanse": {
+   "name": "Expanse",
+   "spirit": false
+  },
+  "SupportGemExpedite": {
+   "name": "Short Fuse I",
+   "spirit": false
+  },
+  "SupportGemExpediteTwo": {
+   "name": "Short Fuse II",
+   "spirit": false
+  },
+  "SupportGemExploitWeakness": {
+   "name": "Exploit Weakness",
+   "spirit": false
+  },
+  "SupportGemExplosiveGrowth": {
+   "name": "Accelerated Growth",
+   "spirit": false
+  },
+  "SupportGemExplosiveGrowthTwo": {
+   "name": "Accelerated Growth II",
+   "spirit": false
+  },
+  "SupportGemExposingCry": {
+   "name": "Exposing Cry",
+   "spirit": false
+  },
+  "SupportGemExtraction": {
+   "name": "Extraction",
+   "spirit": false
+  },
+  "SupportGemFanTheFlames": {
+   "name": "Fan The Flames",
+   "spirit": false
+  },
+  "SupportGemFanTheFlamesTwo": {
+   "name": "Fan The Flames II",
+   "spirit": false
+  },
+  "SupportGemFastForward": {
+   "name": "Compressed Duration I",
+   "spirit": false
+  },
+  "SupportGemFastForwardTwo": {
+   "name": "Compressed Duration II",
+   "spirit": false
+  },
+  "SupportGemFeedingFrenzy": {
+   "name": "Feeding Frenzy I",
+   "spirit": false
+  },
+  "SupportGemFeedingFrenzyTwo": {
+   "name": "Feeding Frenzy II",
+   "spirit": false
+  },
+  "SupportGemFerocity": {
+   "name": "Ferocity",
+   "spirit": false
+  },
+  "SupportGemFieryDeath": {
+   "name": "Fiery Death",
+   "spirit": false
+  },
+  "SupportGemFigurehead": {
+   "name": "Selfless Remnants",
+   "spirit": false
+  },
+  "SupportGemFireExposure": {
+   "name": "Fire Exposure",
+   "spirit": false
+  },
+  "SupportGemFireInfusion": {
+   "name": "Fire Attunement",
+   "spirit": false
+  },
+  "SupportGemFireMastery": {
+   "name": "Fire Mastery",
+   "spirit": false
+  },
+  "SupportGemFirePenetration": {
+   "name": "Fire Penetration I",
+   "spirit": false
+  },
+  "SupportGemFirePenetrationTwo": {
+   "name": "Fire Penetration II",
+   "spirit": false
+  },
+  "SupportGemFistOfKalguur": {
+   "name": "Fist Of Kalguur",
+   "spirit": false
+  },
+  "SupportGemFistOfWar": {
+   "name": "Fist of War I",
+   "spirit": false
+  },
+  "SupportGemFistOfWarThree": {
+   "name": "Fist of War III",
+   "spirit": false
+  },
+  "SupportGemFistOfWarTwo": {
+   "name": "Fist of War II",
+   "spirit": false
+  },
+  "SupportGemFlamePillar": {
+   "name": "Flame Pillar",
+   "spirit": false
+  },
+  "SupportGemFlamepierce": {
+   "name": "Flamepierce",
+   "spirit": false
+  },
+  "SupportGemFluke": {
+   "name": "Fluke",
+   "spirit": false
+  },
+  "SupportGemFlukeTwo": {
+   "name": "Ixchel's Torment",
+   "spirit": false
+  },
+  "SupportGemFocusedCurse": {
+   "name": "Focused Curse",
+   "spirit": false
+  },
+  "SupportGemFontofBlood": {
+   "name": "Font of Blood",
+   "spirit": false
+  },
+  "SupportGemFontofMana": {
+   "name": "Font of Mana",
+   "spirit": false
+  },
+  "SupportGemFork": {
+   "name": "Fork",
+   "spirit": false
+  },
+  "SupportGemFortress": {
+   "name": "Fortress I",
+   "spirit": false
+  },
+  "SupportGemFortressTwo": {
+   "name": "Fortress II",
+   "spirit": false
+  },
+  "SupportGemFreezefork": {
+   "name": "Freezefork",
+   "spirit": false
+  },
+  "SupportGemFreshClip": {
+   "name": "Fresh Clip I",
+   "spirit": false
+  },
+  "SupportGemFreshClipTwo": {
+   "name": "Fresh Clip II",
+   "spirit": false
+  },
+  "SupportGemFrostNexus": {
+   "name": "Frost Nexus",
+   "spirit": false
+  },
+  "SupportGemFrostfire": {
+   "name": "Frostfire",
+   "spirit": false
+  },
+  "SupportGemFrozenSpite": {
+   "name": "Frozen Spite",
+   "spirit": false
+  },
+  "SupportGemGambleshot": {
+   "name": "Gambleshot",
+   "spirit": false
+  },
+  "SupportGemGarukhansResolve": {
+   "name": "Garukhan's Resolve",
+   "spirit": false
+  },
+  "SupportGemGlaciation": {
+   "name": "Freeze",
+   "spirit": false
+  },
+  "SupportGemGlacier": {
+   "name": "Glacier",
+   "spirit": false
+  },
+  "SupportGemGorge": {
+   "name": "Gorge",
+   "spirit": false
+  },
+  "SupportGemGreatwood": {
+   "name": "Cirel's Cultivation",
+   "spirit": false
+  },
+  "SupportGemGrudge": {
+   "name": "Relentless Rage",
+   "spirit": false
+  },
+  "SupportGemGuatelitzi": {
+   "name": "Guatelitzi's Ablation",
+   "spirit": false
+  },
+  "SupportGemHaemocrystals": {
+   "name": "Haemocrystals",
+   "spirit": false
+  },
+  "SupportGemHardyTotems": {
+   "name": "Hardy Totems I",
+   "spirit": false
+  },
+  "SupportGemHardyTotemsThree": {
+   "name": "Tawhoa's Tending",
+   "spirit": false
+  },
+  "SupportGemHardyTotemsTwo": {
+   "name": "Hardy Totems II",
+   "spirit": false
+  },
+  "SupportGemHayoxisFulmination": {
+   "name": "Hayoxi's Fulmination",
+   "spirit": false
+  },
+  "SupportGemHealingRunes": {
+   "name": "Healing Runes",
+   "spirit": true
+  },
+  "SupportGemHeavySwing": {
+   "name": "Heavy Swing",
+   "spirit": false
+  },
+  "SupportGemHeft": {
+   "name": "Heft",
+   "spirit": false
+  },
+  "SupportGemHeightenedCurse": {
+   "name": "Heightened Curse",
+   "spirit": false
+  },
+  "SupportGemHelbrymsHide": {
+   "name": "Helbrym's Hide",
+   "spirit": false
+  },
+  "SupportGemHerDeclaration": {
+   "name": "Her Declaration",
+   "spirit": true
+  },
+  "SupportGemHerbalism": {
+   "name": "Herbalism I",
+   "spirit": true
+  },
+  "SupportGemHerbalismTwo": {
+   "name": "Herbalism II",
+   "spirit": true
+  },
+  "SupportGemHexBloom": {
+   "name": "Hex Bloom",
+   "spirit": false
+  },
+  "SupportGemHitAndRun": {
+   "name": "Hit and Run",
+   "spirit": false
+  },
+  "SupportGemHolyDescent": {
+   "name": "Holy Descent",
+   "spirit": false
+  },
+  "SupportGemHourglass": {
+   "name": "Hourglass",
+   "spirit": false
+  },
+  "SupportGemIceBite": {
+   "name": "Ice Bite I",
+   "spirit": false
+  },
+  "SupportGemIceBiteTwo": {
+   "name": "Ice Bite II",
+   "spirit": false
+  },
+  "SupportGemIcicle": {
+   "name": "Icicle",
+   "spirit": false
+  },
+  "SupportGemIgnition": {
+   "name": "Ignite I",
+   "spirit": false
+  },
+  "SupportGemIgnitionThree": {
+   "name": "Ignite III",
+   "spirit": false
+  },
+  "SupportGemIgnitionTwo": {
+   "name": "Ignite II",
+   "spirit": false
+  },
+  "SupportGemImmolate": {
+   "name": "Immolate",
+   "spirit": false
+  },
+  "SupportGemImpactShockwave": {
+   "name": "Impact Shockwave",
+   "spirit": false
+  },
+  "SupportGemImpale": {
+   "name": "Impale",
+   "spirit": false
+  },
+  "SupportGemImpendingDoom": {
+   "name": "Impending Doom",
+   "spirit": false
+  },
+  "SupportGemImpetus": {
+   "name": "Boundless Energy I",
+   "spirit": false
+  },
+  "SupportGemImpetusTwo": {
+   "name": "Boundless Energy II",
+   "spirit": false
+  },
+  "SupportGemIncision": {
+   "name": "Incision",
+   "spirit": false
+  },
+  "SupportGemInevitableCritical": {
+   "name": "Inexorable Critical I",
+   "spirit": false
+  },
+  "SupportGemInevitableCriticalTwo": {
+   "name": "Inexorable Critical II",
+   "spirit": false
+  },
+  "SupportGemInfernalLegion": {
+   "name": "Infernal Legion I",
+   "spirit": false
+  },
+  "SupportGemInfernalLegionThree": {
+   "name": "Infernal Legion III",
+   "spirit": false
+  },
+  "SupportGemInfernalLegionTwo": {
+   "name": "Infernal Legion II",
+   "spirit": false
+  },
+  "SupportGemIngenuity": {
+   "name": "Cooldown Recovery I",
+   "spirit": false
+  },
+  "SupportGemIngenuityTwo": {
+   "name": "Cooldown Recovery II",
+   "spirit": false
+  },
+  "SupportGemInhibitor": {
+   "name": "Inhibitor",
+   "spirit": false
+  },
+  "SupportGemInnervate": {
+   "name": "Innervate",
+   "spirit": false
+  },
+  "SupportGemInspiration": {
+   "name": "Efficiency I",
+   "spirit": false
+  },
+  "SupportGemInspirationTwo": {
+   "name": "Efficiency II",
+   "spirit": false
+  },
+  "SupportGemIntenseAgony": {
+   "name": "Intense Agony",
+   "spirit": false
+  },
+  "SupportGemInterlude": {
+   "name": "Remnant Potency I",
+   "spirit": false
+  },
+  "SupportGemInterludeThree": {
+   "name": "Remnant Potency III",
+   "spirit": false
+  },
+  "SupportGemInterludeTwo": {
+   "name": "Remnant Potency II",
+   "spirit": false
+  },
+  "SupportGemIronwood": {
+   "name": "Reinforced Totems I",
+   "spirit": false
+  },
+  "SupportGemIronwoodTwo": {
+   "name": "Reinforced Totems II",
+   "spirit": false
+  },
+  "SupportGemJaggedGround": {
+   "name": "Jagged Ground I",
+   "spirit": false
+  },
+  "SupportGemJaggedGroundTwo": {
+   "name": "Jagged Ground II",
+   "spirit": false
+  },
+  "SupportGemKalisasCrescendo": {
+   "name": "Kalisa's Crescendo",
+   "spirit": false
+  },
+  "SupportGemKaomsMadness": {
+   "name": "Kaom's Madness",
+   "spirit": false
+  },
+  "SupportGemKhatalsRejuvenation": {
+   "name": "Khatal's Rejuvenation",
+   "spirit": false
+  },
+  "SupportGemKulemaksDominion": {
+   "name": "Kulemak's Dominion",
+   "spirit": false
+  },
+  "SupportGemKurgalsLeash": {
+   "name": "Kurgal's Leash",
+   "spirit": false
+  },
+  "SupportGemLacerate": {
+   "name": "Bleed I",
+   "spirit": false
+  },
+  "SupportGemLacerateFour": {
+   "name": "Bleed IV",
+   "spirit": false
+  },
+  "SupportGemLacerateThree": {
+   "name": "Bleed III",
+   "spirit": false
+  },
+  "SupportGemLacerateTwo": {
+   "name": "Bleed II",
+   "spirit": false
+  },
+  "SupportGemLastGasp": {
+   "name": "Last Gasp",
+   "spirit": true
+  },
+  "SupportGemLastingShock": {
+   "name": "Lasting Shock",
+   "spirit": false
+  },
+  "SupportGemLifeBounty": {
+   "name": "Life Bounty",
+   "spirit": false
+  },
+  "SupportGemLifeDrain": {
+   "name": "Life Drain",
+   "spirit": false
+  },
+  "SupportGemLifeThief": {
+   "name": "Life Leech I",
+   "spirit": false
+  },
+  "SupportGemLifeThiefThree": {
+   "name": "Life Leech III",
+   "spirit": false
+  },
+  "SupportGemLifeThiefTwo": {
+   "name": "Life Leech II",
+   "spirit": false
+  },
+  "SupportGemLifetap": {
+   "name": "Lifetap",
+   "spirit": false
+  },
+  "SupportGemLightningExposure": {
+   "name": "Lightning Exposure",
+   "spirit": false
+  },
+  "SupportGemLightningInfusion": {
+   "name": "Lightning Attunement",
+   "spirit": false
+  },
+  "SupportGemLightningMastery": {
+   "name": "Lightning Mastery",
+   "spirit": false
+  },
+  "SupportGemLightningPenetration": {
+   "name": "Lightning Penetration",
+   "spirit": false
+  },
+  "SupportGemLivingLightning": {
+   "name": "Living Lightning",
+   "spirit": false
+  },
+  "SupportGemLivingLightningTwo": {
+   "name": "Living Lightning II",
+   "spirit": false
+  },
+  "SupportGemLockdown": {
+   "name": "Lockdown",
+   "spirit": false
+  },
+  "SupportGemLongFuse": {
+   "name": "Long Fuse I",
+   "spirit": false
+  },
+  "SupportGemLongFuseTwo": {
+   "name": "Long Fuse II",
+   "spirit": false
+  },
+  "SupportGemLongshot": {
+   "name": "Longshot I",
+   "spirit": false
+  },
+  "SupportGemLongshotTwo": {
+   "name": "Longshot II",
+   "spirit": false
+  },
+  "SupportGemLoyalty": {
+   "name": "Loyalty",
+   "spirit": false
+  },
+  "SupportGemMagnetism": {
+   "name": "Magnetic Remnants",
+   "spirit": false
+  },
+  "SupportGemMagnifiedEffect": {
+   "name": "Magnified Area I",
+   "spirit": false
+  },
+  "SupportGemMagnifiedEffectTwo": {
+   "name": "Magnified Area II",
+   "spirit": false
+  },
+  "SupportGemMaim": {
+   "name": "Maim",
+   "spirit": false
+  },
+  "SupportGemMalady": {
+   "name": "Malady",
+   "spirit": false
+  },
+  "SupportGemManaBounty": {
+   "name": "Mana Bounty",
+   "spirit": false
+  },
+  "SupportGemManaFlare": {
+   "name": "Mana Flare",
+   "spirit": false
+  },
+  "SupportGemMarkOfSiphoning": {
+   "name": "Mark of Siphoning",
+   "spirit": false
+  },
+  "SupportGemMarkOfSiphoningTwo": {
+   "name": "Mark of Siphoning II",
+   "spirit": false
+  },
+  "SupportGemMartialTempo": {
+   "name": "Rapid Attacks I",
+   "spirit": false
+  },
+  "SupportGemMartialTempoThree": {
+   "name": "Rapid Attacks III",
+   "spirit": false
+  },
+  "SupportGemMartialTempoTwo": {
+   "name": "Rapid Attacks II",
+   "spirit": false
+  },
+  "SupportGemMeatShield": {
+   "name": "Meat Shield I",
+   "spirit": false
+  },
+  "SupportGemMeatShieldTwo": {
+   "name": "Meat Shield II",
+   "spirit": false
+  },
+  "SupportGemMedvedsFelling": {
+   "name": "Medved's Felling",
+   "spirit": false
+  },
+  "SupportGemMinionInstability": {
+   "name": "Minion Instability",
+   "spirit": false
+  },
+  "SupportGemMinionMastery": {
+   "name": "Minion Mastery",
+   "spirit": false
+  },
+  "SupportGemMinionMeleeSplash": {
+   "name": "Minion Splash I",
+   "spirit": false
+  },
+  "SupportGemMinionMeleeSplashTwo": {
+   "name": "Minion Splash II",
+   "spirit": false
+  },
+  "SupportGemMinionPact": {
+   "name": "Minion Pact I",
+   "spirit": false
+  },
+  "SupportGemMinionPactTwo": {
+   "name": "Minion Pact II",
+   "spirit": false
+  },
+  "SupportGemMobility": {
+   "name": "Mobility",
+   "spirit": false
+  },
+  "SupportGemMomentum": {
+   "name": "Momentum",
+   "spirit": false
+  },
+  "SupportGemMorganasTempest": {
+   "name": "Morgana's Tempest",
+   "spirit": false
+  },
+  "SupportGemMorrigansInsight": {
+   "name": "Morrigan's Insight",
+   "spirit": false
+  },
+  "SupportGemMurderousIntent": {
+   "name": "Murderous Intent",
+   "spirit": false
+  },
+  "SupportGemMuster": {
+   "name": "Muster",
+   "spirit": false
+  },
+  "SupportGemMysticism": {
+   "name": "Mysticism I",
+   "spirit": true
+  },
+  "SupportGemMysticismTwo": {
+   "name": "Mysticism II",
+   "spirit": true
+  },
+  "SupportGemNeuralOverload": {
+   "name": "Neural Overload",
+   "spirit": false
+  },
+  "SupportGemNimbleReload": {
+   "name": "Nimble Reload",
+   "spirit": false
+  },
+  "SupportGemNovaProjectiles": {
+   "name": "Nova Projectiles I",
+   "spirit": false
+  },
+  "SupportGemNovaProjectilesTwo": {
+   "name": "Nova Projectiles II",
+   "spirit": false
+  },
+  "SupportGemOisinsOath": {
+   "name": "Oisin's Oath",
+   "spirit": false
+  },
+  "SupportGemOlrothsHubris": {
+   "name": "Olroth's Hubris",
+   "spirit": false
+  },
+  "SupportGemOpeningMove": {
+   "name": "Opening Move",
+   "spirit": false
+  },
+  "SupportGemOverabundance": {
+   "name": "Overabundance I",
+   "spirit": false
+  },
+  "SupportGemOverabundanceTwo": {
+   "name": "Overabundance II",
+   "spirit": false
+  },
+  "SupportGemOvercharge": {
+   "name": "Overcharge",
+   "spirit": false
+  },
+  "SupportGemOverextend": {
+   "name": "Overextend",
+   "spirit": false
+  },
+  "SupportGemOverpower": {
+   "name": "Stun I",
+   "spirit": false
+  },
+  "SupportGemOverpowerThree": {
+   "name": "Stun III",
+   "spirit": false
+  },
+  "SupportGemOverpowerTwo": {
+   "name": "Stun II",
+   "spirit": false
+  },
+  "SupportGemPayload": {
+   "name": "Payload",
+   "spirit": false
+  },
+  "SupportGemPerfectedEndurance": {
+   "name": "Perfected Endurance",
+   "spirit": false
+  },
+  "SupportGemPerfection": {
+   "name": "Perfection",
+   "spirit": false
+  },
+  "SupportGemPerpetualCharge": {
+   "name": "Perpetual Charge",
+   "spirit": false
+  },
+  "SupportGemPersistence": {
+   "name": "Prolonged Duration I",
+   "spirit": false
+  },
+  "SupportGemPersistenceTwo": {
+   "name": "Prolonged Duration II",
+   "spirit": false
+  },
+  "SupportGemPhysicalMastery": {
+   "name": "Physical Mastery",
+   "spirit": false
+  },
+  "SupportGemPierce": {
+   "name": "Pierce I",
+   "spirit": false
+  },
+  "SupportGemPierceThree": {
+   "name": "Pierce III",
+   "spirit": false
+  },
+  "SupportGemPierceTwo": {
+   "name": "Pierce II",
+   "spirit": false
+  },
+  "SupportGemPietysMercy": {
+   "name": "Dominus' Grasp",
+   "spirit": false
+  },
+  "SupportGemPin": {
+   "name": "Pin I",
+   "spirit": false
+  },
+  "SupportGemPinThree": {
+   "name": "Pin III",
+   "spirit": false
+  },
+  "SupportGemPinTwo": {
+   "name": "Pin II",
+   "spirit": false
+  },
+  "SupportGemPinpointCritical": {
+   "name": "Pinpoint Critical",
+   "spirit": false
+  },
+  "SupportGemPoisonSpores": {
+   "name": "Poison Spores",
+   "spirit": false
+  },
+  "SupportGemPracticalMagic": {
+   "name": "Practical Magic I",
+   "spirit": false
+  },
+  "SupportGemPracticalMagicTwo": {
+   "name": "Practical Magic II",
+   "spirit": false
+  },
+  "SupportGemPracticedCombo": {
+   "name": "Practiced Combo",
+   "spirit": false
+  },
+  "SupportGemPrecision": {
+   "name": "Precision I",
+   "spirit": true
+  },
+  "SupportGemPrecisionTwo": {
+   "name": "Precision II",
+   "spirit": true
+  },
+  "SupportGemPrimalArmament": {
+   "name": "Elemental Armament I",
+   "spirit": false
+  },
+  "SupportGemPrimalArmamentThree": {
+   "name": "Elemental Armament III",
+   "spirit": false
+  },
+  "SupportGemPrimalArmamentTwo": {
+   "name": "Elemental Armament II",
+   "spirit": false
+  },
+  "SupportGemProfanity": {
+   "name": "Profanity I",
+   "spirit": false
+  },
+  "SupportGemProfanityTwo": {
+   "name": "Profanity II",
+   "spirit": false
+  },
+  "SupportGemProfusion": {
+   "name": "Charge Profusion I",
+   "spirit": false
+  },
+  "SupportGemProfusionTwo": {
+   "name": "Charge Profusion II",
+   "spirit": false
+  },
+  "SupportGemPrototypeSeventeen": {
+   "name": "Prototype Seventeen",
+   "spirit": false
+  },
+  "SupportGemPunchThrough": {
+   "name": "Punch Through",
+   "spirit": false
+  },
+  "SupportGemPursuit": {
+   "name": "Pursuit I",
+   "spirit": false
+  },
+  "SupportGemPursuitThree": {
+   "name": "Pursuit III",
+   "spirit": false
+  },
+  "SupportGemPursuitTwo": {
+   "name": "Pursuit II",
+   "spirit": false
+  },
+  "SupportGemQuillBurst": {
+   "name": "Quill Burst",
+   "spirit": false
+  },
+  "SupportGemRage": {
+   "name": "Rage I",
+   "spirit": false
+  },
+  "SupportGemRageThree": {
+   "name": "Rage III",
+   "spirit": false
+  },
+  "SupportGemRageTwo": {
+   "name": "Rage II",
+   "spirit": false
+  },
+  "SupportGemRageforged": {
+   "name": "Rageforged I",
+   "spirit": false
+  },
+  "SupportGemRageforgedTwo": {
+   "name": "Rageforged II",
+   "spirit": false
+  },
+  "SupportGemRagingCry": {
+   "name": "Raging Cry",
+   "spirit": false
+  },
+  "SupportGemRakiatasFlow": {
+   "name": "Rakiata's Flow",
+   "spirit": false
+  },
+  "SupportGemReach": {
+   "name": "Overreach",
+   "spirit": false
+  },
+  "SupportGemRearm": {
+   "name": "Rearm I",
+   "spirit": false
+  },
+  "SupportGemRearmTwo": {
+   "name": "Rearm II",
+   "spirit": false
+  },
+  "SupportGemRefraction": {
+   "name": "Refraction I",
+   "spirit": true
+  },
+  "SupportGemRefractionThree": {
+   "name": "Refraction III",
+   "spirit": true
+  },
+  "SupportGemRefractionTwo": {
+   "name": "Refraction II",
+   "spirit": true
+  },
+  "SupportGemRendingApex": {
+   "name": "Rending Apex",
+   "spirit": false
+  },
+  "SupportGemRetaliate": {
+   "name": "Retaliate I",
+   "spirit": false
+  },
+  "SupportGemRetaliateTwo": {
+   "name": "Retaliate II",
+   "spirit": false
+  },
+  "SupportGemRetort": {
+   "name": "Frenzied Riposte",
+   "spirit": false
+  },
+  "SupportGemRetreat": {
+   "name": "Retreat I",
+   "spirit": false
+  },
+  "SupportGemRetreatThree": {
+   "name": "Retreat III",
+   "spirit": false
+  },
+  "SupportGemRetreatTwo": {
+   "name": "Retreat II",
+   "spirit": false
+  },
+  "SupportGemReverberate": {
+   "name": "Reverberate",
+   "spirit": false
+  },
+  "SupportGemRicochet": {
+   "name": "Ricochet I",
+   "spirit": false
+  },
+  "SupportGemRicochetTwo": {
+   "name": "Ricochet II",
+   "spirit": false
+  },
+  "SupportGemRigwaldsFerocity": {
+   "name": "Rigwald's Ferocity",
+   "spirit": false
+  },
+  "SupportGemRip": {
+   "name": "Rip",
+   "spirit": false
+  },
+  "SupportGemRisingTempest": {
+   "name": "Rising Tempest",
+   "spirit": false
+  },
+  "SupportGemRitualisticCurse": {
+   "name": "Ritualistic Curse",
+   "spirit": false
+  },
+  "SupportGemRomirasRequital": {
+   "name": "Romira's Requital",
+   "spirit": false
+  },
+  "SupportGemRuneforgedBlades": {
+   "name": "Runeforged Blades",
+   "spirit": false
+  },
+  "SupportGemRunicExtraction": {
+   "name": "Runic Extraction",
+   "spirit": false
+  },
+  "SupportGemRunicInfusion": {
+   "name": "Runic Infusion",
+   "spirit": false
+  },
+  "SupportGemRupture": {
+   "name": "Rupture",
+   "spirit": false
+  },
+  "SupportGemRustedSpikes": {
+   "name": "Rusted Spikes",
+   "spirit": false
+  },
+  "SupportGemRuthless": {
+   "name": "Ruthless",
+   "spirit": false
+  },
+  "SupportGemSacrificialLamb": {
+   "name": "Sacrificial Lamb I",
+   "spirit": false
+  },
+  "SupportGemSacrificialLambTwo": {
+   "name": "Sacrificial Lamb II",
+   "spirit": false
+  },
+  "SupportGemSalvo": {
+   "name": "Salvo",
+   "spirit": false
+  },
+  "SupportGemScattershot": {
+   "name": "Multishot I",
+   "spirit": false
+  },
+  "SupportGemScattershotTwo": {
+   "name": "Multishot II",
+   "spirit": false
+  },
+  "SupportGemScouringFlame": {
+   "name": "Scouring Flame",
+   "spirit": false
+  },
+  "SupportGemSearingFlame": {
+   "name": "Searing Flame I",
+   "spirit": false
+  },
+  "SupportGemSearingFlameTwo": {
+   "name": "Searing Flame II",
+   "spirit": false
+  },
+  "SupportGemSecondWind": {
+   "name": "Second Wind I",
+   "spirit": false
+  },
+  "SupportGemSecondWindThree": {
+   "name": "Second Wind III",
+   "spirit": false
+  },
+  "SupportGemSecondWindTwo": {
+   "name": "Second Wind II",
+   "spirit": false
+  },
+  "SupportGemSeraphsHeart": {
+   "name": "Seraph's Heart",
+   "spirit": true
+  },
+  "SupportGemShockSiphon": {
+   "name": "Shock Siphon",
+   "spirit": false
+  },
+  "SupportGemShockingLeap": {
+   "name": "Shocking Leap",
+   "spirit": false
+  },
+  "SupportGemShockingRift": {
+   "name": "Electromagnetism",
+   "spirit": false
+  },
+  "SupportGemSingleOut": {
+   "name": "Mark for Death",
+   "spirit": false
+  },
+  "SupportGemSingleOutTwo": {
+   "name": "Mark for Death II",
+   "spirit": false
+  },
+  "SupportGemSkitteringStone": {
+   "name": "Skittering Stone I",
+   "spirit": false
+  },
+  "SupportGemSkitteringStoneTwo": {
+   "name": "Skittering Stone II",
+   "spirit": false
+  },
+  "SupportGemSlamAftershocks": {
+   "name": "Tectonic Slams",
+   "spirit": false
+  },
+  "SupportGemSoulDrain": {
+   "name": "Soul Drain",
+   "spirit": false
+  },
+  "SupportGemSoulThief": {
+   "name": "Mana Leech",
+   "spirit": false
+  },
+  "SupportGemSpar": {
+   "name": "Spar",
+   "spirit": false
+  },
+  "SupportGemSpectralVolley": {
+   "name": "Spectral Volley",
+   "spirit": false
+  },
+  "SupportGemSpellCascade": {
+   "name": "Spell Cascade",
+   "spirit": false
+  },
+  "SupportGemSpellEcho": {
+   "name": "Spell Echo",
+   "spirit": false
+  },
+  "SupportGemSplinter": {
+   "name": "Armour Break I",
+   "spirit": false
+  },
+  "SupportGemSplinterThree": {
+   "name": "Armour Break III",
+   "spirit": false
+  },
+  "SupportGemSplinterTwo": {
+   "name": "Armour Break II",
+   "spirit": false
+  },
+  "SupportGemSplinteringTotem": {
+   "name": "Splinter Totem I",
+   "spirit": false
+  },
+  "SupportGemSplinteringTotemTwo": {
+   "name": "Splinter Totem II",
+   "spirit": false
+  },
+  "SupportGemStaticShocks": {
+   "name": "Static Shocks",
+   "spirit": false
+  },
+  "SupportGemSteadfast": {
+   "name": "Steadfast I",
+   "spirit": false
+  },
+  "SupportGemSteadfastTwo": {
+   "name": "Steadfast II",
+   "spirit": false
+  },
+  "SupportGemStoicism": {
+   "name": "Stoicism I",
+   "spirit": false
+  },
+  "SupportGemStoicismTwo": {
+   "name": "Stoicism II",
+   "spirit": false
+  },
+  "SupportGemStompingGround": {
+   "name": "Stomping Ground",
+   "spirit": false
+  },
+  "SupportGemStormchain": {
+   "name": "Stormchain",
+   "spirit": false
+  },
+  "SupportGemStormfire": {
+   "name": "Stormfire",
+   "spirit": false
+  },
+  "SupportGemStreamlinedRounds": {
+   "name": "Streamlined Rounds",
+   "spirit": false
+  },
+  "SupportGemStripAway": {
+   "name": "Potent Exposure",
+   "spirit": false
+  },
+  "SupportGemStrongHearted": {
+   "name": "Strong Hearted",
+   "spirit": true
+  },
+  "SupportGemStyrnsFerocity": {
+   "name": "Styrn's Ferocity",
+   "spirit": false
+  },
+  "SupportGemStyrnsMountain": {
+   "name": "Styrn's Mountain",
+   "spirit": false
+  },
+  "SupportGemSuffuse": {
+   "name": "Encroaching Ground",
+   "spirit": false
+  },
+  "SupportGemSupercritical": {
+   "name": "Supercritical",
+   "spirit": false
+  },
+  "SupportGemSwiftAffliction": {
+   "name": "Swift Affliction I",
+   "spirit": false
+  },
+  "SupportGemSwiftAfflictionThree": {
+   "name": "Swift Affliction III",
+   "spirit": false
+  },
+  "SupportGemSwiftAfflictionTwo": {
+   "name": "Swift Affliction II",
+   "spirit": false
+  },
+  "SupportGemSyzygy": {
+   "name": "Syzygy",
+   "spirit": false
+  },
+  "SupportGemTacatisIre": {
+   "name": "Tacati's Ire",
+   "spirit": false
+  },
+  "SupportGemTangmazusThurible": {
+   "name": "Tangmazu's Thurible",
+   "spirit": true
+  },
+  "SupportGemTasaliosRhythm": {
+   "name": "Tasalio's Rhythm",
+   "spirit": false
+  },
+  "SupportGemTear": {
+   "name": "Tear",
+   "spirit": false
+  },
+  "SupportGemTecrodsRevenge": {
+   "name": "Tecrod's Revenge",
+   "spirit": true
+  },
+  "SupportGemThornskin": {
+   "name": "Thornskin I",
+   "spirit": true
+  },
+  "SupportGemThornskinTwo": {
+   "name": "Thornskin II",
+   "spirit": true
+  },
+  "SupportGemThrillOfTheKill": {
+   "name": "Thrill of the Kill",
+   "spirit": false
+  },
+  "SupportGemThrillOfTheKillTwo": {
+   "name": "Thrill of the Kill II",
+   "spirit": false
+  },
+  "SupportGemTireless": {
+   "name": "Tireless",
+   "spirit": false
+  },
+  "SupportGemTrickstersShard": {
+   "name": "Trickster's Shard",
+   "spirit": false
+  },
+  "SupportGemTulsAvalanche": {
+   "name": "Tul's Avalanche",
+   "spirit": false
+  },
+  "SupportGemTulsStillness": {
+   "name": "Tul's Stillness",
+   "spirit": false
+  },
+  "SupportGemTwofold": {
+   "name": "Heightened Charges",
+   "spirit": false
+  },
+  "SupportGemUhtredsAugury": {
+   "name": "Uhtred's Augury",
+   "spirit": false
+  },
+  "SupportGemUhtredsConstellation": {
+   "name": "Uhtred's Constellation",
+   "spirit": false
+  },
+  "SupportGemUhtredsExodus": {
+   "name": "Uhtred's Exodus",
+   "spirit": false
+  },
+  "SupportGemUhtredsOmen": {
+   "name": "Uhtred's Omen",
+   "spirit": false
+  },
+  "SupportGemUhtredsRite": {
+   "name": "Uhtred's Rite",
+   "spirit": false
+  },
+  "SupportGemUndermine": {
+   "name": "Undermine",
+   "spirit": false
+  },
+  "SupportGemUnerringPower": {
+   "name": "Unerring Power",
+   "spirit": false
+  },
+  "SupportGemUnleash": {
+   "name": "Unleash",
+   "spirit": false
+  },
+  "SupportGemUntouchable": {
+   "name": "Untouchable",
+   "spirit": false
+  },
+  "SupportGemUpheaval": {
+   "name": "Upheaval I",
+   "spirit": false
+  },
+  "SupportGemUpheavalTwo": {
+   "name": "Upheaval II",
+   "spirit": false
+  },
+  "SupportGemUpwelling": {
+   "name": "Upwelling I",
+   "spirit": true
+  },
+  "SupportGemUpwellingTwo": {
+   "name": "Upwelling II",
+   "spirit": true
+  },
+  "SupportGemUruksSmelting": {
+   "name": "Uruk's Smelting",
+   "spirit": false
+  },
+  "SupportGemUulNetolsEmbrace": {
+   "name": "Uul-Netol's Embrace",
+   "spirit": false
+  },
+  "SupportGemVanguard": {
+   "name": "Vanguard I",
+   "spirit": false
+  },
+  "SupportGemVanguardTwo": {
+   "name": "Vanguard II",
+   "spirit": false
+  },
+  "SupportGemVarashtasBlessing": {
+   "name": "Varashta's Blessing",
+   "spirit": false
+  },
+  "SupportGemVerglas": {
+   "name": "Verglas",
+   "spirit": false
+  },
+  "SupportGemVilentasPropulsion": {
+   "name": "Vilenta's Propulsion",
+   "spirit": false
+  },
+  "SupportGemVitality": {
+   "name": "Vitality I",
+   "spirit": true
+  },
+  "SupportGemVitalityTwo": {
+   "name": "Vitality II",
+   "spirit": true
+  },
+  "SupportGemVolatility": {
+   "name": "Volatility",
+   "spirit": false
+  },
+  "SupportGemVolcanicEruption": {
+   "name": "Volcanic Eruption",
+   "spirit": false
+  },
+  "SupportGemVolt": {
+   "name": "Volt",
+   "spirit": false
+  },
+  "SupportGemVoranasSiege": {
+   "name": "Vorana's Siege",
+   "spirit": false
+  },
+  "SupportGemVruunsAftermath": {
+   "name": "Vruun's Aftermath",
+   "spirit": false
+  },
+  "SupportGemVruunsInevitability": {
+   "name": "Vruun's Inevitability",
+   "spirit": false
+  },
+  "SupportGemWarmBlooded": {
+   "name": "Warm Blooded",
+   "spirit": true
+  },
+  "SupportGemWildfire": {
+   "name": "Wildfire",
+   "spirit": false
+  },
+  "SupportGemWildshards": {
+   "name": "Wildshards I",
+   "spirit": false
+  },
+  "SupportGemWildshardsThree": {
+   "name": "Sione's Temper",
+   "spirit": false
+  },
+  "SupportGemWildshardsTwo": {
+   "name": "Wildshards II",
+   "spirit": false
+  },
+  "SupportGemWindWave": {
+   "name": "Wind Wave",
+   "spirit": false
+  },
+  "SupportGemWindowOfOpportunity": {
+   "name": "Window of Opportunity I",
+   "spirit": false
+  },
+  "SupportGemWindowOfOpportunityTwo": {
+   "name": "Window of Opportunity II",
+   "spirit": false
+  },
+  "SupportGemWitheringTouch": {
+   "name": "Withering Touch",
+   "spirit": false
+  },
+  "SupportGemXibaquasRending": {
+   "name": "Xibaqua's Rending",
+   "spirit": false
+  },
+  "SupportGemXophsPyre": {
+   "name": "Xoph's Pyre",
+   "spirit": false
+  },
+  "SupportGemZarokhsRefrain": {
+   "name": "Zarokh's Refrain",
+   "spirit": false
+  },
+  "SupportGemZarokhsRevolt": {
+   "name": "Zarokh's Revolt",
+   "spirit": false
+  },
+  "SupportGemZenith": {
+   "name": "Zenith I",
+   "spirit": false
+  },
+  "SupportGemZenithTwo": {
+   "name": "Zenith II",
+   "spirit": false
+  },
+  "SupportGemZerphisLegacy": {
+   "name": "Zerphi's Infamy",
+   "spirit": false
+  },
+  "SupportOlrothsConviction": {
+   "name": "Olroth's Conviction",
+   "spirit": false
+  }
+ }
+}

@@ -57,7 +57,8 @@ class Controller:
         self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
         self.active_builds: dict[str, str] = {}
         self.gem_names = GemNames.load(config.find_reim_gem_data(), config.resource_dir() / "guides" / "gem_names_ko.json",
-                                       config.resource_dir() / "guides" / "gem_names_trade.json")
+                                       config.resource_dir() / "guides" / "gem_names_trade.json",
+                                       config.resource_dir() / "guides" / "gem_ids_pob.json")
         self.build_files = scan(config.build_planner_dir() or Path())
         self._last_level: dict[str, int] = {}
         self.current_regex = None

@@ -88,3 +88,28 @@ def test_uncut_gem_parse_and_advice(tmp_path):
     assert "SkillGemHeraldOfAsh" in uncut_advice(b, "spirit", 8, 12, names)
     sup = uncut_advice(b, "support", 1, 12, names)
     assert "SupportGemExpedite" in sup and "더 높은 등급 필요: SupportGemScattershotTwo" in sup
+
+
+def test_numbered_act_split_by_level(tmp_path):
+    for i, stage in enumerate(["액트 1", "액트 2 Lv 1-21", "액트 2 Lv 22+", "액트 3", "막간", "엔드 초기"], 1):
+        (tmp_path / f"{i}.build").write_text(json.dumps(
+            {"name": f"쉴드 스미스 {i}. {stage}", "ascendancy": "Warrior3", "skills": []}), encoding="utf-8")
+    files = families(scan(tmp_path))["쉴드 스미스"]
+    assert pick_stage(files, "액트 2", 18).name.endswith("Lv 1-21")
+    assert pick_stage(files, "액트 2", 24).name.endswith("Lv 22+")
+    assert pick_stage(files, "액트 1", 24).name.endswith("액트 1")
+    assert pick_stage(files, "막간 1", 55).name.endswith("막간")
+
+
+def test_gem_names_pob_ids_and_spirit():
+    from pathlib import Path
+    from poe2_overlay.config import resource_dir
+    g = resource_dir() / "guides"
+    names = GemNames.load(None, g / "gem_names_ko.json", g / "gem_names_trade.json", g / "gem_ids_pob.json")
+    assert names("Metadata/Items/Gems/SupportGemMartialTempo") == "빠른 공격 I"  # 내부 이름 → Rapid Attacks I
+    assert names("Metadata/Items/Gem/SkillGemPlayerDefault2HMace") == "기본 공격 (젬 아님)"
+    assert names("Metadata/Items/Gem/SkillGemAscendancyVirtuousBarrier").startswith("전직 스킬")
+    assert names("Metadata/Items/Gems/SupportGemScattershotTwo") == "다중 사격 II"
+    assert names("Metadata/Items/Gems/SupportGemUulNetolsEmbrace") == "울네톨의 포옹"
+    assert names.spirit("Metadata/Items/Gem/SkillGemHeraldOfAsh")
+    assert not names.spirit("Metadata/Items/Gem/SkillGemExplosiveGrenade")
