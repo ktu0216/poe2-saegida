@@ -25,12 +25,13 @@ FAMILY_KEY_LEN = 14  # 파일 이름이 잘려 저장되므로 앞부분으로 �
 # 게임 목록에서 같은 빌드끼리 번호 순으로 모인다. 이름은 40바이트 안쪽 (게임이 잘라 저장한다).
 _NUMBERED = re.compile(r"^(?P<family>.+?) (?P<n>\d+)\. (?P<stage>.+)$")
 _STAGE_KO = {"엔드 초기": "Early Endgame", "엔드 중기": "Mid Endgame", "엔드 후기": "Late Endgame",
-             "엔드": "Endgame", "막간": "Interludes", "액트 올인원": "All-In-One"}
+             "엔드 최종": "Uber Endgame", "엔드 치명": "Crit", "엔드 탱커": "Endgame Tankier",
+             "엔드": "Endgame", "막간": "Interludes", "액트 올인원": "All-In-One", "액트 4 이후": "Act 4 to Endgame"}
 
 
 def _numbered_stage(text: str) -> str:
     """'Lv 1-42' → 'LvL 1~42', '액트 1' → 'Act 1', '엔드 초기' → 'Early Endgame'. 모르면 그대로."""
-    t = text.strip()
+    t = re.sub(r"\s*\([^)]*\)$", "", text.strip())  # 끝의 (메모)는 구간 판단에서 뺀다: "액트 1-2 (전직 전)"
     if m := re.fullmatch(r"[Ll]v\.? ?(\d+) ?[-~] ?(\d+)", t):
         return f"LvL {m[1]}~{m[2]}"
     if m := re.fullmatch(r"액트 (\d+(?: ?[-~] ?\d+)?)(?: [Ll]v\.? ?(\d+) ?(?:[-~] ?(\d+)|\+))?", t):
