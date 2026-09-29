@@ -51,7 +51,9 @@ class Controller:
     def __init__(self, app: QApplication):
         self.app = app
         self.settings = config.load_settings()
-        self.guide = Guide.load(config.find_guide(self.settings.get("guide_path", "")))
+        self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""))
+        self.guide = Guide.load(self.guide_file)
+        self._guide_mtime = self._mtime(self.guide_file)
         self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
         self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
         self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
@@ -219,6 +221,30 @@ class Controller:
         except OSError:
             return ()
 
+    @staticmethod
+    def _mtime(path: Optional[Path]) -> Optional[float]:
+        try:
+            return path.stat().st_mtime if path else None
+        except OSError:
+            return None
+
+    def reload_guide_if_changed(self) -> bool:
+        """가이드 CSV 를 고치면(문구 수정 등) 재시작 없이 다시 읽는다."""
+        mtime = self._mtime(self.guide_file)
+        if mtime is None or mtime == self._guide_mtime:
+            return False
+        self._guide_mtime = mtime
+        try:
+            guide = Guide.load(self.guide_file)
+        except (OSError, ValueError):
+            return False  # 저장 도중이면 다음 확인 때
+        if not guide.steps:
+            return False
+        self.guide = guide
+        self.tracker.set_guide(guide)
+        self.dirty = True
+        return True
+
     def rescan_builds(self, force: bool = False) -> bool:
         sig = self._build_dir_sig()
         if not force and sig == self._builds_sig:
@@ -254,6 +280,8 @@ class Controller:
         self._ticks += 1
         changed = self._ticks % 7 == 0 and self.check_league()
         if self._ticks % 7 == 3 and self.rescan_builds():  # 빌드 파일을 넣거나 지운 경우
+            changed = True
+        if self._ticks % 7 == 5 and self.reload_guide_if_changed():
             changed = True
         for ln in self.tail.read_new():
             if self.regex_book.vendor_spoke(ln):
@@ -678,7 +706,9 @@ class Controller:
         if path:
             self.settings["guide_path"] = path
             config.save_settings(self.settings)
-            self.guide = Guide.load(Path(path))
+            self.guide_file = Path(path)
+            self._guide_mtime = self._mtime(self.guide_file)
+            self.guide = Guide.load(self.guide_file)
             self.tracker.set_guide(self.guide)
             self.dirty = True
             self.refresh()
