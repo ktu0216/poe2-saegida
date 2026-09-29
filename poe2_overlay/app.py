@@ -816,8 +816,15 @@ class Controller:
 
 
 def main() -> int:
+    from .watchdog import Watchdog
+    dog = Watchdog(config.APP_DIR / "overlay.log")  # 멈추면 원인(호출 위치)을 남긴다
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     app.setApplicationName("poe2-overlay")
     ctl = Controller(app)  # noqa: F841 - 이벤트 루프 동안 유지
-    return app.exec()
+    beat = QTimer()
+    beat.timeout.connect(dog.heartbeat)
+    beat.start(1000)
+    code = app.exec()
+    dog.write(f"종료 ({code})")
+    return code
