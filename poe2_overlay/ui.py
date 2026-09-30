@@ -416,8 +416,11 @@ class Overlay(QWidget):
             elif state == "died":
                 parts.append(f'<span style="color:{WARN}">☠ {boss}에게 사망</span>')
             gifts = [html.escape(r.slot.label) for r in rewards if not r.done and r.slot.zone == step.zone]
-            gifts += [f"퀘스트 패시브 +2 ({html.escape(src.label)})"
-                      for src in self.passive_sources if src.on(step.zone, step.text)]
+            passive = [src for src in self.passive_sources if src.on(step.zone, step.text)]
+            if passive and s.flags.get("passive"):  # 이 단계에서 이미 받음
+                parts.append(f'<span style="color:{OK}">✓ 퀘스트 패시브 +2 받음</span>')
+            elif passive:
+                gifts += [f"퀘스트 패시브 +2 ({html.escape(src.label)})" for src in passive]
             if gifts:
                 parts.append("🎁 " + " · ".join(gifts))
             if parts:
@@ -459,8 +462,18 @@ class Overlay(QWidget):
         h = max(h, lay.minimumSize().height())
         if not self.show_rewards:  # 전체 목록을 펼친 경우만 예외
             h = max(h, self._min_h)
-            self._min_h = h
         self.setFixedHeight(h)
+        # 카드 안의 줄바꿈 글자는 높이가 작게 계산될 때가 있다 → 실제로 모자란 만큼 늘린다 (글자 겹침·잘림 방지)
+        for _ in range(3):
+            lay.activate()
+            short = sum(max(0, lb.heightForWidth(lb.width()) - lb.height())
+                        for lb in self.findChildren(QLabel) if lb.isVisible() and lb.wordWrap() and lb.width() > 0)
+            if short <= 0:
+                break
+            h += short
+            self.setFixedHeight(h)
+        if not self.show_rewards:
+            self._min_h = h
         self._follow()
 
     # ------------------------------------------------------------ 그리기/조작

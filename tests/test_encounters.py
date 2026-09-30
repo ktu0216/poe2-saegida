@@ -199,3 +199,13 @@ def test_riverbank_mortimer_signals():
     assert t.chars["n"].step_flags["0"]["boss"] == "engaged"
     t.feed(NpcLine("t", "9", "모티머", "잘했다! 안으로 들어와."))
     assert t.chars["n"].step_flags["0"]["boss"] == "killed"
+
+
+def test_passive_points_mark_step():
+    from poe2_overlay.logparse import PassivePoints
+    g = Guide(parse_csv("id,area_name,quest\ng1_11,사냥터,까마귀 종 처치"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G1_11", 10), LevelUp("t", "9", "a", "소서리스", 8))
+    t.feed(PassivePoints("t", "9", 2, False))
+    f = t.chars["a"].step_flags["0"]
+    assert f["passive"] and f["boss"] == "killed"

@@ -204,6 +204,8 @@ class Tracker:
                     c.weapon_set_points += ev.points
                 else:
                     c.passive_points += ev.points
+                    if self.guide.steps and 0 <= c.cursor < len(self.guide.steps):  # 🎁 퀘스트 패시브 → ✓ 받음
+                        c.step_flags.setdefault(str(c.cursor), {})["passive"] = True
                     self._book_kill(c)
 
     def _account_time(self, ev: Event, reset: bool) -> None:
