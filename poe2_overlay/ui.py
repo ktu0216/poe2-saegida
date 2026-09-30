@@ -272,6 +272,7 @@ class Overlay(QWidget):
         cl.addWidget(self.step_gift)
         cl.addWidget(self.step_tip)
         root.addWidget(card)
+        self.card = card
 
         self.gem_lbl = _label(fs - 2, DIM)  # 빌드 플래너 기준 젬 안내
         root.addWidget(self.gem_lbl)
@@ -457,23 +458,18 @@ class Overlay(QWidget):
     def _fit(self) -> None:
         """폭은 고정, 높이는 줄바꿈된 내용에 딱 맞게 (adjustSize 는 줄어들지 않는 경우가 있다)."""
         lay = self.layout()
+        # 할 일 카드는 테두리·여백 때문에 전체 높이 계산에서 줄바꿈이 작게 잡힐 때가 있다(글자 겹침·잘림)
+        # → 카드의 실제 폭 기준으로 필요한 높이를 최소 높이로 정해 둔다.
+        m = lay.contentsMargins()
+        card_w = self.card.width() if self.card.width() > 0 else self.width() - m.left() - m.right()
+        self.card.setMinimumHeight(self.card.layout().totalHeightForWidth(card_w))
         lay.activate()
         h = lay.heightForWidth(self.width()) if lay.hasHeightForWidth() else lay.sizeHint().height()
         h = max(h, lay.minimumSize().height())
         if not self.show_rewards:  # 전체 목록을 펼친 경우만 예외
             h = max(h, self._min_h)
-        self.setFixedHeight(h)
-        # 카드 안의 줄바꿈 글자는 높이가 작게 계산될 때가 있다 → 실제로 모자란 만큼 늘린다 (글자 겹침·잘림 방지)
-        for _ in range(3):
-            lay.activate()
-            short = sum(max(0, lb.heightForWidth(lb.width()) - lb.height())
-                        for lb in self.findChildren(QLabel) if lb.isVisible() and lb.wordWrap() and lb.width() > 0)
-            if short <= 0:
-                break
-            h += short
-            self.setFixedHeight(h)
-        if not self.show_rewards:
             self._min_h = h
+        self.setFixedHeight(h)
         self._follow()
 
     # ------------------------------------------------------------ 그리기/조작
