@@ -1,13 +1,15 @@
 """멈춤 진단: 화면 스레드가 5초 넘게 응답하지 않으면 모든 스레드의 호출 위치를 로그 파일에 남긴다.
 
 오버레이가 '응답 없음'으로 닫혀도 다음에 원인을 찾을 수 있게 한다.
+화면 스레드가 Qt·Windows 함수 안에서 멈추면 파이썬 스레드는 돌지 못하므로(GIL),
+기록은 faulthandler 의 C 수준 타이머(dump_traceback_later)로 한다. 1초마다 다시 걸어 두고,
+5초 안에 다시 걸지 못하면(= 멈춤) 그때의 호출 위치가 기록된다.
 로그: %APPDATA%\\poe2-overlay\\overlay.log (1MB 넘으면 새로 시작)
 """
 from __future__ import annotations
 
 import faulthandler
-import threading
-import time
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -20,27 +22,17 @@ class Watchdog:
         if log_path.exists() and log_path.stat().st_size > 1_000_000:
             log_path.unlink()
         self.file = open(log_path, "a", encoding="utf-8", buffering=1)
-        self.write(f"시작 (pid {__import__('os').getpid()})")
+        self.write(f"시작 (pid {os.getpid()})")
         faulthandler.enable(self.file)  # 비정상 종료도 기록
-        self.beat = time.monotonic()
-        self._reported = False
-        threading.Thread(target=self._run, name="watchdog", daemon=True).start()
+        self.heartbeat()
 
     def write(self, msg: str) -> None:
         self.file.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} {msg}\n")
+        self.file.flush()
 
     def heartbeat(self) -> None:
-        """화면 스레드의 타이머에서 호출."""
-        if self._reported:
-            self.write(f"응답 회복 ({time.monotonic() - self.beat:.1f}초 멈춤)")
-            self._reported = False
-        self.beat = time.monotonic()
+        """화면 스레드의 타이머에서 1초마다 호출: 멈춤 기록 타이머를 다시 건다."""
+        faulthandler.dump_traceback_later(STALL_SEC, repeat=False, file=self.file, exit=False)
 
-    def _run(self) -> None:
-        while True:
-            time.sleep(1.0)
-            stalled = time.monotonic() - self.beat
-            if stalled > STALL_SEC and not self._reported:
-                self._reported = True
-                self.write(f"화면 스레드 {stalled:.1f}초 멈춤 — 스레드별 호출 위치:")
-                faulthandler.dump_traceback(self.file, all_threads=True)
+    def stop(self) -> None:
+        faulthandler.cancel_dump_traceback_later()

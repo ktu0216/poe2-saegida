@@ -432,6 +432,10 @@ class Controller:
         self.refresh()
 
     def on_clipboard(self) -> None:
+        # 게임 창에서 복사했을 때만 읽는다. 다른 프로그램의 복사까지 읽으면 그 프로그램이 클립보드 응답을
+        # 늦게 줄 때 오버레이가 같이 멈춘다(응답 없음으로 닫힘, 2026-09-30·10-01).
+        if foreground_pid() not in game_pids():
+            return
         text = self.app.clipboard().text()
         if not is_item_text(text):
             return
@@ -826,5 +830,6 @@ def main() -> int:
     beat.timeout.connect(dog.heartbeat)
     beat.start(1000)
     code = app.exec()
+    dog.stop()
     dog.write(f"종료 ({code})")
     return code
