@@ -62,11 +62,10 @@ def _split_table(t: TimerView) -> str:
     return "".join(out)
 
 
-_ROMAN = re.compile(r" (II|III|IV)$")
 
 
 def _gem_card(gems, names) -> tuple[str, str]:
-    """빌드 플래너 기준 (머리글, 본문): 스킬 아래 보조 젬 들여쓰기, 미가공 보조 젬 후보, 다음 레벨 젬."""
+    """빌드 플래너 기준 (머리글, 본문): 스킬 아래 보조 젬 들여쓰기, 다음 레벨 젬. (미가공 젬은 Ctrl+C 도우미)"""
     b = gems.build
     head = (f'💎 {html.escape(b.label)} <span style="color:{DIM};font-weight:normal">'
             f'· {html.escape(b.stage or "-")}</span>')
@@ -79,16 +78,6 @@ def _gem_card(gems, names) -> tuple[str, str]:
     if alone:
         out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">◆ {" · ".join(html.escape(names(g.id)) for g in alone)}</b>'
                    f' <span style="color:{DIM}">(보조 젬 없음)</span></div>')
-    seen, basic = set(), []
-    for g in gems.now:
-        for s in g.supports:
-            n = names(s)
-            if n not in seen and not _ROMAN.search(n):
-                seen.add(n)
-                basic.append(n)
-    if basic:
-        out.append(f'<div style="margin-top:6px;color:{GIFT}"><b>미가공 보조 젬 Lv 1:</b> {html.escape(" · ".join(basic))}</div>'
-                   f'<div style="color:{DIM};font-size:small">II·III 없는 것 — 게임 목록에서 확인</div>')
     if gems.upcoming:
         lv = gems.upcoming[0].lo
         for g in (x for x in gems.upcoming if x.lo == lv):
@@ -312,7 +301,7 @@ class Overlay(QWidget):
                item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
                item_color: str = ACCENT) -> None:
         rewards = rewards or []
-        self._render_gems(gems, gem_names)
+        self._render_gems(gems, gem_names, hidden=gem_card)
         # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
         cards = []
         if flash:
@@ -333,9 +322,10 @@ class Overlay(QWidget):
         self.toast.set_cards(cards, self.isVisible())
         self._follow()
         self.timer_lbl.setText(_timer_line(timer) if timer else "&nbsp;")  # 비어도 자리 유지
-        self.step_gift.setText("&nbsp;")
+        self.step_gift.setText("")
+        self.step_gift.setVisible(False)  # 보스·보상 표시가 있을 때만 보인다
         self.step_tip.setVisible(False)
-        key = s.character.name if s.character else None
+        key = (s.character.name, s.character.zone) if s.character else None  # 지역을 옮기면 다시 내용에 맞게
         if key != self._grow_key:
             self._grow_key, self._min_h = key, 0
         self.reward_lbl.setVisible(False)
@@ -426,11 +416,14 @@ class Overlay(QWidget):
                 parts.append("🎁 " + " · ".join(gifts))
             if parts:
                 self.step_gift.setText(" · ".join(parts))
+                self.step_gift.setVisible(True)
         rows = []
-        for i, st in enumerate(s.upcoming):
-            size = "" if i == 0 else ' style="font-size:small"'
-            rows.append(f'<div{size}><span style="color:{TEXT}">{html.escape(st.area)}</span>'
-                        f" — {rich(st.text)}</div>")
+        if s.upcoming:  # 바로 다음 단계만 전체 문구, 그 뒤는 지역 이름만
+            st = s.upcoming[0]
+            rows.append(f'<div><span style="color:{TEXT}">{html.escape(st.area)}</span> — {rich(st.text)}</div>')
+            if rest := s.upcoming[1:]:
+                rows.append(f'<div style="font-size:small;color:{DIM}">→ '
+                            + " → ".join(html.escape(x.area) for x in rest) + "</div>")
         self.next_lbl.setText("".join(rows))
 
         foot = []
@@ -440,7 +433,7 @@ class Overlay(QWidget):
                     f' · 퀘스트 패시브 <b style="color:{TEXT}">{c.passive_points}/{passive_total}</b>')
             left = [r.slot for r in rewards if not r.done and step and r.slot.act == step.act]
             if left:
-                line += f"<br>{html.escape(step.act)} 남음: " + " · ".join(
+                line += f" · {html.escape(step.act)} 남음: " + " · ".join(
                     f'<span style="color:{GIFT}">{html.escape(sl.label)}</span>' for sl in left)
             foot.append(line)
             if self.show_rewards:
@@ -513,20 +506,16 @@ class Overlay(QWidget):
             self._min_h = 0  # 선택 줄이 사라지면 창을 줄인다
             self._fit()
 
-    def _render_gems(self, gems, names) -> None:
-        self.gem_lbl.setVisible(gems is not None)
-        if gems is None:
+    def _render_gems(self, gems, names, hidden: bool = False) -> None:
+        """패널에는 다음에 쓸 젬 한 줄만 (전체 세팅은 젬 카드 Ctrl+Alt+G). 젬 카드가 열려 있으면 숨김."""
+        show = gems is not None and not hidden and bool(gems.upcoming)
+        self.gem_lbl.setVisible(show)
+        if not show:
             return
-        now = " · ".join(html.escape(names(g.id)) for g in gems.now) or "-"
-        line = f'💎 <span style="color:{TEXT}">{now}</span>'
-        if gems.upcoming:
-            nxt = gems.upcoming[0].lo
-            soon = [g for g in gems.upcoming if g.lo == nxt]
-            line += (f' <span style="color:{DIM}">│ Lv {nxt}: </span>'
-                     f'<span style="color:{GIFT}">{" · ".join(html.escape(names(g.id)) for g in soon)}</span>')
-        stage = gems.build.stage or gems.build.label
-        line += f'<br><span style="color:{DIM};font-size:small">{html.escape(stage)} · {html.escape(gems.build.label)}</span>'
-        self.gem_lbl.setText(line)
+        nxt = gems.upcoming[0].lo
+        soon = " · ".join(html.escape(names(g.id)) for g in gems.upcoming if g.lo == nxt)
+        self.gem_lbl.setText(f'💎 <span style="color:{DIM}">다음 Lv {nxt}:</span> '
+                             f'<span style="color:{GIFT}">{soon}</span>')
 
     def _clamped(self, pos: QPoint) -> QPoint:
         """pos 에 창을 두었을 때 화면 안에 들어오는 위치 (위쪽이 잘리면 캐릭터 줄이 안 보인다)."""
