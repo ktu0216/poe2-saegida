@@ -284,8 +284,11 @@ class Tracker:
         if not enc:
             return
         engaged = f.get("boss") == "engaged"
+        killed = f.get("boss") == "killed"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
+                if killed and (m.phase or m.engage or m.soon or m.kill):
+                    return  # 처치 뒤 대화(지오너: 광기가...)로 전투·페이즈 표시가 되살아나지 않게
                 if m.soon:  # 곧 보스 등장
                     f["soon"] = True
                 if m.kill:  # 처치 대사: 지역을 떠나기 전에 바로 처치

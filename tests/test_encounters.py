@@ -223,3 +223,17 @@ def test_passive_in_town_marks_reward_step():
     t.feed(PassivePoints("t", "9", 2, False))
     c = t.chars["a"]
     assert c.cursor == 0 and c.step_flags["2"]["passive"] and "passive" not in c.step_flags.get("0", {})
+
+
+def test_dialogue_after_kill_does_not_reengage():
+    g = Guide(parse_csv("id,area_name,quest\ng1_15,오검 저택,지오너 처치\ng1_town,클리어펠 야영지,렌리"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G1_15", 15), LevelUp("t", "9", "a", "소서리스", 15))
+    t.feed(NpcLine("t", "9", "악취 나는 늑대 지오너", "네 맥박이 빨라진다..."))
+    t.feed(NpcLine("t", "9", "두건 쓴 자", "잠시나마 정신을 맑게 해 주지."))
+    f = t.chars["a"].step_flags["0"]
+    assert f["boss"] == "killed"
+    for who, text in (("악취 나는 늑대 지오너", "광기가... 나의 존재를 삼켰다."), ("두건 쓴 자", "그 여자가 짐승을 어디로 데려갔지?"),
+                      ("악취 나는 늑대 지오너", "그래... 그 여자를 찾아라.")):
+        t.feed(NpcLine("t", "9", who, text))
+        assert f["boss"] == "killed"
