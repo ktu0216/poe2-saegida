@@ -9,7 +9,9 @@
 from __future__ import annotations
 
 import faulthandler
+import functools
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -23,6 +25,8 @@ class Watchdog:
             log_path.unlink()
         self.file = open(log_path, "a", encoding="utf-8", buffering=1)
         self.write(f"시작 (pid {os.getpid()})")
+        global _active
+        _active = self
         faulthandler.enable(self.file)  # 비정상 종료도 기록
         self.heartbeat()
 
@@ -36,3 +40,23 @@ class Watchdog:
 
     def stop(self) -> None:
         faulthandler.cancel_dump_traceback_later()
+
+
+SLOW_SEC = 1.5
+_active: "Watchdog | None" = None
+
+
+def timed(name: str):
+    """오래 걸린 작업 이름을 기록하는 데코레이터 (멈춤이 어느 작업에서 났는지 좁히기 위해)."""
+    def wrap(fn):
+        @functools.wraps(fn)
+        def inner(*a, **kw):
+            t0 = time.monotonic()
+            try:
+                return fn(*a, **kw)
+            finally:
+                dt = time.monotonic() - t0
+                if dt > SLOW_SEC and _active is not None:
+                    _active.write(f"느린 작업: {name} {dt:.1f}초")
+        return inner
+    return wrap

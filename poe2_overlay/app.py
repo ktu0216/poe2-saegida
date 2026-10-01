@@ -26,6 +26,7 @@ from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
 from .ui import Overlay, make_icon
 from .timing import personal_bests, timer_view
+from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
 HOTKEYS = {
@@ -276,6 +277,7 @@ class Controller:
         self.dirty = True
         return True
 
+    @timed("poll")
     def poll(self) -> None:
         if not self.tail:
             return
@@ -303,6 +305,7 @@ class Controller:
         gap = (datetime.now() - t.last_ts).total_seconds()
         return gap if 0 < gap <= MAX_GAP else 0.0
 
+    @timed("refresh")
     def refresh(self) -> None:
         snap = self.tracker.snapshot(int(self.settings.get("upcoming", 3)))
         if not self.game_running:  # 게임을 켜기 전: 지난 캐릭터 정보 대신 대기 화면
@@ -433,6 +436,7 @@ class Controller:
         QTimer.singleShot(4000, self._clear_flash)
         self.refresh()
 
+    @timed("on_clipboard")
     def on_clipboard(self) -> None:
         # 게임 창에서 복사했을 때만 읽는다. 다른 프로그램의 복사까지 읽으면 그 프로그램이 클립보드 응답을
         # 늦게 줄 때 오버레이가 같이 멈춘다(응답 없음으로 닫힘, 2026-09-30·10-01).
@@ -576,6 +580,7 @@ class Controller:
         self.auto_pos = True
         self.place_default()
 
+    @timed("tick")
     def tick(self) -> None:
         pids = game_pids()
         self.game_running = bool(pids)
