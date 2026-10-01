@@ -209,3 +209,17 @@ def test_passive_points_mark_step():
     t.feed(PassivePoints("t", "9", 2, False))
     f = t.chars["a"].step_flags["0"]
     assert f["passive"] and f["boss"] == "killed"
+
+
+def test_passive_in_town_marks_reward_step():
+    from poe2_overlay.logparse import PassivePoints
+    from poe2_overlay.rewards import PassiveSource
+    g = Guide(parse_csv("id,area_name,quest\ng1_13_1,오검 농지,우나의 류트 찾기\ng1_13_2,오검 마을,도구\n"
+                        "g1_town,클리어펠 야영지,우나와 렌리에게 보상 받기"), "t")
+    t = Tracker(g, encounters=ENC)
+    t.passive_sources = [PassiveSource("g1_town", "우나와 렌리", "우나의 류트")]
+    feed(t, AreaEntered("t", "9", "G1_13_1", 12), LevelUp("t", "9", "a", "소서리스", 10),
+         AreaEntered("t", "9", "G1_town", 15))  # 오검 마을 전에 마을로 가서 류트 전달
+    t.feed(PassivePoints("t", "9", 2, False))
+    c = t.chars["a"]
+    assert c.cursor == 0 and c.step_flags["2"]["passive"] and "passive" not in c.step_flags.get("0", {})

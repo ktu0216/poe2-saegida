@@ -44,7 +44,7 @@ HOTKEYS = {
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 TOP_RATIO = 0.08  # 기본 위치: 게임 창 왼쪽, 위에서 8% (왼쪽 위 버프·스킬 아이콘 아래)
 DOUBLE_COPY_SEC = 0.8  # 이보다 느린 재복사는 '다시 비교'로 본다
-PROGRESS_VERSION = 21  # 21: 퀘스트 패시브 받은 단계 표시, 20: 보스전 중 보상 획득은 처치, 19: 19: 건너뛴 지역에서 돌아오면 되돌리기, 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
+PROGRESS_VERSION = 22  # 22: 퀘스트 패시브를 주는 단계에 받음 표시, 21: 21: 퀘스트 패시브 받은 단계 표시, 20: 보스전 중 보상 획득은 처치, 19: 19: 건너뛴 지역에서 돌아오면 되돌리기, 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
 class Controller:
@@ -56,6 +56,7 @@ class Controller:
         self._guide_mtime = self._mtime(self.guide_file)
         self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
         self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
+        self.passive_sources = load_passive_sources(config.resource_dir() / "guides" / "quest_passives_ko.json")
         self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
         self.active_builds: dict[str, str] = {}
         self.gem_names = GemNames.load(config.find_reim_gem_data(), config.resource_dir() / "guides" / "gem_names_ko.json",
@@ -69,6 +70,7 @@ class Controller:
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
         self.encounters = Encounters.load(config.resource_dir() / "guides" / "encounters_ko.json")
         self.tracker = Tracker(self.guide, encounters=self.encounters)
+        self.tracker.passive_sources = self.passive_sources
         self.tail: Optional[LogTail] = None
         self.dirty = False
         self.notice = ""
@@ -82,8 +84,7 @@ class Controller:
 
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
-        self.overlay.passive_sources = load_passive_sources(
-            config.resource_dir() / "guides" / "quest_passives_ko.json")
+        self.overlay.passive_sources = self.passive_sources
         self.zone_tips = config.load_zone_tips(config.resource_dir() / "guides" / "zone_tips_ko.json")
         self.overlay.moved.connect(self.on_moved)
         self.overlay.mode_chosen.connect(self.choose_new_char_mode)
@@ -185,6 +186,7 @@ class Controller:
         if not migrate and saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
             self.tracker = Tracker(self.guide, chars, saved.get("current"), self.encounters)
+            self.tracker.passive_sources = self.passive_sources
             self.tracker.pid = saved.get("pid")
             self.tracker.last_ts = parse_ts(saved.get("last_ts") or "")
             self.tracker.afk = bool(saved.get("afk"))
@@ -701,6 +703,7 @@ class Controller:
             config.save_settings(self.settings)
             self.log_path = Path(path)
             self.tracker = Tracker(self.guide, encounters=self.encounters)
+            self.tracker.passive_sources = self.passive_sources
             self.notice = ""
             self.bootstrap()
             self.refresh()

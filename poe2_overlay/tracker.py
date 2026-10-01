@@ -129,6 +129,7 @@ class Tracker:
                  current: Optional[str] = None, encounters: Optional[Encounters] = None):
         self.guide = guide
         self.encounters = encounters or Encounters()
+        self.passive_sources: list = []  # rewards.PassiveSource: 퀘스트 패시브를 주는 단계 (app 이 넣어 준다)
         self.chars: dict[str, Character] = characters or {}
         self.current: Optional[str] = current if current in self.chars else None
         self.confirmed = self.current is not None
@@ -204,8 +205,8 @@ class Tracker:
                     c.weapon_set_points += ev.points
                 else:
                     c.passive_points += ev.points
-                    if self.guide.steps and 0 <= c.cursor < len(self.guide.steps):  # 🎁 퀘스트 패시브 → ✓ 받음
-                        c.step_flags.setdefault(str(c.cursor), {})["passive"] = True
+                    if (i := self._passive_step(c)) is not None:  # 🎁 퀘스트 패시브 → ✓ 받음
+                        c.step_flags.setdefault(str(i), {})["passive"] = True
                     self._book_kill(c)
 
     def _account_time(self, ev: Event, reset: bool) -> None:
@@ -231,6 +232,20 @@ class Tracker:
         self.confirmed = False
         self.pending = []
         self.provisional = Character(name=UNKNOWN_CHAR)
+
+    def _passive_step(self, c: Character) -> Optional[int]:
+        """퀘스트 패시브를 받은 단계: 지금 지역에서 패시브를 주는 단계(passive_sources) 중 아직 안 받은,
+        현재 단계에서 가장 가까운 것. (우나의 류트를 오검 마을 전에 바로 마을에 가져다준 경우 등)
+        못 찾으면 현재 단계."""
+        steps = self.guide.steps
+        if not steps:
+            return None
+        cands = [i for i, st in enumerate(steps)
+                 if st.zone == c.zone and any(src.on(st.zone, st.text) for src in self.passive_sources)
+                 and not c.step_flags.get(str(i), {}).get("passive")]
+        if cands:
+            return min(cands, key=lambda i: abs(i - c.cursor))
+        return c.cursor if 0 <= c.cursor < len(steps) else None
 
     def _flags(self, c: Character) -> Optional[dict]:
         """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때만)."""
