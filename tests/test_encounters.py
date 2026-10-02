@@ -237,3 +237,12 @@ def test_dialogue_after_kill_does_not_reengage():
                       ("악취 나는 늑대 지오너", "그래... 그 여자를 찾아라.")):
         t.feed(NpcLine("t", "9", who, text))
         assert f["boss"] == "killed"
+
+
+def test_rudja_kill_by_lisu_thanks():
+    g = Guide(parse_csv("id,area_name,quest\ng2_10_2,모둔 광산,룻자 처치\ng2_town,아르듀라 카라반,마을"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G2_10_2", 18), LevelUp("t", "9", "a", "소서리스", 16))
+    t.feed(NpcLine("t", "9", "공포의 기술자 룻자", "미쳤다고? 미친 게 뭔지 보여주지!"))
+    t.feed(NpcLine("t", "9", "파리둔 탈주자 리수", "바람이 그대를 축복하길!"))
+    assert t.chars["a"].step_flags["0"]["boss"] == "killed"
