@@ -77,6 +77,11 @@ class BuildFile:
         return set()
 
     @property
+    def pre_ascend(self) -> bool:
+        """1차 전직 전용 구간: 이름에 "(전직 전)" 또는 원문 "(Pre-Ascend)"."""
+        return "전직 전" in self.name or "pre-ascend" in (self.stage + self.name).lower()
+
+    @property
     def levels(self) -> Optional[tuple[int, int]]:
         m = re.search(r"lvl (\d+) ?~ ?(\d+)", self.stage.lower())
         return (int(m[1]), int(m[2])) if m else None
@@ -160,10 +165,19 @@ def family_for_class(builds: list[BuildFile], cls: str) -> Optional[str]:
     return fams.pop() if len(fams) == 1 else None
 
 
-def pick_stage(files: list[BuildFile], act: str, level: int) -> Optional[BuildFile]:
-    """현재 액트(없으면 레벨)에 맞는 구간 파일. 맞는 게 없으면 가장 가까운 앞 구간."""
+def pick_stage(files: list[BuildFile], act: str, level: int,
+               ascended: Optional[bool] = None) -> Optional[BuildFile]:
+    """현재 액트(없으면 레벨)에 맞는 구간 파일. 맞는 게 없으면 가장 가까운 앞 구간.
+    ascended: 1차 전직 여부(로그로 안다). 전직 전이면 "(전직 전)" 구간을 우선, 전직 후면 뺀다."""
     if not files:
         return None
+    if ascended is not None and any(b.pre_ascend for b in files):
+        same_act = [b for b in files if act in b.acts]
+        pre = [b for b in same_act if b.pre_ascend]
+        if not ascended and pre:
+            return pre[0]
+        if ascended and len(pre) < len(same_act):
+            files = [b for b in files if not b.pre_ascend]
     def off_level(b: BuildFile) -> bool:  # 같은 액트 파일이 레벨로 나뉜 경우 (액트 2 Lv 1-21 / Lv 22+)
         return bool(b.levels) and not b.levels[0] <= level <= b.levels[1]
 

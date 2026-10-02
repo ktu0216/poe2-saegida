@@ -113,3 +113,15 @@ def test_gem_names_pob_ids_and_spirit():
     assert names("Metadata/Items/Gems/SupportGemUulNetolsEmbrace") == "울네톨의 포옹"
     assert names.spirit("Metadata/Items/Gem/SkillGemHeraldOfAsh")
     assert not names.spirit("Metadata/Items/Gem/SkillGemExplosiveGrenade")
+
+
+def test_pre_ascend_stage_until_first_ascension(tmp_path):
+    for i, stage in enumerate(["액트 1-2 (전직 전)", "액트 2", "액트 3"], 1):
+        (tmp_path / f"{i}.build").write_text(json.dumps(
+            {"name": f"바라시타 {i}. {stage}", "ascendancy": "Sorceress3", "skills": []}), encoding="utf-8")
+    files = families(scan(tmp_path))["바라시타"]
+    assert pick_stage(files, "액트 2", 14, ascended=False).name.endswith("(전직 전)")
+    assert pick_stage(files, "액트 2", 22, ascended=True).name.endswith("2. 액트 2")
+    assert pick_stage(files, "액트 1", 5, ascended=False).name.endswith("(전직 전)")
+    assert pick_stage(files, "액트 3", 30, ascended=False).name.endswith("액트 3")
+    assert pick_stage(files, "액트 2", 14).name.endswith("2. 액트 2")  # 모르면 예전 방식

@@ -393,7 +393,7 @@ class Controller:
             return None
         fam = self.build_family(c)
         files = families(self.build_files).get(fam) if fam else None
-        stage = pick_stage(files, act, c.level) if files else None
+        stage = pick_stage(files, act, c.level, ascended=c.ascension >= 1) if files else None
         return plan(stage, c.level) if stage else None
 
     def _notify_level_up(self, c, gems) -> None:
