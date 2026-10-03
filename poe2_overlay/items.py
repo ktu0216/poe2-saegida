@@ -84,6 +84,13 @@ class Item:
         return total
 
 
+def is_gear(item: "Item") -> bool:
+    """장착 장비인지: 젬(미가공 포함)·화폐·지도 등은 장비 비교·장착 기준에서 뺀다."""
+    if "젬" in item.item_class or "gem" in item.item_class.lower():
+        return False
+    return item.rarity not in ("화폐", "Currency")
+
+
 def is_item_text(text: str) -> bool:
     return text.lstrip().startswith(HEADERS)
 

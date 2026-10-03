@@ -75,3 +75,10 @@ def test_ring_slots_and_score():
     assert slot_keys("반지") == ["반지", "반지#2"] and slot_keys("투구") == ["투구"]
     weak = parse_item(RING.replace("화염 저항 +7(6-10)%", "화염 저항 +1%"))
     assert defense_score(weak) < defense_score(parse_item(RING))
+
+
+def test_uncut_gem_is_not_gear():
+    from poe2_overlay.items import is_gear, parse_item
+    t = "아이템 종류: 미가공 보조 젬\n아이템 희귀도: 화폐\n미가공 보조 젬 (2레벨)\n--------\n보조 젬 생성하기\n"
+    it = parse_item(t)
+    assert it is None or not is_gear(it)

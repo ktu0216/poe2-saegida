@@ -21,7 +21,7 @@ from .regex import RegexBook
 from .builds import (GemNames, families, family_for_class, family_of, parse_uncut, pick_stage, plan, scan,
                      uncut_advice)
 from .encounters import Encounters
-from .items import compare, defense_score, is_item_text, parse_item, slot_keys
+from .items import compare, defense_score, is_gear, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
 from .ui import Overlay, make_icon
@@ -186,6 +186,9 @@ class Controller:
         migrate = saved.get("version", 1) < PROGRESS_VERSION
         if not migrate and saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
+            for ch in chars.values():  # 예전에 잘못 등록된 젬·화폐 칸 정리
+                for k in [k for k in ch.gear if "젬" in k or (parse_item(ch.gear[k]) and not is_gear(parse_item(ch.gear[k])))]:
+                    del ch.gear[k]
             self.tracker = Tracker(self.guide, chars, saved.get("current"), self.encounters)
             self.tracker.passive_sources = self.passive_sources
             self.tracker.pid = saved.get("pid")
@@ -461,7 +464,7 @@ class Controller:
             return
         item = parse_item(text)
         c = self.tracker.snapshot().character
-        if item is None or c is None or "젬" in item.item_class:  # 스킬 창의 젬 복사는 장비 비교 대상이 아니다
+        if item is None or c is None or not is_gear(item):  # 젬·화폐는 장비 비교 대상이 아니다
             return
         self.last_item_text = text
         keys = slot_keys(item.slot)  # 반지는 두 칸
@@ -531,7 +534,7 @@ class Controller:
         """마지막으로 복사한 아이템을 그 부위의 장착 기준으로."""
         c = self.tracker.snapshot().character
         item = parse_item(self.last_item_text) if self.last_item_text else None
-        if c is None or item is None:
+        if c is None or item is None or not is_gear(item):  # 젬·화폐(미가공 젬 등)는 장착 기준이 아니다
             return
         keys = slot_keys(item.slot)
         if any(c.gear.get(k) == self.last_item_text for k in keys):
