@@ -182,6 +182,8 @@ class Tracker:
                             f["sub"][k] = "died"
                 # 하드코어 캐릭터는 죽으면 일반 리그로 옮겨진다
                 c.mode = HC_DEATH.get(c.mode, c.mode)
+                if c.league.startswith("HC "):
+                    c.league = c.league[3:]
         elif isinstance(ev, Reward):
             if c := self._identify(ev.name, ev.ts):
                 c.rewards.append(ev.text)

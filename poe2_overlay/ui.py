@@ -130,6 +130,8 @@ def _xp_badge(level: int, area_level: int) -> str:
 
 def _league_line(league: str, mode: str, cls_html: str = "") -> str:
     parts = []
+    if league.startswith("HC ") and mode and "하드코어" not in mode and "HC" not in mode:
+        league = league[3:]  # 하드코어에서 죽어 일반 리그로 옮겨진 캐릭터 (게임 설정의 리그 선택은 HC 로 남아 있다)
     if league:
         parts.append(f"🏳 {html.escape(league)}")
     if mode:
