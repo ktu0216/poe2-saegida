@@ -1,0 +1,26 @@
+import xml.etree.ElementTree as ET
+
+from poe2_overlay import export, updater
+from poe2_overlay.timing import TimerView
+
+
+def test_lss_is_cumulative_and_valid_xml():
+    tv = TimerView("막간 1", 100.0, 1000.0, None,
+                   [("액트 1", 600.0, True, None), ("액트 2", 1200.0, True, None),
+                    ("액트 3", 300.0, False, None), ("캠페인 전체", 1800.0, True, None)])
+    root = ET.fromstring(export.to_lss("Exile", tv, {"액트 1": 500.0}))
+    segs = list(root.iter("Segment"))
+    assert [s.find("Name").text for s in segs] == ["액트 1", "액트 2"]  # 끝난 구간만, 캠페인 합계 제외
+    pb = [s.find("SplitTimes/SplitTime/RealTime").text for s in segs]
+    assert pb == ["00:10:00.0000000", "00:30:00.0000000"]  # 누적
+    assert segs[0].find("BestSegmentTime/RealTime").text == "00:08:20.0000000"  # 더 빠른 기록이 골드
+
+
+def test_update_version_compare_and_release_parsing():
+    assert updater.is_newer("0.1.1", "0.1.0") and not updater.is_newer("0.1.0", "0.1.0")
+    assert updater.is_newer("v1.0.0", "0.9.9")
+    rel = updater.parse_release({"tag_name": "v0.2.0", "html_url": "u", "assets": [
+        {"name": "poe2-saegida-0.2.0-portable.zip", "browser_download_url": "z", "size": 5},
+        {"name": "poe2-saegida-setup-0.2.0.exe", "browser_download_url": "s", "size": 9, "digest": "sha256:ab"}]})
+    assert (rel.version, rel.setup_url, rel.setup_size, rel.sha256) == ("0.2.0", "s", 9, "ab")
+    assert updater.parse_release({"tag_name": "v9", "prerelease": True}) is None

@@ -12,10 +12,11 @@
 8. [Gem guide](#8-gem-guide)
 9. [Vendor regex](#9-vendor-regex)
 10. [Endgame log](#10-endgame-log)
-11. [Language](#11-language)
-12. [Hotkeys and menu](#12-hotkeys-and-menu)
-13. [Files](#13-files)
-14. [Troubleshooting](#14-troubleshooting)
+11. [Exports and updates](#11-exports-and-updates)
+12. [Language](#12-language)
+13. [Hotkeys and menu](#13-hotkeys-and-menu)
+14. [Files](#14-files)
+15. [Troubleshooting](#15-troubleshooting)
 
 ---
 
@@ -126,13 +127,24 @@ For characters that finished the campaign, the last guide step is replaced by:
 - Pinnacle kills and attempts in total; per-boss records in `Ctrl+Alt+R`
   - Kills are only counted where the log confirms them (Korean client: Arbiter of Ash, the Ritual pinnacle). Others count attempts and deaths.
 
-## 11. Language
+## 11. Exports and updates
+
+**Campaign complete card**: the moment you finish the campaign (enter your first map), a card (PNG) with act times, PB differences and deaths is saved to `Pictures\POE2 Saegida`. For characters that finished earlier: Right-click → **Export records → Campaign complete card**.
+
+**LiveSplit**: Right-click → Export records → **LiveSplit splits file (.lss)**. This character's splits become the PB and the best split across all characters becomes the gold. Open it in LiveSplit as a target for your next run.
+
+**Updates**: at start and every 6 hours it asks GitHub for the latest version (no game data is sent). When there is one, a `🆕 Version … is out` line appears under the panel.
+- Installed with the installer: Right-click → **🆕 Install update** downloads it, checks size and SHA-256, installs over the old version and restarts (settings and records are kept).
+- Portable zip: opens the release page.
+- Right-click → **Updates** to check now or turn automatic checks off.
+
+## 12. Language
 
 - Right-click → **Language / 언어**: Auto / 한국어 / English. The overlay restarts when you change it.
 - **Auto** detects the game language from the last area name in the log (the Kakao client can run in English too). If you switch the game language, the overlay notices on the next area change and restarts.
 - Data matched against the log (reward lines, boss lines, regex) follows the **game language**; menus, guide and tips follow the **screen language**. Reward history carries over if you switch the game language mid-character.
 
-## 12. Hotkeys and menu
+## 13. Hotkeys and menu
 
 | Hotkey | Action |
 |---|---|
@@ -148,7 +160,7 @@ For characters that finished the campaign, the last guide step is replaced by:
 
 The right-click menu (or ⚙) also has character, mode and build selection, compact boss mode, Tab hint, zone tips, regex auto-copy, PB comparison, reset position, guide and log file selection, language and quit.
 
-## 13. Files
+## 14. Files
 
 | File | Contents |
 |---|---|
@@ -159,7 +171,7 @@ The right-click menu (or ⚙) also has character, mode and build selection, comp
 
 Deleting `progress.json` makes the next start re-read the whole log (values that are not in the log, like saved gear, are lost).
 
-## 14. Troubleshooting
+## 15. Troubleshooting
 
 | Problem | Fix |
 |---|---|

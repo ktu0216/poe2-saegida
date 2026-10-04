@@ -64,3 +64,11 @@ Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"; Tasks: startu
 
 [Run]
 Filename: "{app}\{#MyAppExe}"; Description: "{cm:LaunchNow}"; Flags: nowait postinstall skipifsilent
+; 오버레이 안에서 업데이트한 경우 (/UPDATE=1, 조용히 설치): 끝나면 다시 실행
+Filename: "{app}\{#MyAppExe}"; Flags: nowait; Check: IsUpdate
+
+[Code]
+function IsUpdate: Boolean;
+begin
+  Result := ExpandConstant('{param:UPDATE|0}') = '1';
+end;

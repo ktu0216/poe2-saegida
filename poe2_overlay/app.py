@@ -3,8 +3,11 @@ from __future__ import annotations
 
 import html
 import os
+import subprocess
 import sys
+import threading
 import time
+import webbrowser
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -13,7 +16,7 @@ from PySide6.QtCore import QProcess, QTimer
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 
-from . import config, endgame, i18n
+from . import __version__, config, endgame, export, i18n, updater
 from .i18n import t
 from .guide import Guide, is_town
 from .logparse import parse_line
@@ -172,6 +175,19 @@ class Controller:
         self.clock.timeout.connect(self.tick)
         self.clock.start(1000)
         app.aboutToQuit.connect(self.shutdown)
+
+        # 캠페인 완주 카드: 이번 실행 중에 캠페인을 끝낸 캐릭터만 자동으로 (예전 완주는 메뉴에서)
+        self._finished_at_start = {n for n, ch in self.tracker.chars.items() if ENDGAME in ch.splits}
+        self._cards_made: set[str] = set()
+
+        # 새 버전 확인: 시작 조금 뒤 한 번, 그 뒤 6시간마다 (설정에서 끌 수 있음)
+        self.update: Optional[updater.Release] = None
+        self._update_result: Optional[tuple] = None  # 백그라운드 작업 결과 (종류, 값, 수동 여부)
+        self._update_busy = False
+        QTimer.singleShot(8000, self.start_update_check)
+        self.update_timer = QTimer()
+        self.update_timer.timeout.connect(self.start_update_check)
+        self.update_timer.start(6 * 60 * 60 * 1000)
 
         self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
@@ -358,7 +374,7 @@ class Controller:
             self.overlay.show_mode_prompt(False)
             self.overlay.leave_compact()
             self.overlay.waiting = True
-            self.overlay.render(Snapshot(None, False, None, [], None, False, snap.total), self.notice, [])
+            self.overlay.render(Snapshot(None, False, None, [], None, False, snap.total), self._notice_text(), [])
             return
         self.overlay.waiting = False
         c = snap.character
@@ -384,12 +400,21 @@ class Controller:
         if self._boss_compact(snap):
             return
         self.overlay.zone_tips = self.zone_tips if self.settings.get("zone_tips", True) else {}
+        if (c and snap.confirmed and ENDGAME in c.splits and timer is not None
+                and c.name not in self._finished_at_start and c.name not in self._cards_made):
+            self._cards_made.add(c.name)
+            try:
+                pbs = personal_bests(self.tracker.chars.values(), exclude=c.name)
+                path = export.save_card(c, timer_view(c, pbs, 0.0), snap.league)
+                self.flash = t("🏁 캠페인 완주! 완주 카드 저장: {p}", p=path.name)
+            except OSError:
+                pass
         eg = None
         if c and ENDGAME in c.splits and snap.step and snap.step.index == snap.total - 1:
             eg = endgame.summary(c, self.tracker.endgame, datetime.now())
             if eg is None:
                 eg = endgame.Summary(0, 0.0, 0, 0, "", 0.0, [])
-        self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
+        self.overlay.render(snap, self._notice_text(), states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
                             gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg)
 
@@ -655,7 +680,96 @@ class Controller:
         self.place_default()
 
     @timed("tick")
+    # ---------------------------------------------------------- 새 버전
+    def start_update_check(self, manual: bool = False) -> None:
+        if self._update_busy or not (manual or (getattr(sys, "frozen", False)
+                                                 and self.settings.get("update_check", True))):
+            return
+        self._update_busy = True
+
+        def work():
+            try:
+                self._update_result = ("checked", updater.fetch_latest(), manual)
+            except Exception as e:  # 네트워크 오류 등: 조용히 넘긴다 (수동 확인일 때만 알림)
+                self._update_result = ("error", str(e), manual)
+        threading.Thread(target=work, daemon=True).start()
+
+    def install_update(self) -> None:
+        rel = self.update
+        if rel is None or self._update_busy:
+            return
+        if not (updater.installed() and rel.setup_url):  # 휴대용·개발 실행: 릴리스 페이지
+            webbrowser.open(rel.page_url)
+            return
+        self._update_busy = True
+        self.flash = t("🆕 {v} 내려받는 중…", v=rel.version)
+        self.refresh()
+
+        def work():
+            try:
+                path = updater.download(rel, Path(os.environ.get("TEMP", ".")) / "poe2-saegida-update")
+                self._update_result = ("downloaded", path, True)
+            except Exception as e:
+                self._update_result = ("error", str(e), True)
+        threading.Thread(target=work, daemon=True).start()
+
+    def _handle_update_result(self) -> None:
+        if self._update_result is None:
+            return
+        kind, value, manual = self._update_result
+        self._update_result = None
+        self._update_busy = False
+        if kind == "checked":
+            if value is not None and updater.is_newer(value.version):
+                self.update = value
+            elif manual:
+                self.flash = t("최신 버전입니다 ({v})", v=__version__)
+        elif kind == "downloaded":
+            # 설치 파일이 오버레이를 닫고 덮어쓴 뒤 다시 실행한다 (/UPDATE=1)
+            self.save()
+            subprocess.Popen([str(value), "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/UPDATE=1"],
+                             close_fds=True)
+            self.app.quit()
+            return
+        elif kind == "error" and manual:
+            self.flash = t("업데이트 확인 실패: {e}", e=value[:80])
+        self.refresh()
+
+    # ---------------------------------------------------------- 기록 내보내기
+    def _current_timer(self):
+        c = self.tracker.snapshot().character
+        if c is None or c.name in PLACEHOLDERS:
+            return None, None
+        # 카드·스플릿에는 PB 비교 설정과 관계없이 다른 캐릭터 기준 PB 를 넣는다
+        return c, timer_view(c, personal_bests(self.tracker.chars.values(), exclude=c.name), 0.0)
+
+    def export_card(self) -> None:
+        c, tv = self._current_timer()
+        if c is None or tv is None:
+            return
+        path = export.save_card(c, tv, self.tracker.snapshot().league)
+        self.flash = t("완주 카드 저장: {p}", p=str(path))
+        os.startfile(path.parent)
+        self.refresh()
+
+    def export_lss(self) -> None:
+        c, tv = self._current_timer()
+        if c is None or tv is None:
+            return
+        best = personal_bests(self.tracker.chars.values())  # 모든 캐릭터 중 구간별 최고 (골드)
+        path = export.save_lss(c.name, tv, best)
+        self.flash = t("LiveSplit 파일 저장: {p}", p=str(path))
+        os.startfile(path.parent)
+        self.refresh()
+
+    def _notice_text(self) -> str:
+        parts = [self.notice] if self.notice else []
+        if self.update is not None:
+            parts.append(f'<span style="color:#8fd18b">{t("🆕 새 버전 {v} — 우클릭 → 업데이트", v=self.update.version)}</span>')
+        return "<br>".join(parts)
+
     def tick(self) -> None:
+        self._handle_update_result()
         pids = game_pids()
         self.game_running = bool(pids)
         if self.auto_pos and pids and not self._auto_placed:
@@ -830,6 +944,11 @@ class Controller:
     def build_menu(self, m: QMenu, clear: bool = False) -> None:
         if clear:
             m.clear()
+        if self.update is not None:
+            label = (t("🆕 업데이트 설치 ({v})", v=self.update.version) if updater.installed()
+                     else t("🆕 새 버전 받기 ({v}) — 릴리스 페이지", v=self.update.version))
+            m.addAction(label, self.install_update)
+            m.addSeparator()
         m.addAction(t("다음 단계  ({key})", key=HOTKEYS['next']), lambda: self.step(1))
         m.addAction(t("이전 단계  ({key})", key=HOTKEYS['prev']), lambda: self.step(-1))
         m.addSeparator()
@@ -934,6 +1053,20 @@ class Controller:
             a.triggered.connect(lambda _=False, k=key: self.set_language(k))
             lgrp.addAction(a)
             lm.addAction(a)
+        rm = m.addMenu(t("기록 내보내기"))
+        cur_c = self.tracker.snapshot().character
+        has_splits = bool(cur_c and cur_c.splits)
+        a = rm.addAction(t("캠페인 완주 카드 (PNG)"), self.export_card)
+        a.setEnabled(bool(cur_c and ENDGAME in cur_c.splits))
+        a = rm.addAction(t("LiveSplit 스플릿 파일 (.lss)"), self.export_lss)
+        a.setEnabled(has_splits)
+        rm.addAction(t("저장 폴더 열기"), lambda: os.startfile(export.out_dir()) if export.out_dir().is_dir() else None)
+        um = m.addMenu(t("업데이트 (현재 {v})", v=__version__))
+        um.addAction(t("지금 확인"), lambda: self.start_update_check(manual=True))
+        uc = QAction(t("새 버전 자동 확인"), um, checkable=True)
+        uc.setChecked(self.settings.get("update_check", True))
+        uc.triggered.connect(lambda: self.toggle_setting("update_check"))
+        um.addAction(uc)
         m.addSeparator()
         m.addAction(t("종료"), self.app.quit)
 
