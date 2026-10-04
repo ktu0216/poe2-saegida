@@ -6,7 +6,8 @@ from typing import Iterable, Optional
 
 from .tracker import PLACEHOLDERS, Character
 
-MIN_SPLIT = 60  # 이보다 짧은 구간은 비정상(지역만 스쳐감)으로 보고 PB에서 제외
+MIN_SPLIT = 600  # 10분 미만 구간은 PB 로 쓰지 않는다 (테스트 캐릭터·중간에 그만둔 캐릭터)
+MIN_CAMPAIGN = 3 * 3600  # 캠페인 완주 PB 는 3시간 이상만
 ENDGAME = "엔드게임"
 CAMPAIGN = "캠페인 전체"
 
@@ -48,7 +49,7 @@ def personal_bests(chars: Iterable[Character], exclude: Optional[str] = None) ->
                 best[act] = dur
         if ENDGAME in c.splits:  # 캠페인 완주 시간
             total = c.splits[ENDGAME] - min(c.splits.values())
-            if total >= MIN_SPLIT and (CAMPAIGN not in best or total < best[CAMPAIGN]):
+            if total >= MIN_CAMPAIGN and (CAMPAIGN not in best or total < best[CAMPAIGN]):
                 best[CAMPAIGN] = total
     return best
 
