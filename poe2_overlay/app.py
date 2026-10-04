@@ -195,6 +195,7 @@ class Controller:
             self.tracker.pid = saved.get("pid")
             self.tracker.last_ts = parse_ts(saved.get("last_ts") or "")
             self.tracker.afk = bool(saved.get("afk"))
+            self.tracker.relog = bool(saved.get("relog"))  # 재시작해도 "같은 게임에서 재접속" 추정을 이어 간다
             if not saved.get("confirmed", True):
                 self.tracker.restore_pending(saved.get("pending", []), saved.get("pending_scene", ""))
                 if saved.get("provisional"):  # 저장해 둔 추정본이 있으면 그대로 (재계산보다 정확)
@@ -636,6 +637,7 @@ class Controller:
             "afk": self.tracker.afk,
             "confirmed": self.tracker.confirmed,
             "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
+            "relog": self.tracker.relog,
             "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
             "pending_mode": self.tracker.provisional.mode if self.tracker.provisional else "",
             # 추정 상태의 캐릭터(모드 지정·퀘스트 패시브 등 확정 전 변경 포함)를 통째로 저장
