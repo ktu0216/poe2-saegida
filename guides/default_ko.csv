@@ -1,4 +1,4 @@
-# poe2-overlay 기본 가이드 (경로 중심)
+# poe2-saegida 기본 가이드 (경로 중심)
 # 형식: id,area_name,quest  — 레임 PoE Act Guide의 act_guide CSV와 호환
 # id 는 로그의 지역 코드(Generating level .. area "G1_2")를 소문자로 쓴 것
 # 「단어」 로 감싸면 강조 표시

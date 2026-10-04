@@ -12,7 +12,7 @@ URLS = {
     "en": "https://www.pathofexile.com/api/trade2/data/items",
     "ko": "https://poe.kakaogames.com/api/trade2/data/items",
 }
-UA = "poe2-overlay/0.1 (personal leveling overlay)"
+UA = "poe2-saegida/0.1 (personal leveling overlay)"
 OUT = Path(__file__).resolve().parent.parent / "guides" / "gem_names_trade.json"
 CHECK = {"Explosive Grenade": "폭발 유탄", "Deliberation": "신중"}  # 순서가 맞는지 확인용
 

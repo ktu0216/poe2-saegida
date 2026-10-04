@@ -1,6 +1,21 @@
-# POE2 Campaign Guide Overlay
+<div align="center">
+
+# POE2 Saegida
+
+**A campaign guide overlay — it reads the game's log file, never the game's memory**
+
+<sub>*Saegida* (새기다, "sae-gi-da") is Korean for *to engrave* — it keeps your progress, rewards and records engraved so nothing slips.</sub>
+
+[![Release](https://img.shields.io/github/v/release/ktu0216/poe2-saegida?label=release)](https://github.com/ktu0216/poe2-saegida/releases)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Log only](https://img.shields.io/badge/reads-log%20file%20only-2ea043)
+![No memory](https://img.shields.io/badge/game%20memory-never%20read-2ea043)
+![No automation](https://img.shields.io/badge/automation-none-2ea043)
 
 [한국어](README.md) · **English**
+
+</div>
 
 An overlay that shows **what to do next** in the Path of Exile 2 campaign, in a corner of your game screen.
 It only reads the log file the game writes, so it follows the character you log in with and the areas you enter.
@@ -33,16 +48,16 @@ You don't press anything to advance the guide.
 
 ## Getting started
 
-1. Download **`poe2-overlay-setup-*.exe`** (installer) from [Releases](../../releases) and run it.
+1. Download **`poe2-saegida-setup-*.exe`** (installer) from [Releases](../../releases) and run it.
    - Installs for your account only, no admin rights. Creates a Start menu shortcut, and optionally a desktop icon and "Start with Windows".
    - To update, run the new installer over the old one. Settings and progress are kept.
-   - Prefer no install? Unzip `poe2-overlay-*-portable.zip` anywhere and run `poe2-overlay.exe`.
+   - Prefer no install? Unzip `poe2-saegida-*-portable.zip` anywhere and run `poe2-saegida.exe`.
    - If Windows SmartScreen says "unknown publisher", click **More info → Run anyway** (it is an unsigned personal tool).
 2. Set the game to **Windowed Fullscreen** (borderless). The overlay cannot draw over exclusive fullscreen.
 3. Start the overlay. The game log is found automatically.
 4. Log in and change area — the character and guide position are picked up on their own.
 
-Uninstall from Windows **Settings → Apps**. Settings and progress (`%APPDATA%\poe2-overlay`) are kept; delete that folder too for a full removal.
+Uninstall from Windows **Settings → Apps**. Settings and progress (`%APPDATA%\poe2-saegida`) are kept; delete that folder too for a full removal.
 
 On the first run it reads your whole log, so earlier characters' progress and splits come back too (a few seconds).
 
@@ -62,9 +77,14 @@ See the **[user manual](docs/MANUAL.en.md)** for everything else.
 
 ## Is it safe?
 
-- **It only reads the game's log file.** It does not read game memory, send key presses to the game, or modify game files.
-- It reads the clipboard only for item text you copy **while the game window is in front**.
-- It never goes online. Everything is stored on your PC (`%APPDATA%\poe2-overlay`).
+| 🚫 Never | ✅ Instead |
+|---|---|
+| Reads game memory | Reads only the **log file** the game writes itself (`Client.txt` / `KakaoClient.txt`) |
+| Sends input to the game (automation) | Only **shows** things — you press every key yourself |
+| Modifies game files or the process | Writes nothing to the game folder |
+| Goes online | Everything stays on your PC (`%APPDATA%\poe2-saegida`) |
+
+The clipboard is read only for item text you copy **while the game window is in front**.
 
 A personal tool, not affiliated with Grinding Gear Games or Kakao Games.
 

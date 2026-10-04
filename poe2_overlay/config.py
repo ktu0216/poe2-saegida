@@ -7,7 +7,17 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-APP_DIR = Path(os.environ.get("APPDATA", Path.home())) / "poe2-overlay"
+APP_DIR = Path(os.environ.get("APPDATA", Path.home())) / "poe2-saegida"
+_OLD_APP_DIR = APP_DIR.parent / "poe2-overlay"  # 이름을 바꾸기 전 (0.1.0 이전) 설정·진행 기록
+if not APP_DIR.exists() and _OLD_APP_DIR.is_dir():
+    try:
+        _OLD_APP_DIR.rename(APP_DIR)
+    except OSError:  # 옛 버전이 아직 실행 중이라 파일이 잠겨 있으면 복사
+        import shutil
+        try:
+            shutil.copytree(_OLD_APP_DIR, APP_DIR)
+        except OSError:
+            pass
 SETTINGS_FILE = APP_DIR / "settings.json"
 PROGRESS_FILE = APP_DIR / "progress.json"
 

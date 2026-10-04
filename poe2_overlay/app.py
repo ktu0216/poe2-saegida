@@ -112,7 +112,7 @@ class Controller:
         self.overlay.action.connect(self.on_tool)
 
         self.tray = QSystemTrayIcon(make_icon())
-        self.tray.setToolTip(t("POE2 캠페인 가이드"))
+        self.tray.setToolTip(t("POE2 새기다"))
         self.tray.activated.connect(self.on_tray)
         self.tray_menu = QMenu()
         self.tray_menu.aboutToShow.connect(lambda: self.build_menu(self.tray_menu, clear=True))
@@ -943,7 +943,7 @@ def main() -> int:
     dog = Watchdog(config.APP_DIR / "overlay.log")  # 멈추면 원인(호출 위치)을 남긴다
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
-    app.setApplicationName("poe2-overlay")
+    app.setApplicationName("poe2-saegida")
     ctl = Controller(app)  # noqa: F841 - 이벤트 루프 동안 유지
     beat = QTimer()
     beat.timeout.connect(dog.heartbeat)

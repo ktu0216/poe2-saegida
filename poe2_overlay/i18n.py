@@ -118,7 +118,7 @@ EN: dict[str, str] = {
     "처치 {k} / 도전 {n}": "kills {k} / attempts {n}",
     "도전 {n}": "attempts {n}",
     " · 사망 {n}": " · deaths {n}",
-    "POE2 캠페인 가이드": "POE2 Campaign Guide",
+    "POE2 새기다": "POE2 Saegida",
     "새 캐릭터 — 모드를 선택하세요": "New character — choose a mode",
     " (Ctrl+Alt+T 로 클릭 통과를 끄고 선택)": " (turn off click-through with Ctrl+Alt+T first)",
     "건너뛰기": "Skip",

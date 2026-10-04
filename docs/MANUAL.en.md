@@ -21,7 +21,7 @@
 
 ## 1. Install and run
 
-- Windows 10/11. Install with `poe2-overlay-setup-*.exe`, or unzip the portable zip, keep the folder together and run `poe2-overlay.exe`.
+- Windows 10/11. Install with `poe2-saegida-setup-*.exe`, or unzip the portable zip, keep the folder together and run `poe2-saegida.exe`.
 - Set the game to **Windowed Fullscreen** (borderless) so the overlay can draw on top.
 - The log file is found automatically: Steam/GGG `…\Path of Exile 2\logs\Client.txt`, Kakao `C:\Daum Games\Path of Exile2\logs\KakaoClient.txt`.
   Installed elsewhere? Right-click → **Choose log file…**.
@@ -152,9 +152,9 @@ The right-click menu (or ⚙) also has character, mode and build selection, comp
 
 | File | Contents |
 |---|---|
-| `%APPDATA%\poe2-overlay\settings.json` | Settings (position, opacity, language, build per character …) |
-| `%APPDATA%\poe2-overlay\progress.json` | Per-character progress, rewards, splits, gear, endgame log, and how far the log was read |
-| `%APPDATA%\poe2-overlay\overlay.log` | Start/stop and errors |
+| `%APPDATA%\poe2-saegida\settings.json` | Settings (position, opacity, language, build per character …) |
+| `%APPDATA%\poe2-saegida\progress.json` | Per-character progress, rewards, splits, gear, endgame log, and how far the log was read |
+| `%APPDATA%\poe2-saegida\overlay.log` | Start/stop and errors |
 | `guides\*.json`, `guides\*.csv` | Guide, boss, reward and zone tip data (`_ko` / `_en`) |
 
 Deleting `progress.json` makes the next start re-read the whole log (values that are not in the log, like saved gear, are lost).

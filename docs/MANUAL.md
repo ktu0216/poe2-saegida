@@ -21,7 +21,7 @@
 
 ## 1. 설치와 실행
 
-- Windows 10/11. 설치 파일(`poe2-overlay-setup-*.exe`)로 설치하거나, 휴대용 zip을 풀어 폴더째로 두고 `poe2-overlay.exe`를 실행합니다.
+- Windows 10/11. 설치 파일(`poe2-saegida-setup-*.exe`)로 설치하거나, 휴대용 zip을 풀어 폴더째로 두고 `poe2-saegida.exe`를 실행합니다.
 - 게임은 **창 모드 전체 화면**(테두리 없는 창)이어야 오버레이가 게임 위에 보입니다.
 - 로그 파일은 자동으로 찾습니다. 카카오판 `C:\Daum Games\Path of Exile2\logs\KakaoClient.txt`, Steam/GGG판 `…\Path of Exile 2\logs\Client.txt`.
   다른 곳에 설치했다면 우클릭 → **로그 파일 선택…**.
@@ -153,9 +153,9 @@
 
 | 파일 | 내용 |
 |---|---|
-| `%APPDATA%\poe2-overlay\settings.json` | 설정(위치, 투명도, 언어, 캐릭터별 빌드 등) |
-| `%APPDATA%\poe2-overlay\progress.json` | 캐릭터별 진행·보상·스플릿·장비·엔드게임 기록, 로그를 어디까지 읽었는지 |
-| `%APPDATA%\poe2-overlay\overlay.log` | 시작·종료와 오류 기록 |
+| `%APPDATA%\poe2-saegida\settings.json` | 설정(위치, 투명도, 언어, 캐릭터별 빌드 등) |
+| `%APPDATA%\poe2-saegida\progress.json` | 캐릭터별 진행·보상·스플릿·장비·엔드게임 기록, 로그를 어디까지 읽었는지 |
+| `%APPDATA%\poe2-saegida\overlay.log` | 시작·종료와 오류 기록 |
 | `guides\*.json`, `guides\*.csv` | 가이드·보스·보상·지역 팁 데이터 (`_ko` / `_en`) |
 
 `progress.json`을 지우면 다음 실행 때 로그 전체를 다시 읽어 처음부터 계산합니다(장비 등록처럼 로그에 없는 값은 사라집니다).

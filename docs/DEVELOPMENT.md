@@ -1,11 +1,11 @@
 # 개발 메모 (동작 방식·데이터 형식)
 
-POE2 캠페인 가이드 오버레이. 게임 로그(`KakaoClient.txt` / `Client.txt`)를 읽어서
+POE2 새기다. 게임 로그(`KakaoClient.txt` / `Client.txt`)를 읽어서
 **지금 접속한 캐릭터**를 알아내고, 그 캐릭터의 진행 위치에 맞는 액트 가이드 단계를 자동으로 보여준다.
 
 ## 실행
 
-exe: `build.bat` 을 실행하면 `dist\poe2-overlay\poe2-overlay.exe` 가 만들어진다 (폴더째 옮겨서 사용).
+exe: `build.bat` 을 실행하면 `dist\poe2-saegida\poe2-saegida.exe` 가 만들어진다 (폴더째 옮겨서 사용).
 
 개발용:
 
@@ -38,7 +38,7 @@ run.bat
   - 마을 단계에서 직전 지역으로 돌아가면 한 단계 되돌림 (보스 전 포탈)
   - 그 외에는 뒤로 가지 않음 → 화면에 "가이드 경로 밖" 표시
 - 처음 실행하면 로그 전체(150MB 기준 약 2초)를 재생해서 모든 캐릭터의 진행도를 복원하고,
-  이후에는 `%APPDATA%\poe2-overlay\progress.json` 에 저장된 위치부터 이어서 읽는다.
+  이후에는 `%APPDATA%\poe2-saegida\progress.json` 에 저장된 위치부터 이어서 읽는다.
 
 ## 가이드 데이터
 
@@ -173,5 +173,5 @@ CSV 형식은 `id,area_name,quest` (레임의 PoE Act Guide `act_guide_1.csv` �
 
 `poe2_overlay/__init__.py` 의 `__version__` 을 올린 뒤 `build_release.bat` (Inno Setup 6 필요):
 
-- `release\poe2-overlay-setup-<버전>.exe` — 설치 파일 (`installer/poe2-overlay.iss`, 사용자별 설치·관리자 권한 불필요)
-- `release\poe2-overlay-<버전>-portable.zip` — 휴대용
+- `release\poe2-saegida-setup-<버전>.exe` — 설치 파일 (`installer/poe2-saegida.iss`, 사용자별 설치·관리자 권한 불필요)
+- `release\poe2-saegida-<버전>-portable.zip` — 휴대용

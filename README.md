@@ -1,6 +1,21 @@
-# POE2 캠페인 가이드 오버레이
+<div align="center">
+
+# POE2 새기다 (Saegida)
+
+**캠페인 가이드 오버레이 — 게임 로그만 읽고, 게임 메모리는 절대 읽지 않습니다**
+
+<sub>새기다 *(saegida)*: 마음에 새기다, 돌에 새기다. 진행·보상·기록을 놓치지 않게 새겨 두는 도구라는 뜻입니다.</sub>
+
+[![Release](https://img.shields.io/github/v/release/ktu0216/poe2-saegida?label=release)](https://github.com/ktu0216/poe2-saegida/releases)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Log only](https://img.shields.io/badge/reads-log%20file%20only-2ea043)
+![No memory](https://img.shields.io/badge/game%20memory-never%20read-2ea043)
+![No automation](https://img.shields.io/badge/automation-none-2ea043)
 
 **한국어** · [English](README.en.md)
+
+</div>
 
 Path of Exile 2 캠페인을 진행할 때 **지금 해야 할 일**을 게임 화면 구석에 보여주는 오버레이입니다.
 게임이 남기는 로그 파일만 읽어서, 접속한 캐릭터와 들어간 지역을 알아서 따라갑니다.
@@ -33,16 +48,16 @@ Path of Exile 2 캠페인을 진행할 때 **지금 해야 할 일**을 게임 �
 
 ## 시작하기
 
-1. [Releases](../../releases)에서 **`poe2-overlay-setup-*.exe`**(설치 파일)를 받아 실행합니다.
+1. [Releases](../../releases)에서 **`poe2-saegida-setup-*.exe`**(설치 파일)를 받아 실행합니다.
    - 관리자 권한 없이 내 계정에만 설치됩니다. 시작 메뉴 바로가기, 바탕 화면 아이콘·Windows 시작 시 자동 실행(선택)을 만들어 줍니다.
    - 새 버전도 설치 파일을 받아 그대로 실행하면 덮어쓰기로 업데이트됩니다. 설정·진행 기록은 그대로 남습니다.
-   - 설치 없이 쓰려면 `poe2-overlay-*-portable.zip`을 원하는 곳에 풀고 `poe2-overlay.exe`를 실행하세요.
+   - 설치 없이 쓰려면 `poe2-saegida-*-portable.zip`을 원하는 곳에 풀고 `poe2-saegida.exe`를 실행하세요.
    - Windows SmartScreen이 "알 수 없는 게시자" 경고를 띄우면 **추가 정보 → 실행**을 누르세요(서명하지 않은 개인 제작 프로그램이라 나오는 경고입니다).
 2. 게임을 **창 모드 전체 화면**(테두리 없는 창)으로 설정합니다. 전체 화면 모드에서는 오버레이가 게임 위에 보이지 않습니다.
 3. 오버레이를 실행합니다. 게임 로그 파일은 자동으로 찾습니다.
 4. 게임에 접속해 지역을 옮기면 캐릭터와 진행 위치를 알아서 잡습니다.
 
-제거는 Windows **설정 → 앱**에서 합니다. 설정·진행 기록(`%APPDATA%\poe2-overlay`)은 지워지지 않으니, 완전히 지우려면 그 폴더도 지우세요.
+제거는 Windows **설정 → 앱**에서 합니다. 설정·진행 기록(`%APPDATA%\poe2-saegida`)은 지워지지 않으니, 완전히 지우려면 그 폴더도 지우세요.
 
 처음 실행하면 지금까지의 로그 전체를 읽어서 예전 캐릭터들의 진행·기록도 되살립니다(몇 초).
 
@@ -62,9 +77,14 @@ Path of Exile 2 캠페인을 진행할 때 **지금 해야 할 일**을 게임 �
 
 ## 안전한가요?
 
-- **게임 로그 파일만 읽습니다.** 게임 메모리를 읽거나, 게임에 키 입력을 대신 보내거나, 게임 파일을 바꾸지 않습니다.
-- 클립보드는 **게임 창이 앞에 있을 때** 복사한 아이템 문구만 읽습니다.
-- 인터넷에 접속하지 않습니다. 모든 기록은 내 PC(`%APPDATA%\poe2-overlay`)에만 저장됩니다.
+| 🚫 절대 하지 않는 것 | ✅ 대신 하는 것 |
+|---|---|
+| 게임 메모리 읽기 | 게임이 직접 남기는 **로그 파일**(`Client.txt` / `KakaoClient.txt`)만 읽습니다 |
+| 게임에 키 입력 보내기 (자동 조작) | 화면에 **보여주기만** 합니다. 모든 키는 직접 누릅니다 |
+| 게임 파일·프로세스 수정 | 게임 폴더에는 아무것도 쓰지 않습니다 |
+| 인터넷 접속 | 모든 기록은 내 PC(`%APPDATA%\poe2-saegida`)에만 저장됩니다 |
+
+클립보드는 **게임 창이 앞에 있을 때** 복사한 아이템 문구만 읽습니다.
 
 Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.
 

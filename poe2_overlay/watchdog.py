@@ -4,7 +4,7 @@
 화면 스레드가 Qt·Windows 함수 안에서 멈추면 파이썬 스레드는 돌지 못하므로(GIL),
 기록은 faulthandler 의 C 수준 타이머(dump_traceback_later)로 한다. 1초마다 다시 걸어 두고,
 5초 안에 다시 걸지 못하면(= 멈춤) 그때의 호출 위치가 기록된다.
-로그: %APPDATA%\\poe2-overlay\\overlay.log (1MB 넘으면 새로 시작)
+로그: %APPDATA%\\poe2-saegida\\overlay.log (1MB 넘으면 새로 시작)
 """
 from __future__ import annotations
 

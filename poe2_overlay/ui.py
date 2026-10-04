@@ -212,7 +212,7 @@ class Overlay(QWidget):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
-        self.setWindowTitle(t("POE2 캠페인 가이드"))
+        self.setWindowTitle(t("POE2 새기다"))
         self.setWindowIcon(make_icon())
         self.settings = settings
         self.opacity = float(settings.get("opacity", 0.88))
