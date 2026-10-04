@@ -35,7 +35,7 @@
   },
   "SkillGemArchonOfChayula": {
    "name": "Archon of Chayula",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemArcticArmour": {
    "name": "Arctic Armour",
@@ -63,7 +63,7 @@
   },
   "SkillGemAscendancyApocalypse": {
    "name": "Apocalypse",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemAscendancyBleedingConcoction": {
    "name": "Bleeding Concoction",
@@ -75,7 +75,7 @@
   },
   "SkillGemAscendancyCorpseBeetles": {
    "name": "Kelari's Malediction",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancyDemonForm": {
    "name": "Demon Form",
@@ -107,7 +107,7 @@
   },
   "SkillGemAscendancyHollowFocus": {
    "name": "Hollow Focus",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancyHollowForm": {
    "name": "Hollow Form",
@@ -135,7 +135,7 @@
   },
   "SkillGemAscendancyManifestWeapon": {
    "name": "Manifest Weapon",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancyMeditate": {
    "name": "Meditate",
@@ -155,7 +155,7 @@
   },
   "SkillGemAscendancyRitualSacrifice": {
    "name": "Ritual Sacrifice",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemAscendancyShatteringConcoction": {
    "name": "Shattering Concoction",
@@ -163,27 +163,27 @@
   },
   "SkillGemAscendancySorceryWard": {
    "name": "Sorcery Ward",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancySummonFireDjinn": {
    "name": "Ruzhan, the Blazing Sword",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancySummonInfernalHound": {
    "name": "Summon Infernal Hound",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancySummonSandDjinn": {
    "name": "Kelari, the Tainted Sands",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancySummonWaterDjinn": {
    "name": "Navira, the Last Mirage",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancySupportingFire": {
    "name": "Supporting Fire",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancyTemperWeapon": {
    "name": "Temper Weapon",
@@ -191,7 +191,7 @@
   },
   "SkillGemAscendancyTemporalRift": {
    "name": "Temporal Rift",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendancyTimeFreeze": {
    "name": "Time Freeze",
@@ -203,7 +203,7 @@
   },
   "SkillGemAscendancyUnboundAvatar": {
    "name": "Unbound Avatar",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemAscendancyVirtuousBarrier": {
    "name": "Virtuous Barrier",
@@ -215,7 +215,7 @@
   },
   "SkillGemAscendancyVoidIllusion": {
    "name": "Void Illusion",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemAscendanyMetaDeadeyeMarks": {
    "name": "Called Shots",
@@ -231,7 +231,7 @@
   },
   "SkillGemAzmerianWolf": {
    "name": "Azmerian Wolf",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemBallLightning": {
    "name": "Ball Lightning",
@@ -395,7 +395,7 @@
   },
   "SkillGemConvalescence": {
    "name": "Convalescence",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemCorpseCloud": {
    "name": "Decompose",
@@ -423,7 +423,7 @@
   },
   "SkillGemDefianceBanner": {
    "name": "Defiance Banner",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemDespair": {
    "name": "Despair",
@@ -455,7 +455,7 @@
   },
   "SkillGemDreadBanner": {
    "name": "Dread Banner",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemEarthquake": {
    "name": "Earthquake",
@@ -491,7 +491,7 @@
   },
   "SkillGemEmergencyReload": {
    "name": "Emergency Reload",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemEnervatingNova": {
    "name": "Enervating Nova",
@@ -663,7 +663,7 @@
   },
   "SkillGemGalvanicField": {
    "name": "Galvanic Field",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemGalvanicShards": {
    "name": "Galvanic Shards",
@@ -735,7 +735,7 @@
   },
   "SkillGemHeartOfIce": {
    "name": "Heart of Ice",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemHeraldOfAsh": {
    "name": "Herald of Ash",
@@ -779,7 +779,7 @@
   },
   "SkillGemHyenaCackle": {
    "name": "Cackling Companions",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemIceFragments": {
    "name": "Ice Fragments",
@@ -907,7 +907,7 @@
   },
   "SkillGemMantraOfDestruction": {
    "name": "Mantra of Destruction",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemMidnightStar": {
    "name": "Midnight Zenith",
@@ -923,7 +923,7 @@
   },
   "SkillGemMistRaven": {
    "name": "Mist Raven",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemMoltenBlast": {
    "name": "Molten Blast",
@@ -1043,7 +1043,7 @@
   },
   "SkillGemPrimalBounty": {
    "name": "Primal Bounty",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemPrimalStrikes": {
    "name": "Primal Strikes",
@@ -1107,7 +1107,7 @@
   },
   "SkillGemRefutation": {
    "name": "Refutation",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemRemnantsOfKalguur": {
    "name": "Remnants of Kalguur",
@@ -1127,7 +1127,7 @@
   },
   "SkillGemRhoaMount": {
    "name": "Rhoa Mount",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemRighteousDescent": {
    "name": "Righteous Descent",
@@ -1235,39 +1235,39 @@
   },
   "SkillGemSkeletalArsonist": {
    "name": "Skeletal Arsonist",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalBrute": {
    "name": "Skeletal Brute",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalCleric": {
    "name": "Skeletal Cleric",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalFrostMage": {
    "name": "Skeletal Frost Mage",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalReaver": {
    "name": "Skeletal Reaver",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalSniper": {
    "name": "Skeletal Sniper",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalStormMage": {
    "name": "Skeletal Storm Mage",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalWarrior": {
    "name": "Skeletal Sniper",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkeletalWarriorWeaponSkill": {
    "name": "Skeletal Warrior",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSkyfall": {
    "name": "Skyfall",
@@ -1323,11 +1323,11 @@
   },
   "SkillGemSpiralingConspiracy": {
    "name": "Spiraling Conspiracy",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSpiritVessel": {
    "name": "Spirit Vessel",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemStaffConsecrate": {
    "name": "Consecrate",
@@ -1367,11 +1367,11 @@
   },
   "SkillGemSummonBeast": {
    "name": "Companion: {0}",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSummonSpectre": {
    "name": "Spectre: {0}",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemSunder": {
    "name": "Sunder",
@@ -1383,7 +1383,7 @@
   },
   "SkillGemTameBeast": {
    "name": "Tame Beast",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemTempestBell": {
    "name": "Tempest Bell",
@@ -1427,7 +1427,7 @@
   },
   "SkillGemToxicDomain": {
    "name": "Toxic Domain",
-   "spirit": false
+   "spirit": true
   },
   "SkillGemToxicGrowth": {
    "name": "Toxic Growth",
@@ -1435,7 +1435,7 @@
   },
   "SkillGemTrailOfCaltrops": {
    "name": "Trail of Caltrops",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemTriggeredAbyssalApparition": {
    "name": "Abyssal Apparition",
@@ -1519,7 +1519,7 @@
   },
   "SkillGemWarBanner": {
    "name": "War Banner",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemWardboundMinions": {
    "name": "Wardbound Minions",
@@ -1543,7 +1543,7 @@
   },
   "SkillGemWildProtector": {
    "name": "Wild Protector",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemWindBlast": {
    "name": "Wind Blast",
@@ -1583,7 +1583,7 @@
   },
   "SkillGemWolfPack": {
    "name": "Wolf Pack",
-   "spirit": true
+   "spirit": false
   },
   "SkillGemWolfPounce": {
    "name": "Pounce",
@@ -1671,7 +1671,7 @@
   },
   "SupportGemAmanamusTithe": {
    "name": "Amanamu's Tithe",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemAmbrosia": {
    "name": "Ambrosia",
@@ -1735,7 +1735,7 @@
   },
   "SupportGemArbitersReach": {
    "name": "Arbiter's Reach",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemArcaneSurge": {
    "name": "Arcane Surge",
@@ -1775,7 +1775,7 @@
   },
   "SupportGemAtzirisCommunion": {
    "name": "Atziri's Communion",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemAtzirisImpatience": {
    "name": "Atziri's Impatience",
@@ -1951,11 +1951,11 @@
   },
   "SupportGemCannibalism": {
    "name": "Cannibalism I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemCannibalismTwo": {
    "name": "Cannibalism II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemCapacitor": {
    "name": "Energy Capacitor",
@@ -2015,11 +2015,11 @@
   },
   "SupportGemClarity": {
    "name": "Clarity I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemClarityTwo": {
    "name": "Clarity II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemClash": {
    "name": "Clash",
@@ -2111,7 +2111,7 @@
   },
   "SupportGemCoolHeaded": {
    "name": "Cool Headed",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemCorpseConservation": {
    "name": "Corpse Conservation",
@@ -2151,7 +2151,7 @@
   },
   "SupportGemCrazedMinions": {
    "name": "Crazed Minions",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemCreepingChill": {
    "name": "Creeping Chill",
@@ -2227,7 +2227,7 @@
   },
   "SupportGemDeathmarch": {
    "name": "Deathmarch",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemDecayingHex": {
    "name": "Decaying Hex",
@@ -2295,11 +2295,11 @@
   },
   "SupportGemDireStrike": {
    "name": "Direstrike I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemDireStrikeTwo": {
    "name": "Direstrike II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemDiscombobulate": {
    "name": "Daze",
@@ -2399,7 +2399,7 @@
   },
   "SupportGemEnormity": {
    "name": "Hulking Minions",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemEnragedWarcry": {
    "name": "Enraged Warcry I",
@@ -2435,7 +2435,7 @@
   },
   "SupportGemEssenceHarvest": {
    "name": "Essence Harvest",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemEternalFlame": {
    "name": "Eternal Flame I",
@@ -2699,7 +2699,7 @@
   },
   "SupportGemHealingRunes": {
    "name": "Healing Runes",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemHeavySwing": {
    "name": "Heavy Swing",
@@ -2719,15 +2719,15 @@
   },
   "SupportGemHerDeclaration": {
    "name": "Her Declaration",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemHerbalism": {
    "name": "Herbalism I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemHerbalismTwo": {
    "name": "Herbalism II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemHexBloom": {
    "name": "Hex Bloom",
@@ -2911,7 +2911,7 @@
   },
   "SupportGemLastGasp": {
    "name": "Last Gasp",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemLastingShock": {
    "name": "Lasting Shock",
@@ -3099,11 +3099,11 @@
   },
   "SupportGemMysticism": {
    "name": "Mysticism I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemMysticismTwo": {
    "name": "Mysticism II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemNeuralOverload": {
    "name": "Neural Overload",
@@ -3239,11 +3239,11 @@
   },
   "SupportGemPrecision": {
    "name": "Precision I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemPrecisionTwo": {
    "name": "Precision II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemPrimalArmament": {
    "name": "Elemental Armament I",
@@ -3339,15 +3339,15 @@
   },
   "SupportGemRefraction": {
    "name": "Refraction I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemRefractionThree": {
    "name": "Refraction III",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemRefractionTwo": {
    "name": "Refraction II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemRendingApex": {
    "name": "Rending Apex",
@@ -3479,7 +3479,7 @@
   },
   "SupportGemSeraphsHeart": {
    "name": "Seraph's Heart",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemShockSiphon": {
    "name": "Shock Siphon",
@@ -3599,7 +3599,7 @@
   },
   "SupportGemStrongHearted": {
    "name": "Strong Hearted",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemStyrnsFerocity": {
    "name": "Styrn's Ferocity",
@@ -3639,7 +3639,7 @@
   },
   "SupportGemTangmazusThurible": {
    "name": "Tangmazu's Thurible",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemTasaliosRhythm": {
    "name": "Tasalio's Rhythm",
@@ -3651,15 +3651,15 @@
   },
   "SupportGemTecrodsRevenge": {
    "name": "Tecrod's Revenge",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemThornskin": {
    "name": "Thornskin I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemThornskinTwo": {
    "name": "Thornskin II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemThrillOfTheKill": {
    "name": "Thrill of the Kill",
@@ -3735,11 +3735,11 @@
   },
   "SupportGemUpwelling": {
    "name": "Upwelling I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemUpwellingTwo": {
    "name": "Upwelling II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemUruksSmelting": {
    "name": "Uruk's Smelting",
@@ -3771,11 +3771,11 @@
   },
   "SupportGemVitality": {
    "name": "Vitality I",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemVitalityTwo": {
    "name": "Vitality II",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemVolatility": {
    "name": "Volatility",
@@ -3803,7 +3803,7 @@
   },
   "SupportGemWarmBlooded": {
    "name": "Warm Blooded",
-   "spirit": true
+   "spirit": false
   },
   "SupportGemWildfire": {
    "name": "Wildfire",

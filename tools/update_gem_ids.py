@@ -2,7 +2,7 @@
 
 빌드 플래너 파일(.build)은 게임 내부 ID(SupportGemMartialTempo)를 쓰는데, 게임·거래소에 보이는 이름은
 다르다(Rapid Attacks I). 이 표로 표시 이름을 찾은 뒤 거래소 이름표(gem_names_trade.json)로 한국어를 찾는다.
-정신력 젬 구분(persistent 태그)도 함께 저장한다.
+정신력 젬 구분(gemType "Buff" = 미가공 정신력 젬으로 만드는 젬)도 함께 저장한다.
 
 사용: .venv\\Scripts\\python.exe tools\\update_gem_ids.py "<POB 폴더>\\Data\\Gems.lua"
 """
@@ -27,7 +27,8 @@ def main() -> int:
         if not name or not game_id:
             continue
         key = game_id[1].rsplit("/", 1)[-1]
-        table.setdefault(key, {"name": name[1], "spirit": "persistent = true" in body})
+        # 미가공 정신력 젬으로 만드는 젬 = gemType "Buff" (전령·소모 등). 소환수(Minion)는 지속형이어도 스킬 젬
+        table.setdefault(key, {"name": name[1], "spirit": 'gemType = "Buff"' in body})
     OUT.write_text(json.dumps({"_comment": "Path of Building(PoE2) Data/Gems.lua 에서 생성 — tools/update_gem_ids.py",
                                "ids": dict(sorted(table.items()))}, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"{len(table)}개 → {OUT}")

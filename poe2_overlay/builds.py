@@ -252,7 +252,7 @@ class GemNames:
         return names
 
     def spirit(self, gem_id: str) -> bool:
-        """정신력(지속 효과) 젬인지: POB 표의 persistent 태그, 없으면 이름으로."""
+        """미가공 정신력 젬으로 만드는 젬인지: POB 표(gemType Buff), 없으면 이름으로. 소환수 젬은 스킬 젬."""
         if (e := self.pob.get(gem_id.rsplit("/", 1)[-1])) is not None:
             return bool(e.get("spirit"))
         return is_spirit(gem_id)
@@ -352,7 +352,8 @@ def uncut_advice(build: BuildFile, kind: str, level: int, char_level: int, names
                 rows.append(line)
         return "<br>".join(rows) or "이 빌드에는 보조 젬이 없습니다"
     spirit = getattr(names, "spirit", is_spirit)
-    gems = [g for g in build.gems if spirit(g.id) == (kind == "spirit")]
+    real = [g for g in build.gems if "Ascendancy" not in g.id and "PlayerDefault" not in g.id]  # 전직·기본 공격은 젬이 아님
+    gems = [g for g in real if spirit(g.id) == (kind == "spirit")]
     if not gems:
         return "이 빌드에서 만들 젬이 없습니다"
     now = [g for g in sorted(gems, key=lambda g: g.lo) if g.lo <= char_level]
