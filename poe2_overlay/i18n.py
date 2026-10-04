@@ -70,15 +70,18 @@ def act(name: str) -> str:
 
 
 # 직업·전직 이름: 로그에 찍힌 게임 언어 그대로 저장되므로 화면에 보일 때 바꾼다
-CLASS_EN = {
+CLASS_EN = {  # poe2db.tw/kr·us Ascendancy_class 공식 표기 (2026-10-05)
     "워리어": "Warrior", "머서너리": "Mercenary", "레인저": "Ranger", "헌트리스": "Huntress",
     "위치": "Witch", "소서리스": "Sorceress", "몽크": "Monk", "드루이드": "Druid",
+    "머라우더": "Marauder", "듀얼리스트": "Duelist", "쉐도우": "Shadow", "템플러": "Templar",
     "타이탄": "Titan", "워브링어": "Warbringer", "스미스 오브 키타바": "Smith of Kitava",
-    "위치헌터": "Witchhunter", "젬링 리저네어": "Gemling Legionnaire", "택티션": "Tactician",
-    "데드아이": "Deadeye", "패스파인더": "Pathfinder", "아마존": "Amazon", "리추얼리스트": "Ritualist",
-    "스피릿 워커": "Spirit Walker", "인퍼널리스트": "Infernalist", "블러드 메이지": "Blood Mage", "리치": "Lich",
+    "택티션": "Tactician", "위치헌터": "Witchhunter", "젬링 리저네어": "Gemling Legionnaire",
+    "데드아이": "Deadeye", "패스파인더": "Pathfinder",
+    "아마존": "Amazon", "스피릿 워커": "Spirit Walker", "리추얼리스트": "Ritualist",
+    "인퍼널리스트": "Infernalist", "블러드 메이지": "Blood Mage", "리치": "Lich", "심연의 리치": "Abyssal Lich",
     "스톰위버": "Stormweaver", "크로노맨서": "Chronomancer", "디사이플 오브 바라시타": "Disciple of Varashta",
-    "인보커": "Invoker", "애콜라이트 오브 차율라": "Acolyte of Chayula", "오라클": "Oracle", "샤먼": "Shaman",
+    "마셜 아티스트": "Martial Artist", "인보커": "Invoker", "애컬라이트 오브 차율라": "Acolyte of Chayula",
+    "오라클": "Oracle", "샤먼": "Shaman",
 }
 CLASS_KO = {v: k for k, v in CLASS_EN.items()}
 
