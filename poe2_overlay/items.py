@@ -16,19 +16,26 @@ import re
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .i18n import t
+
 HEADERS = ("아이템 종류:", "Item Class:")
 ELEMENTS = ("화염", "냉기", "번개")
 
-_RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈) 피해: (\d+)-(\d+)")
+_RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈|Physical|Fire|Cold|Lightning|Chaos) (?:피해|Damage): (\d+)-(\d+)")
+# 영어 클라이언트 → 내부 키(한국어)
+_EN_KIND = {"Physical": "물리", "Fire": "화염", "Cold": "냉기", "Lightning": "번개", "Chaos": "혼돈",
+            "all Elemental": "모든 원소", "Elemental": "모든 원소"}
 _NUM = re.compile(r"^([^:{]+): ([\d.]+)")
 # "모든 소환수 스킬 레벨 +1", "+1 to Level of all Minion Skills" (셉터·투구·목걸이 등)
 _SKILL_LV = re.compile(r"모든 (.+?) 스킬 레벨 \+(\d+)|\+(\d+) to Level of all (.+?) Skills")
 _RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|모든 원소) 저항|(화염|냉기|번개|혼돈|모든 원소) 저항 \+(\d+)%)")
-_LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+))")  # 게임 문구는 "생명력 최대치 +29"
-_MOVE = re.compile(r"이동 속도 (\d+)% 증가")
+_RES_EN = re.compile(r"\+(\d+)% to (Fire|Cold|Lightning|Chaos|all Elemental) Resistances?")
+_LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+)|^\+(\d+) to maximum Life$)")  # 게임 문구는 "생명력 최대치 +29"
+_MOVE = re.compile(r"이동 속도 (\d+)% 증가|(\d+)% increased Movement Speed")
 _SPIRIT_MOD = re.compile(r"^정신력 \+(\d+)$|^\+(\d+) to Spirit$")  # 목걸이 고정 옵션 등 (셉터는 속성 줄 "정신력: N")
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
 _ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
+_ADDED_EN = re.compile(r"Adds (\d+) to (\d+) (Physical|Fire|Cold|Lightning|Chaos) Damage to Attacks")
 # 옵션 수치 뒤의 등급 범위 표기 제거: "화염 저항 +7(6-10)%" -> "화염 저항 +7%"
 _ROLL = re.compile(r"\(\d+(?:\.\d+)?-\d+(?:\.\d+)?\)")
 
@@ -116,21 +123,21 @@ def parse_item(text: str) -> Optional[Item]:
     item.name = " / ".join(header)
     for ln in lines:
         if m := _RANGE.match(ln):
-            item.damage[m[1]] = (int(m[2]), int(m[3]))
+            item.damage[_EN_KIND.get(m[1], m[1])] = (int(m[2]), int(m[3]))
             continue
         if m := _NUM.match(ln):
             key, val = m[1].strip(), float(m[2])
-            if key == "치명타 명중 확률":
+            if key in ("치명타 명중 확률", "Critical Hit Chance"):
                 item.crit = val
-            elif key == "초당 공격 횟수":
+            elif key in ("초당 공격 횟수", "Attacks per Second"):
                 item.aps = val
-            elif key == "방어도":
+            elif key in ("방어도", "Armour"):
                 item.armour = int(val)
-            elif key in ("회피", "회피력"):
+            elif key in ("회피", "회피력", "Evasion Rating"):
                 item.evasion = int(val)
-            elif key == "에너지 보호막":
+            elif key in ("에너지 보호막", "Energy Shield"):
                 item.energy_shield = int(val)
-            elif key == "아이템 레벨":
+            elif key in ("아이템 레벨", "Item Level"):
                 item.item_level = int(val)
             elif key in ("정신력", "Spirit"):
                 item.spirit = int(val)
@@ -141,14 +148,21 @@ def parse_item(text: str) -> Optional[Item]:
         if not item.is_weapon and (m := _ADDED.search(ln)):  # 무기의 같은 문구는 이미 피해 줄에 포함
             lo, hi = item.added.get(m[1], (0, 0))
             item.added[m[1]] = (lo + int(m[2]), hi + int(m[3]))
+        if not item.is_weapon and (m := _ADDED_EN.search(ln)):
+            kind = _EN_KIND[m[3]]
+            lo, hi = item.added.get(kind, (0, 0))
+            item.added[kind] = (lo + int(m[1]), hi + int(m[2]))
         for m in _RES.finditer(ln):
             kind = m[2] or m[3]
             item.res[kind] = item.res.get(kind, 0) + int(m[1] or m[4])
+        for m in _RES_EN.finditer(ln):
+            kind = _EN_KIND[m[2]]
+            item.res[kind] = item.res.get(kind, 0) + int(m[1])
         if m := _LIFE.search(ln):
-            item.life += int(m[1] or m[2])
+            item.life += int(m[1] or m[2] or m[3])
         if m := _MOVE.search(ln):
-            item.move_speed += int(m[1])
-        if item.item_class not in ("셉터", "Sceptres") and (m := _SPIRIT_MOD.match(ln)):
+            item.move_speed += int(m[1] or m[2])
+        if item.item_class not in ("셉터", "Sceptres", "Sceptre") and (m := _SPIRIT_MOD.match(ln)):
             item.spirit += int(m[1] or m[2])
         for m in _SKILL_LV.finditer(ln):
             kind = (m[1] or m[4]).strip()
@@ -156,7 +170,7 @@ def parse_item(text: str) -> Optional[Item]:
     return item
 
 
-SLOT_COUNT = {"반지": 2}  # 같은 종류를 두 개 끼는 부위
+SLOT_COUNT = {"반지": 2, "Rings": 2, "Ring": 2}  # 같은 종류를 두 개 끼는 부위
 
 
 def slot_keys(slot: str) -> list[str]:
@@ -178,6 +192,13 @@ def _pct(new: float, old: float) -> str:
     return f" ({(new - old) / old * 100:+.0f}%)"
 
 
+def _label(key: str) -> str:
+    """비교 줄 이름 (내부 키는 한국어) → 화면 언어."""
+    if key.endswith(" 스킬 레벨"):
+        return t("{kind} 스킬 레벨", kind=key[:-len(" 스킬 레벨")])
+    return t(key)
+
+
 def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
     """(제목, 변화 목록, 판정 +1 좋음 / -1 나쁨 / 0 비슷·기준 없음)."""
     if new.is_weapon:
@@ -191,7 +212,7 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
                                  ("공속", old.aps, new.aps, "{:+.2f}"),
                                  ("치명", old.crit, new.crit, "{:+.2f}%")):
             if abs(b - a) > 1e-6:
-                diffs.append(f"{label} {fmt.format(b - a)}")
+                diffs.append(f"{t(label)} {fmt.format(b - a)}")
         verdict = 1 if new.dps > old.dps * 1.02 else (-1 if new.dps < old.dps * 0.98 else 0)
         return title, diffs, verdict
 
@@ -205,10 +226,10 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
 
     cur = rows(new)
     if old is None:
-        parts = [f"{k} {v}" for k, v in cur.items() if v]
+        parts = [f"{_label(k)} {v}" for k, v in cur.items() if v]
         return " · ".join(parts) or new.item_class, [], 0
     prev = rows(old)
-    diffs = [f"{k} {cur[k] - prev[k]:+g}" for k in cur if cur[k] != prev[k]]
+    diffs = [f"{_label(k)} {cur[k] - prev[k]:+g}" for k in cur if cur[k] != prev[k]]
     # 액트 진행 기준 가중치: 저항 1% 는 생명력 3 정도로 본다 (하드코어·저항 미달 구간에서 저항이 더 귀함)
     score = ((cur["생명력"] - prev["생명력"])
              + (cur["저항 합"] - prev["저항 합"]) * 3

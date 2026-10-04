@@ -168,13 +168,24 @@ def find_reim_gem_data() -> Optional[Path]:
     return None
 
 
-def find_guide(configured: str = "") -> Path:
+def find_guide(configured: str = "", lang: str = "ko") -> Path:
     if configured and Path(configured).is_file():
         return Path(configured)
+    if lang == "en":  # 레임 가이드는 한국어 전용
+        en = resource_dir() / "guides" / "default_en.csv"
+        if en.is_file():
+            return en
     reim = _reim_guide_candidates()
     if reim:
         return max(reim, key=lambda p: p.stat().st_mtime)
     return resource_dir() / "guides" / "default_ko.csv"
+
+
+def data_file(name: str, lang: str = "ko") -> Path:
+    """guides/<name>_<lang>.json, 없으면 한국어 파일 (영어 데이터가 아직 없는 항목)."""
+    d = resource_dir() / "guides"
+    p = d / f"{name}_{lang}.json"
+    return p if p.is_file() else d / f"{name}_ko.json"
 
 
 def load_zone_tips(path: Path) -> dict[str, str]:

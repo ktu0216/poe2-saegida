@@ -1,0 +1,21 @@
+{
+  "_comment": "English client: permanent campaign rewards. Texts follow the English log line ': You have received +10% to [Resistances|Cold Resistance].' with the [A|B] markup removed (bear421/poe-map-log-viewer, MIT) and poe2db.tw/us reward texts. Matching ignores case, spacing and the word 'Global'. Not yet checked against a real English log — fix the wording here if a reward never ticks.",
+  "quest_passive_total": 24,
+  "slots": [
+    {"act": "액트 1", "zone": "g1_2",   "source": "Beira of the Rotten Pack", "options": [["+10% to Cold Resistance"]]},
+    {"act": "액트 1", "zone": "g1_12",  "source": "The King in the Mists", "options": [["+30 to Spirit"]]},
+    {"act": "액트 1", "zone": "g1_15",  "source": "Candlemass (Ogham Manor)", "options": [["+20 to maximum Life"]]},
+    {"act": "액트 2", "zone": "g2_6",   "source": "Medallion (choose 1)", "short": "+1 Charm Slot (choose 1)", "options": [["30% increased Charm Charges gained", "+1 Charm Slot"], ["30% increased Charm Effect Duration", "+1 Charm Slot"]]},
+    {"act": "액트 2", "zone": "g2_9_2", "source": "The Spires of Deshar", "options": [["+10% to Lightning Resistance"]]},
+    {"act": "액트 3", "zone": "g3_town","source": "Ziggurat Encampment (choose 1)", "short": "Stun / ailment threshold / mana regen (choose 1)", "tip": "Elemental Ailment Threshold (Mana Regeneration if you often run out)", "options": [["25% increased Stun Threshold"], ["30% increased Elemental Ailment Threshold"], ["25% increased Mana Regeneration Rate"]]},
+    {"act": "액트 3", "zone": "g3_6_1", "source": "Jiquani's Machinarium", "options": [["+10% to Fire Resistance"]]},
+    {"act": "액트 3", "zone": "g3_7",   "source": "The Azak Bog", "options": [["+30 to Spirit"]]},
+    {"act": "액트 4", "zone": "g4_5_1", "source": "Abandoned Prison (choose 1)", "short": "Flask life / mana 30% (choose 1)", "tip": "Life (Mana only for mana-reliant builds)", "options": [["30% increased Life Recovery from Flasks"], ["30% increased Mana Recovery from Flasks"]]},
+    {"act": "액트 4", "zone": "g4_4_1", "source": "Eye of Hinekora", "options": [["5% increased maximum Mana"]]},
+    {"act": "액트 4", "zone": "g4_4_2", "source": "Halls of the Dead (choose 1)", "short": "3 tattoos: +5% resistances or +5 attributes", "tip": "Attributes (Resistances if you are far below the cap)", "options": [["+5% to Lightning Resistance", "+5% to Fire Resistance", "+5% to Cold Resistance"], ["+5 to Strength", "+5 to Dexterity", "+5 to Intelligence"]]},
+    {"act": "액트 4", "zone": "g4_town","source": "Kingsmarch, Kaimana (Great White fin, choose 1)", "short": "Kaom (defences 30%) or Rakiata's Teaching", "tip": "Kaom (most builds)", "options": [["30% increased Armour, Evasion and Energy Shield"], ["15% of Armour also applies to Elemental Damage", "Gain Deflection Rating equal to 12% of Evasion Rating", "12% faster start of Energy Shield Recharge"]]},
+    {"act": "막간 3", "zone": "p3_2",   "source": "Kriar Village, Lythara", "options": [["+40 to Spirit"]]},
+    {"act": "막간 2", "zone": "p2_1",   "source": "The Khari Crossing, Molten Shrine", "options": [["5% increased maximum Life"]]},
+    {"act": "막간 2", "zone": "p2_6",   "source": "Qimah, the Seven Pillars (choose 1, can change later)", "short": "Seven Pillars blessing (changeable)", "tip": "Tabana (+5% all res) or Orbala (3% move speed)", "options": [["+5% to all Elemental Resistances"], ["3% increased Movement Speed"], ["15% increased Armour, Evasion and Energy Shield"], ["20% increased Presence Area of Effect"], ["12% increased Cooldown Recovery Rate"], ["+5 to all Attributes"]]}
+  ]
+}

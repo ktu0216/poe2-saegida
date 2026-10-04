@@ -23,7 +23,8 @@ _LEVEL_EN = re.compile(r"^: (?P<name>\S+) \((?P<cls>[^)]+)\) is now level (?P<le
 _DEATH_KO = re.compile(r"^: (?P<name>\S+) 님이 사망했습니다\.")
 _DEATH_EN = re.compile(r"^: (?P<name>\S+) has been slain\.")
 _REWARD_KO = re.compile(r"^: (?P<name>\S+) 님이 (?P<text>.+?)을\(를\) 획득했습니다\.")
-_REWARD_EN = re.compile(r"^: (?P<name>\S+) has received (?P<text>.+?)\.$")
+# 영어: "Umbra has received +40 to [Spirit|Spirit]." / "You have received +10% to [Resistances|Cold Resistance]."
+_REWARD_EN = re.compile(r"^: (?P<name>\S+) ha(?:s|ve) received (?P<text>.+?)\.$")
 _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포인트(?:를)? ?(?P<n>\d+)(?:포인트를)? ?획득했습니다\.)")
 # NPC 대사: 화자 이름은 한글 등 비ASCII 포함, 숫자 없음 ("Tile hash: 123" 같은 기술 로그 제외)
 _NPC = re.compile(r"^(?P<who>[^:#@%$&\[\]\s][^:]{0,40}?): (?P<text>.+)$")
@@ -32,7 +33,8 @@ _AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mod
 # 전직 패시브: "Successfully allocated passive skill id: AscendancyMercenary3Small1, name: 스킬 젬 퀄리티"
 _ASCEND = re.compile(r"^Successfully (?P<un>un)?allocated passive skill id: "
                      r"(?P<node>Ascendancy(?P<asc>[A-Za-z]+\d)\w*), name: (?P<name>.*)$")
-_PASSIVE_EN =re.compile(r"^: You have received (?P<n>\d+) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
+# "You have received 2 Passive Skill Points." / "...2 Weapon Set Passive Skill Points." / "...a Passive Skill Point."
+_PASSIVE_EN = re.compile(r"^: You have received (?P<n>\d+|a) (?P<weapon>Weapon Set )?Passive Skill Points?", re.IGNORECASE)
 
 # [Resistances|냉기] -> 냉기
 _MARKUP = re.compile(r"\[(?:[^\[\]|]*\|)?([^\[\]]*)\]")
@@ -194,8 +196,9 @@ def parse_line(line: str) -> Optional[Event]:
             return Death(ts, pid, d["name"])
     for rx in (_PASSIVE_KO, _PASSIVE_EN):
         if p := rx.match(body):
-            return PassivePoints(ts, pid, int(p["n"]), bool(p["weapon"]))
+            return PassivePoints(ts, pid, 1 if p["n"].lower() == "a" else int(p["n"]), bool(p["weapon"]))
     for rx in (_REWARD_KO, _REWARD_EN):
         if r := rx.match(body):
-            return Reward(ts, pid, r["name"], strip_markup(r["text"]))
+            name = "" if r["name"] == "You" else r["name"]  # "You have received …" = 지금 캐릭터
+            return Reward(ts, pid, name, strip_markup(r["text"]))
     return None

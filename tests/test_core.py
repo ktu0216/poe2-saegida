@@ -262,3 +262,26 @@ g3_5,키메랄 습지대,마을로
     assert c.cursor == 4
     t.feed(area("G3_3", pid="9"))  # 건너뛰지 않고 온 경우엔 되돌리지 않는다
     assert c.cursor == 4
+
+
+def test_parse_english_client_lines():
+    # 영어 클라이언트 원문 (bear421/poe-map-log-viewer 문서, MIT)
+    E = "2026/05/16 23:30:30 1 a [INFO Client 1] "
+    assert parse_line(E + ": You have received a Passive Skill Point.").points == 1
+    p = parse_line(E + ": You have received 2 Weapon Set Passive Skill Points.")
+    assert p.points == 2 and p.weapon_set
+    r = parse_line(E + ": You have received +10% to [Resistances|Cold Resistance].")
+    assert r.name == "" and r.text == "+10% to Cold Resistance"
+    r = parse_line(E + ": Umbra has received +40 to [Spirit|Spirit].")
+    assert r.name == "Umbra" and r.text == "+40 to Spirit"
+    assert parse_line(E + ": Umbra (Sorceress) is now level 12").level == 12
+    assert parse_line(E + ": Umbra has been slain.").name == "Umbra"
+
+
+def test_parse_english_item():
+    from poe2_overlay.items import parse_item
+    it = parse_item("Item Class: Rings\nRarity: Rare\nGrim Band\nTopaz Ring\n--------\nItem Level: 50\n--------\n"
+                    "+26% to Lightning Resistance (implicit)\n--------\nAdds 1 to 28 Lightning Damage to Attacks\n"
+                    "+25(21-25)% to Lightning Resistance\n+29 to maximum Life\n10% increased Movement Speed\n")
+    assert it.slot == "Rings" and it.res == {"번개": 51} and it.life == 29 and it.move_speed == 10
+    assert it.added == {"번개": (1, 28)} and it.item_level == 50

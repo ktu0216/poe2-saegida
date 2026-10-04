@@ -1,0 +1,13 @@
+{
+  "_comment": "English client: pinnacle boss areas → label. Kill lines are only known for the Korean client, so the English version counts attempts and deaths only. Add \"kill\": [[speaker, text]] once you see the English line that follows a kill.",
+  "zones": {
+    "MapUberBoss_Monolith": {"label": "The Arbiter of Ash"},
+    "MapUberBoss_Divinity": {"label": "Arbiter of Divinity"},
+    "MapUberBoss_Ritual": {"label": "Ritual pinnacle (Vodak)"},
+    "RitualLeagueBoss": {"label": "The King in the Mists"},
+    "MapUberBoss_IronCitadel_Quest": {"label": "Iron Citadel (Geonor)"},
+    "MapUberBoss_StoneCitadel_Quest": {"label": "Stone Citadel (Doryani)"},
+    "Abyss_Depths3": {"label": "Abyss (Kulemak)"},
+    "Delirium_HungerBoss": {"label": "Delirium boss"}
+  }
+}

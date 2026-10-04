@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from .guide import Step, is_town
+from .i18n import act as tact, t
 from .regex import RegexRule
 from .rewards import SlotState
 from .timing import CAMPAIGN, TimerView, fmt, fmt_delta
@@ -37,28 +38,30 @@ def rich(text: str) -> str:
     return t
 
 
-def _timer_line(t: TimerView) -> str:
+def _timer_line(tv: TimerView) -> str:
     """한 줄에 들어가게: PB 는 차이만 (PB 기록 자체는 Ctrl+Alt+R 구간 기록에)."""
-    act, cur, pb = t.act, t.act_time, t.pb
-    if t.rows[-1][0] == CAMPAIGN:  # 캠페인을 끝낸 캐릭터는 완주 시간만
-        _, cur, _, pb = t.rows[-1]
-        act = "캠페인 완료"
+    act, cur, pb = tv.act, tv.act_time, tv.pb
+    if tv.rows[-1][0] == CAMPAIGN:  # 캠페인을 끝낸 캐릭터는 완주 시간만
+        _, cur, _, pb = tv.rows[-1]
+        act = t("캠페인 완료")
+    else:
+        act = tact(act)
     line = f'⏱ {html.escape(act)} <b style="color:{TEXT}">{fmt(cur)}</b>'
     if pb:
         diff = cur - pb
         line += f' <span style="color:{OK if diff <= 0 else WARN}">(PB {fmt_delta(diff)})</span>'
-    return line + f' · 전체 {fmt(t.total)}'
+    return line + f' · {t("전체")} {fmt(tv.total)}'
 
 
-def _split_table(t: TimerView) -> str:
-    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>구간 기록</b> <span style="color:{DIM}">(PB = 이전 캐릭터 최고)</span></div>']
-    for act, dur, done, pb in t.rows:
+def _split_table(tv: TimerView) -> str:
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>{t("구간 기록")}</b> <span style="color:{DIM}">{t("(PB = 이전 캐릭터 최고)")}</span></div>']
+    for act, dur, done, pb in tv.rows:
         cmp = ""
         if pb:
             diff = dur - pb
             cmp = f' <span style="color:{OK if diff <= 0 else WARN}">{fmt_delta(diff)}</span> <span style="color:{DIM}">/ PB {fmt(pb)}</span>'
         mark = "✓" if done else "▶"
-        out.append(f'<div style="color:{TEXT}">{mark} {html.escape(act)} {fmt(dur)}{cmp}</div>')
+        out.append(f'<div style="color:{TEXT}">{mark} {html.escape(tact(act))} {fmt(dur)}{cmp}</div>')
     return "".join(out)
 
 
@@ -77,17 +80,17 @@ def _gem_card(gems, names) -> tuple[str, str]:
     alone = [g for g in gems.now if not g.supports]
     if alone:
         out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">◆ {" · ".join(html.escape(names(g.id)) for g in alone)}</b>'
-                   f' <span style="color:{DIM}">(보조 젬 없음)</span></div>')
+                   f' <span style="color:{DIM}">{t("(보조 젬 없음)")}</span></div>')
     if gems.upcoming:
         lv = gems.upcoming[0].lo
         for g in (x for x in gems.upcoming if x.lo == lv):
             sup = " · ".join(html.escape(names(s)) for s in g.supports)
-            out.append(f'<div style="margin-top:6px;color:{DIM}">다음 Lv {lv}: <b style="color:#c8bfae">{html.escape(names(g.id))}</b>'
+            out.append(f'<div style="margin-top:6px;color:{DIM}">{t("다음 Lv {lv}:", lv=lv)} <b style="color:#c8bfae">{html.escape(names(g.id))}</b>'
                        + (f' + {sup}' if sup else "") + '</div>')
     return head, "".join(out)
 
 def _gem_table(gems, names) -> str:
-    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>젬</b> <span style="color:{DIM}">'
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>{t("젬")}</b> <span style="color:{DIM}">'
            f'{html.escape(gems.build.name)}</span></div>']
     for g in gems.now:
         sup = ", ".join(html.escape(names(s)) for s in g.supports)
@@ -106,10 +109,10 @@ def _reward_list(rewards: list[SlotState]) -> str:
     out = []
     for act, rs in groups.items():
         if all(r.done for r in rs):
-            out.append(f'<div style="color:{OK}">✓ <b>{html.escape(act)}</b> '
-                       f'<span style="color:{DIM}">— {len(rs)}개 모두 받음</span></div>')
+            out.append(f'<div style="color:{OK}">✓ <b>{html.escape(tact(act))}</b> '
+                       f'<span style="color:{DIM}">— {t("{n}개 모두 받음", n=len(rs))}</span></div>')
             continue
-        out.append(f'<div style="color:{ACCENT};margin-top:4px"><b>{html.escape(act)}</b></div>')
+        out.append(f'<div style="color:{ACCENT};margin-top:4px"><b>{html.escape(tact(act))}</b></div>')
         for r in rs:
             if r.done:
                 out.append(f'<div style="color:{OK}">✓ {html.escape(", ".join(r.got))}'
@@ -127,7 +130,7 @@ def _xp_badge(level: int, area_level: int) -> str:
     """경험치 효율: 100% 초록, 80% 이상 노랑, 50% 이상 주황, 그 아래 빨강. 100% 가 아니면 범위도."""
     pct = round(xp_multiplier(level, area_level) * 100)
     color = OK if pct >= 100 else ACCENT if pct >= 80 else WARN if pct >= 50 else "#ff5252"
-    text = f'<span style="color:{color}">경험치 {pct}%</span>'
+    text = f'<span style="color:{color}">{t("경험치 {pct}%", pct=pct)}</span>'
     if pct < 100:
         lo, hi = full_xp_areas(level)
         text += f' <span style="color:{DIM}">(100%: {lo}~{hi})</span>'
@@ -136,19 +139,19 @@ def _xp_badge(level: int, area_level: int) -> str:
 
 def _endgame_html(eg) -> str:
     """엔드게임 요약 (캠페인을 끝낸 캐릭터: 마지막 가이드 단계 대신). 짧게 — 보스별 자세한 기록은 Ctrl+Alt+R."""
-    line = f'세션 지도 <b style="color:{TEXT}">{eg.maps}</b>판'
+    line = t("세션 지도 {n}판", n=f'<b style="color:{TEXT}">{eg.maps}</b>')
     if eg.avg_secs:
-        line += f" · 평균 {fmt(eg.avg_secs)}"
+        line += " · " + t("평균 {v}", v=fmt(eg.avg_secs))
     if eg.deaths:
-        line += f' · <span style="color:{WARN}">사망 {eg.deaths}</span>'
-    line += f' <span style="color:{DIM}">(누적 {eg.total_maps})</span>'
+        line += f' · <span style="color:{WARN}">{t("사망 {n}", n=eg.deaths)}</span>'
+    line += f' <span style="color:{DIM}">({t("누적 {n}", n=eg.total_maps)})</span>'
     out = [line]
     if eg.cur_name:
         out.append(f'▶ <b style="color:{TEXT}">{html.escape(eg.cur_name)}</b> {fmt(eg.cur_secs)}')
     if eg.bosses:
         kills = sum(k for _, _, k, _, ok in eg.bosses if ok)
-        tries = sum(t for _, t, _, _, _ in eg.bosses)
-        out.append(f'<span style="color:{DIM}">👑 최종 보스 처치 {kills} · 도전 {tries}</span>')
+        tries = sum(n for _, n, _, _, _ in eg.bosses)
+        out.append(f'<span style="color:{DIM}">👑 {t("최종 보스 처치 {k} · 도전 {n}", k=kills, n=tries)}</span>')
     return f'<span style="font-size:small">{"<br>".join(out)}</span>'
 
 
@@ -156,12 +159,12 @@ def _endgame_detail(eg) -> str:
     """Ctrl+Alt+R 목록: 최종 보스별 도전·처치·사망."""
     if not eg.bosses:
         return ""
-    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>최종 보스</b> '
-           f'<span style="color:{DIM}">(처치는 확인되는 보스만)</span></div>']
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>{t("최종 보스")}</b> '
+           f'<span style="color:{DIM}">{t("(처치는 확인되는 보스만)")}</span></div>']
     for name, tries, kills, deaths, countable in sorted(eg.bosses, key=lambda b: -b[1]):
-        stat = f"처치 {kills} / 도전 {tries}" if countable else f"도전 {tries}"
+        stat = t("처치 {k} / 도전 {n}", k=kills, n=tries) if countable else t("도전 {n}", n=tries)
         if deaths:
-            stat += f" · 사망 {deaths}"
+            stat += t(" · 사망 {n}", n=deaths)
         out.append(f'<div style="color:{TEXT}">👑 {html.escape(name)} <span style="color:{DIM}">{stat}</span></div>')
     return "".join(out)
 
@@ -173,7 +176,7 @@ def _league_line(league: str, mode: str, cls_html: str = "") -> str:
     if league:
         parts.append(f"🏳 {html.escape(league)}")
     if mode:
-        parts.append(f'<b style="color:{MODE_COLOR.get(mode, DIM)}">{html.escape(mode)}</b>')
+        parts.append(f'<b style="color:{MODE_COLOR.get(mode, DIM)}">{html.escape(t(mode))}</b>')
     cls_line = (f'<br><span style="color:{DIM};font-weight:normal;font-size:small">{cls_html}</span>'
                 if cls_html else "")  # 직업·전직은 따로 한 줄 (리그와 합치면 줄이 넘어간다)
     if not parts:
@@ -221,7 +224,7 @@ class Overlay(QWidget):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
-        self.setWindowTitle("POE2 캠페인 가이드")
+        self.setWindowTitle(t("POE2 캠페인 가이드"))
         self.setWindowIcon(make_icon())
         self.settings = settings
         self.opacity = float(settings.get("opacity", 0.88))
@@ -256,17 +259,17 @@ class Overlay(QWidget):
         ml.setContentsMargins(8, 5, 8, 6)
         ml.setSpacing(4)
         self.mode_msg = _label(fs - 2, TEXT, True)
-        self.mode_msg.setText("새 캐릭터 — 모드를 선택하세요")
+        self.mode_msg.setText(t("새 캐릭터 — 모드를 선택하세요"))
         ml.addWidget(self.mode_msg)
         row = QHBoxLayout()
         row.setSpacing(4)
         for mode in ("소프트코어", "하드코어", "SSF", "HC SSF"):
-            b = QPushButton(mode)
+            b = QPushButton(t(mode))
             b.setFont(QFont("Malgun Gothic", fs - 3))
             b.clicked.connect(lambda _=False, md=mode: self.mode_chosen.emit(md))
             row.addWidget(b)
         row.addStretch(1)
-        skip = QPushButton("건너뛰기")
+        skip = QPushButton(t("건너뛰기"))
         skip.setFont(QFont("Malgun Gothic", fs - 3))
         skip.clicked.connect(lambda: self.mode_chosen.emit(""))
         row.addWidget(skip)
@@ -355,16 +358,16 @@ class Overlay(QWidget):
         if flash:
             cards.append(("", html.escape(flash), OK))
         if item_msg:
-            cards.append(("⚔ 아이템 비교", item_msg, item_color))
+            cards.append((t("⚔ 아이템 비교"), item_msg, item_color))
         if gem_card:  # Ctrl+Alt+G
             if gems is not None:
                 head, body = _gem_card(gems, gem_names)
                 cards.append((head, body, ACCENT))
             else:
-                cards.append(("💎 젬", f'<span style="color:{WARN}">이 캐릭터에 빌드가 지정되지 않았습니다</span>'
-                              f'<br><span style="color:{DIM}">우클릭 → 빌드 (젬 안내) 에서 고르거나, 게임 빌드 플래너에 연결</span>', WARN))
+                cards.append((t("💎 젬"), f'<span style="color:{WARN}">{t("이 캐릭터에 빌드가 지정되지 않았습니다")}</span>'
+                              f'<br><span style="color:{DIM}">{t("우클릭 → 빌드 (젬 안내) 에서 고르거나, 게임 빌드 플래너에 연결")}</span>', WARN))
         if regex and not flash:
-            cards.append((f'🔎 {html.escape(regex.name)} 정규식 <span style="color:{DIM};font-weight:normal">· {html.escape(regex_key)} 복사</span>',
+            cards.append((f'🔎 {t("{name} 정규식", name=html.escape(regex.name))} <span style="color:{DIM};font-weight:normal">· {t("{key} 복사", key=html.escape(regex_key))}</span>',
                           f'<span style="color:{ACCENT};font-family:Consolas">{html.escape(regex.regex)}</span>',  # 맑은 고딕은 \ 를 ₩ 로 그린다
                           DIM))
         self.toast.set_cards(cards, self.isVisible())
@@ -380,45 +383,45 @@ class Overlay(QWidget):
         c = s.character
         if c is None:
             if self.waiting:
-                self.char_lbl.setText("PoE2 실행 대기 중")
-                self.loc_lbl.setText("게임에 접속하면 캐릭터를 자동으로 이어서 추적합니다.")
+                self.char_lbl.setText(t("PoE2 실행 대기 중"))
+                self.loc_lbl.setText(t("게임에 접속하면 캐릭터를 자동으로 이어서 추적합니다."))
             else:
-                self.char_lbl.setText("캐릭터 없음")
-                self.loc_lbl.setText("게임에서 지역을 이동하면 자동으로 인식합니다.")
+                self.char_lbl.setText(t("캐릭터 없음"))
+                self.loc_lbl.setText(t("게임에서 지역을 이동하면 자동으로 인식합니다."))
             self.act_lbl.setText("")
             self.step_area.setText("")
-            self.step_text.setText("대기 중…")
+            self.step_text.setText(t("대기 중…"))
             self.next_lbl.setText("")
             self.foot_lbl.setText(notice)
             self._fit()
             return
 
         if c.name == UNKNOWN_CHAR:
-            self.char_lbl.setText("캐릭터 확인 중" + _league_line(s.league, c.mode))
+            self.char_lbl.setText(t("캐릭터 확인 중") + _league_line(s.league, c.mode))
             self.act_lbl.setText("")
-            self.loc_lbl.setText(f"📍 {html.escape(c.area_name or c.zone or '접속 중')}")
+            self.loc_lbl.setText(f"📍 {html.escape(c.area_name or c.zone or t('접속 중'))}")
             self.step_area.setText("")
-            self.step_text.setText("레벨업·보상·사망 메시지가 나오면 자동으로 확정됩니다.")
-            self.next_lbl.setText("우클릭 → 캐릭터 메뉴에서 직접 고를 수도 있습니다.")
+            self.step_text.setText(t("레벨업·보상·사망 메시지가 나오면 자동으로 확정됩니다."))
+            self.next_lbl.setText(t("우클릭 → 캐릭터 메뉴에서 직접 고를 수도 있습니다."))
             self.foot_lbl.setText(notice)
             self.foot_lbl.setVisible(bool(notice))
             self._fit()
             return
 
-        name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
+        name = t("새 캐릭터 (이름 확인 중)") if c.name == NEW_CHAR else html.escape(c.name)
         # 첫 줄은 이름·레벨만 (전직 이름이 길면 줄이 밀린다), 직업·전직은 리그 줄로
         cls = f'<span style="color:{TEXT}">{html.escape(c.cls)}</span>' if c.cls else ""
         if c.ascension:
-            cls += f" {c.ascension}차"
+            cls += t(" {n}차", n=c.ascension)
         if c.deaths:  # 이 캐릭터 누적 사망 (로그의 "사망했습니다")
             cls += f' · <span style="color:{WARN}">☠ {c.deaths}</span>'
-        tag ="" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
+        tag ="" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">{t("(추정)")}</span>'
         league = _league_line(s.league, c.mode, cls)
         self.char_lbl.setText(f"{name} · Lv {c.level}{tag}{league}")
 
         step = s.step
         if step:
-            self.act_lbl.setText(f"{step.act}  {step.index + 1}/{s.total}")
+            self.act_lbl.setText(f"{tact(step.act)}  {step.index + 1}/{s.total}")
             self.bar.setMaximum(max(1, s.total - 1))
             self.bar.setValue(step.index)
 
@@ -432,15 +435,15 @@ class Overlay(QWidget):
                 loc_html += f' <span style="color:{WARN}">(−{gap})</span>'
             loc_html += " · " + _xp_badge(c.level, c.area_level)
         if s.off_route and not is_town(c.zone) and endgame is None:  # 캠페인을 끝낸 캐릭터는 가이드 경로가 없다
-            loc_html += f' · <span style="color:{WARN}">가이드 경로 밖</span>'
+            loc_html += f' · <span style="color:{WARN}">{t("가이드 경로 밖")}</span>'
         self.loc_lbl.setText(loc_html)
 
         if step:
             self.step_area.setText(html.escape(step.area))
-            self.step_text.setText(rich(step.text) or "이동")
+            self.step_text.setText(rich(step.text) or t("이동"))
             here = s.character.zone if s.character else ""  # 하위 지역(집정관의 능묘 등)에 있으면 그 지역 메모
             if endgame is not None:  # 캠페인을 끝낸 캐릭터: 마지막 단계 문구 대신 엔드게임 기록
-                self.step_area.setText("🗺 엔드게임")
+                self.step_area.setText(t("🗺 엔드게임"))
                 self.step_text.setText(_endgame_html(endgame))
             elif tip := self.zone_tips.get(here) or self.zone_tips.get(step.zone):
                 self.step_tip.setText("🧭 " + html.escape(tip))
@@ -449,24 +452,24 @@ class Overlay(QWidget):
             if marker := s.flags.get("marker"):
                 parts.append(f'<span style="color:{TEXT}">◆ {html.escape(marker)}</span>')
             for label, st in s.flags.get("sub", {}).items():  # 하위 지역 보스 (집정관, 배우자 등)
-                icon, color, word = {"engaged": ("⚔", WARN, "전투 중"), "killed": ("✓", OK, "처치"),
-                                     "died": ("☠", WARN, "에게 사망")}.get(st, ("", DIM, st))
+                icon, color, word = {"engaged": ("⚔", WARN, t("전투 중")), "killed": ("✓", OK, t("처치")),
+                                     "died": ("☠", WARN, t("에게 사망"))}.get(st, ("", DIM, st))
                 parts.append(f'<span style="color:{color}">{icon} {html.escape(label)} {word}</span>')
             boss = html.escape(s.boss)
             state = s.flags.get("boss")
             if state == "engaged":
-                parts.append(f'<span style="color:{WARN}">⚔ {boss} 전투 중</span>')
+                parts.append(f'<span style="color:{WARN}">{t("⚔ {boss} 전투 중", boss=boss)}</span>')
             elif state == "killed":
-                parts.append(f'<span style="color:{OK}">✓ {boss} 처치</span>')
+                parts.append(f'<span style="color:{OK}">{t("✓ {boss} 처치", boss=boss)}</span>')
             elif state == "died":
-                parts.append(f'<span style="color:{WARN}">☠ {boss}에게 사망</span>')
-            gifts = [html.escape(r.slot.brief) + (f' <span style="color:{DIM}">· 추천: {html.escape(r.slot.tip)}</span>' if r.slot.tip else "")
+                parts.append(f'<span style="color:{WARN}">{t("☠ {boss}에게 사망", boss=boss)}</span>')
+            gifts = [html.escape(r.slot.brief) + (f' <span style="color:{DIM}">{t("· 추천: {tip}", tip=html.escape(r.slot.tip))}</span>' if r.slot.tip else "")
                      for r in rewards if not r.done and r.slot.zone == step.zone]
             passive = [src for src in self.passive_sources if src.on(step.zone, step.text)]
             if passive and s.flags.get("passive"):  # 이 단계에서 이미 받음
-                parts.append(f'<span style="color:{OK}">✓ 퀘스트 패시브 +2 받음</span>')
+                parts.append(f'<span style="color:{OK}">{t("✓ 퀘스트 패시브 +2 받음")}</span>')
             elif passive:
-                gifts += [f"퀘스트 패시브 +2 ({html.escape(src.label)})" for src in passive]
+                gifts += [t("퀘스트 패시브 +2 ({src})", src=html.escape(src.label)) for src in passive]
             if gifts:
                 parts.append("🎁 " + " · ".join(gifts))
             if parts:
@@ -484,11 +487,11 @@ class Overlay(QWidget):
         foot = []
         if rewards:
             done = sum(r.done for r in rewards)
-            line = (f'🏆 영구 보상 <b style="color:{TEXT}">{done}/{len(rewards)}</b>'
-                    f' · 퀘스트 패시브 <b style="color:{TEXT}">{c.passive_points}/{passive_total}</b>')
+            line = (t("🏆 영구 보상 {v}", v=f'<b style="color:{TEXT}">{done}/{len(rewards)}</b>')
+                    + t(" · 퀘스트 패시브 {v}", v=f'<b style="color:{TEXT}">{c.passive_points}/{passive_total}</b>'))
             left = [r.slot for r in rewards if not r.done and step and r.slot.act == step.act]
             if left:
-                line += f" · {html.escape(step.act)} 남음: " + " · ".join(
+                line += t(" · {act} 남음: ", act=html.escape(tact(step.act))) + " · ".join(
                     f'<span style="color:{GIFT}">{html.escape(sl.brief)}</span>' for sl in left)
             foot.append(line)
             if self.show_rewards:
@@ -499,7 +502,7 @@ class Overlay(QWidget):
         if notice:
             foot.append(notice)
         if self.click_through:
-            foot.append("🔒 클릭 통과 중 (Ctrl+Alt+T 해제)")
+            foot.append(t("🔒 클릭 통과 중 (Ctrl+Alt+T 해제)"))
         self.foot_lbl.setText("<br>".join(foot))
         self.foot_lbl.setVisible(bool(foot))
         self._fit()
@@ -555,8 +558,8 @@ class Overlay(QWidget):
 
     def show_mode_prompt(self, show: bool) -> None:
         if show:
-            self.mode_msg.setText("새 캐릭터 — 모드를 선택하세요" + (
-                " (Ctrl+Alt+T 로 클릭 통과를 끄고 선택)" if self.click_through else ""))
+            self.mode_msg.setText(t("새 캐릭터 — 모드를 선택하세요") + (
+                t(" (Ctrl+Alt+T 로 클릭 통과를 끄고 선택)") if self.click_through else ""))
         if show != self.mode_box.isVisible():
             self.mode_box.setVisible(show)
             self._min_h = 0  # 선택 줄이 사라지면 창을 줄인다
@@ -570,7 +573,7 @@ class Overlay(QWidget):
             return
         nxt = gems.upcoming[0].lo
         soon = " · ".join(html.escape(names(g.id)) for g in gems.upcoming if g.lo == nxt)
-        self.gem_lbl.setText(f'💎 <span style="color:{DIM}">다음 Lv {nxt}:</span> '
+        self.gem_lbl.setText(f'💎 <span style="color:{DIM}">{t("다음 Lv {lv}:", lv=nxt)}</span> '
                              f'<span style="color:{GIFT}">{soon}</span>')
 
     def _clamped(self, pos: QPoint) -> QPoint:
@@ -647,7 +650,7 @@ class Overlay(QWidget):
         for icon, key, tip in self.TOOLS:
             b = QPushButton(icon, self.tools)
             b.setFont(QFont("Segoe UI Emoji", max(8, fs - 4)))
-            b.setToolTip(tip)
+            b.setToolTip(t(tip))
             b.setCursor(Qt.PointingHandCursor)
             b.clicked.connect(lambda _=False, k=key, w=b: self._tool(k, w))
             lay.addWidget(b)
@@ -696,7 +699,7 @@ class Toast(QWidget):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
-        self.setWindowTitle("POE2 가이드 알림")
+        self.setWindowTitle(t("POE2 가이드 알림"))
         self.fs = fs
         self.cards: list[tuple[str, str, str]] = []
         self.lay = QVBoxLayout(self)

@@ -1,0 +1,131 @@
+# poe2-overlay default guide, English (route focused)
+# Format: id,area_name,quest — compatible with the act_guide CSV of Reim's PoE Act Guide
+# id = area code from the log (Generating level .. area "G1_2"), lower case
+# Wrap a word in 「 」 to highlight it
+id,area_name,quest
+g1_1,The Riverbank,Kill 「The Bloated Miller」 → Clearfell Encampment
+g1_town,Clearfell Encampment,Talk to Renly → Clearfell
+g1_2,Clearfell,Kill 「Beira of the Rotten Pack」 (cold res) → The Grelwood
+g1_4,The Grelwood,Take the waypoint → find The Red Vale
+g1_5,The Red Vale,3 obelisks → kill 「The Rust King」 → town
+g1_town,Clearfell Encampment,Collect the reward → The Grelwood
+g1_4,The Grelwood,Unseal the great tree → town
+g1_town,Clearfell Encampment,Talk to Una → The Grim Tangle
+g1_6,The Grim Tangle,Find Cemetery of the Eternals
+g1_7,Cemetery of the Eternals,Kill the Consort and the Praetor → kill 「Lachlann」 → Hunting Grounds
+g1_11,Hunting Grounds,Kill 「The Crowbell」 → Freythorn
+g1_12,Freythorn,3 rituals → kill 「The King in the Mists」 (spirit) → town
+g1_town,Clearfell Encampment,Talk → Ogham Farmlands
+g1_13_1,Ogham Farmlands,Find Una's Lute → Ogham Village
+g1_13_2,Ogham Village,Kill 「The Executioner」 → town
+g1_town,Clearfell Encampment,Rewards from Una and Renly → The Manor Ramparts
+g1_14,The Manor Ramparts,Go to Ogham Manor
+g1_15,Ogham Manor,1st floor: use 「Psalm of Madness」 to wake 「Candlemass」 → kill (sometimes past a long bridge) → 3rd floor: kill 「Count Geonor」 → town
+g1_town,Clearfell Encampment,Talk to the Hooded One → Act 2
+g2_1,Vastiri Outskirts,Kill 「Rathbreaker」 → caravan
+g2_town,The Ardura Caravan,Talk → desert map: Mawdun Quarry
+g2_10_1,Mawdun Quarry,Enter Mawdun Mine
+g2_10_2,Mawdun Mine,Kill 「Rudja」 → town
+g2_town,The Ardura Caravan,Talk → Traitor's Passage
+g2_2,Traitor's Passage,Kill 「Balbala」 → The Halani Gates
+g2_3,The Halani Gates,Kill 「Jamanra」 → town
+g2_town,The Ardura Caravan,Talk → Mastodon Badlands
+g2_5_1,Mastodon Badlands,Find The Bone Pits
+g2_5_2,The Bone Pits,Kill 「Ekbab」 → town
+g2_town,The Ardura Caravan,Talk → Keth
+g2_4_1,Keth,Kill 「Kabala」 → The Lost City
+g2_4_2,The Lost City,Enter Buried Shrines
+g2_4_3,Buried Shrines,Kill 「Azarian」 → Essence of Water → town
+g2_town,The Ardura Caravan,Talk → Valley of the Titans
+g2_6,Valley of the Titans,Find The Titan Grotto
+g2_7,The Titan Grotto,Get the 「Medallion」 → town
+g2_town,The Ardura Caravan,Choose the Medallion reward → Deshar
+g2_8,Deshar,Find Path of Mourning
+g2_9_1,Path of Mourning,Enter The Spires of Deshar
+g2_9_2,The Spires of Deshar,Kill 「Tor Gul」 → town
+g2_town,The Ardura Caravan,Final Letter reward from Shambrin → Dreadnought
+g2_12,Dreadnought,Kill 「Jamanra」 → Act 3
+g2_town,The Ardura Caravan,Go to Act 3
+g3_1,Sandswept Marsh,Go to Ziggurat Encampment
+g3_town,Ziggurat Encampment,Talk → Jungle Ruins
+g3_3,Jungle Ruins,Kill Mighty Silverfist → find The Venom Crypts
+g3_4,The Venom Crypts,Get the 「Venom Draught」 → Jungle Ruins
+g3_3,Jungle Ruins,Head to Infested Barrens
+g3_2_1,Infested Barrens,Go to Chimeral Wetlands
+g3_5,Chimeral Wetlands,Kill 「Xyclucian」 → town
+g3_town,Ziggurat Encampment,Collect the reward → Chimeral Wetlands
+g3_5,Chimeral Wetlands,Go to Jiquani's Machinarium
+g3_6_1,Jiquani's Machinarium,Enter Jiquani's Sanctum
+g3_6_2,Jiquani's Sanctum,Kill 「Zicoatl」 → Jungle Ruins
+g3_3,Jungle Ruins,Go to The Matlan Waterways
+g3_2_2,The Matlan Waterways,Go to The Azak Bog
+g3_7,The Azak Bog,Azak ritual → The Matlan Waterways
+g3_2_2,The Matlan Waterways,Open the waterways → town
+g3_town,Ziggurat Encampment,Talk → The Drowned City
+g3_8,The Drowned City,Find Apex of Filth
+g3_11,Apex of Filth,Kill the boss → town
+g3_town,Ziggurat Encampment,Talk to Alva → use the idol on the temple door below camp → Temple of Kopec
+g3_12,Temple of Kopec,Kill 「Ketzuli」 → town
+g3_town,Ziggurat Encampment,Talk → Utzaal
+g3_14,Utzaal,Go to Aggorat
+g3_16,Aggorat,Enter The Black Chambers
+g3_17,The Black Chambers,Kill 「Doryani」 → town
+g3_town,Ziggurat Encampment,Talk → Act 4
+g4_town,Kingsmarch,Talk → Kedge Bay
+g4_2_1,Kedge Bay,Go to Journey's End
+g4_2_2,Journey's End,Kill Hartlin → talk to Freya → kill Omniphobia → talk to Tujen in town
+g4_town,Kingsmarch,Talk → Journey's End
+g4_2_2,Journey's End,Sail → Whakapanu Island
+g4_3_1,Whakapanu Island,Enter Singing Caverns
+g4_3_2,Singing Caverns,Kill the boss → Abandoned Prison
+g4_5_1,Abandoned Prison,Enter Solitary Confinement
+g4_5_2,Solitary Confinement,Kill the boss → Isle of Kin
+g4_1_1,Isle of Kin,Enter Volcanic Warrens
+g4_1_2,Volcanic Warrens,Kill the boss → Shrike Island
+g4_7,Shrike Island,Kill the boss → Eye of Hinekora
+g4_4_1,Eye of Hinekora,Enter Halls of the Dead
+g4_4_2,Halls of the Dead,Go to Trial of the Ancestors
+g4_4_3,Trial of the Ancestors,Finish the trial → Arastas
+g4_8b,Arastas,Go to The Excavation
+g4_10,The Excavation,Kill the boss → town
+g4_town,Kingsmarch,Talk → Ngakanu
+g4_11_1b,Ngakanu,Enter Heart of the Tribe
+g4_11_2,Heart of the Tribe,Kill the final boss → town
+g4_town,Kingsmarch,Start the interludes
+p3_town,The Glade,Talk → Ashen Forest
+p3_1,Ashen Forest,Go to Kriar Village
+p3_2,Kriar Village,Go to Glacial Tarn
+p3_3,Glacial Tarn,Enter Howling Caves
+p3_4,Howling Caves,Kill the boss → Glacial Tarn
+p3_3,Glacial Tarn,Go to Kriar Peaks
+p3_5,Kriar Peaks,Go to Etched Ravine
+p3_6,Etched Ravine,Go to The Cuachic Vault
+p3_7,The Cuachic Vault,Kill the boss → town
+p3_town,The Glade,Talk → The Cuachic Vault
+p3_7,The Cuachic Vault,Finish → town
+p3_town,The Glade,Next interlude
+p2_town,The Khari Bazaar,Talk → The Khari Crossing
+p2_1,The Khari Crossing,Progress → town
+p2_town,The Khari Bazaar,Reward from Risu → The Khari Crossing
+p2_1,The Khari Crossing,Go to The Galai Gates
+p2_5,The Galai Gates,Progress → The Khari Crossing
+p2_1,The Khari Crossing,Go to Pools of Khatal
+p2_2,Pools of Khatal,Go to Sel Khari Sanctuary
+p2_3,Sel Khari Sanctuary,Kill the boss → town
+p2_town,The Khari Bazaar,Talk → The Galai Gates
+p2_5,The Galai Gates,Go to Qimah
+p2_6,Qimah,Go to Qimah Reservoir
+p2_7,Qimah Reservoir,Kill the boss (all elemental res) → town
+p2_town,The Khari Bazaar,Next interlude
+p1_town,The Refuge,Talk → Scorched Farmlands
+p1_1,Scorched Farmlands,Go to Stones of Serle
+p1_2,Stones of Serle,Progress → Scorched Farmlands
+p1_1,Scorched Farmlands,Go to The Blackwood
+p1_3,The Blackwood,Go to Holten
+p1_4,Holten,Go to Wolvenhold
+p1_5,Wolvenhold,Kill the boss → Holten
+p1_4,Holten,Go to Holten Estate
+p1_6,Holten Estate,Kill the boss → town
+p1_town,The Refuge,Return to Kingsmarch
+g4_town,Kingsmarch,Go to the endgame
+g_endgame_town,The Ziggurat Refuge,Campaign complete!

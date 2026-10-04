@@ -1,0 +1,17 @@
+{
+  "_comment": "English client: where the 12 quest passive rewards (+2 passive / +2 weapon set points each) come from. zone = area code, match = a word that must appear in the guide step text when the same area has several steps (see guides/default_en.csv). Observed logs are only from the Korean client (see quest_passives_ko.json).",
+  "sources": [
+    {"act": "액트 1", "zone": "g1_11", "match": "", "label": "The Crowbell → Book of Specialisation"},
+    {"act": "액트 1", "zone": "g1_town", "match": "Una and Renly", "label": "Una's Lute → Book of Specialisation"},
+    {"act": "액트 2", "zone": "g2_4_1", "match": "", "label": "Kabala → Book of Specialisation"},
+    {"act": "액트 2", "zone": "g2_town", "match": "Shambrin", "label": "Final Letter → Book of Specialisation"},
+    {"act": "액트 3", "zone": "g3_3", "match": "Silverfist", "label": "Mighty Silverfist → Book of Specialisation"},
+    {"act": "액트 3", "zone": "g3_16", "match": "", "label": "Blood Sacrifice (given on the spot)"},
+    {"act": "액트 4", "zone": "g4_2_2", "match": "Tujen", "label": "Tujen → Mist-shrouded Book"},
+    {"act": "액트 4", "zone": "g4_4_2", "match": "", "label": "Yama the White"},
+    {"act": "액트 4", "zone": "g4_4_3", "match": "", "label": "Navali (Hinekora's Tattoo)"},
+    {"act": "막간 1", "zone": "p1_5", "match": "", "label": "Oswin, the Dread Warden"},
+    {"act": "막간 2", "zone": "p2_town", "match": "Risu", "label": "Akthi and Anundr → Risu in town"},
+    {"act": "막간 3", "zone": "p3_4", "match": "", "label": "Abominable Yeti → Ice Fang → Hilda in town"}
+  ]
+}

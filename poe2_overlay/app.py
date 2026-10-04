@@ -9,11 +9,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QProcess, QTimer
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 
-from . import config, endgame
+from . import config, endgame, i18n
+from .i18n import t
 from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
@@ -52,25 +53,31 @@ class Controller:
     def __init__(self, app: QApplication):
         self.app = app
         self.settings = config.load_settings()
-        self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""))
+        self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
+        # 화면 언어: 설정(auto/ko/en). auto 는 로그 파일로 (Client.txt = 영어 클라이언트, KakaoClient.txt = 한국어)
+        self.lang = i18n.resolve(self.settings.get("language", "auto"), self.log_path)
+        i18n.set_lang(self.lang)
+        self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""), self.lang)
         self.guide = Guide.load(self.guide_file)
         self._guide_mtime = self._mtime(self.guide_file)
-        self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
-        self.rewards = RewardTable.load(config.resource_dir() / "guides" / "rewards_ko.json")
-        self.passive_sources = load_passive_sources(config.resource_dir() / "guides" / "quest_passives_ko.json")
-        self.regex_book = RegexBook.load(config.resource_dir() / "guides" / "regex_ko.json")
+        self.rewards = RewardTable.load(config.data_file("rewards", self.lang))
+        self.passive_sources = load_passive_sources(config.data_file("quest_passives", self.lang))
+        rx = config.data_file("regex", self.lang)
+        # 상인 정규식은 게임 언어의 아이템 문구라야 한다: 영어 데이터가 없으면 끈다
+        self.regex_book = RegexBook.load(rx) if rx.stem.endswith(self.lang) else RegexBook([], set())
         self.active_builds: dict[str, str] = {}
         self.gem_names = GemNames.load(config.find_reim_gem_data(), config.resource_dir() / "guides" / "gem_names_ko.json",
                                        config.resource_dir() / "guides" / "gem_names_trade.json",
                                        config.resource_dir() / "guides" / "gem_ids_pob.json")
+        self.gem_names.english = self.lang == "en"
         self.build_files = scan(config.build_planner_dir() or Path())
         self._builds_sig = self._build_dir_sig()
         self._last_level: dict[str, int] = {}
         self.current_regex = None
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
-        self.encounters = Encounters.load(config.resource_dir() / "guides" / "encounters_ko.json")
-        self.endgame_bosses = endgame.EndgameBosses.load(config.resource_dir() / "guides" / "endgame_bosses_ko.json")
+        self.encounters = Encounters.load(config.data_file("encounters", self.lang))
+        self.endgame_bosses = endgame.EndgameBosses.load(config.data_file("endgame_bosses", self.lang))
         self.tracker = Tracker(self.guide, encounters=self.encounters)
         self.tracker.endgame = self.endgame_bosses
         self.tracker.passive_sources = self.passive_sources
@@ -88,13 +95,13 @@ class Controller:
         self.overlay = Overlay(self.settings)
         self.overlay.menu_builder = self.build_menu
         self.overlay.passive_sources = self.passive_sources
-        self.zone_tips = config.load_zone_tips(config.resource_dir() / "guides" / "zone_tips_ko.json")
+        self.zone_tips = config.load_zone_tips(config.data_file("zone_tips", self.lang))
         self.overlay.moved.connect(self.on_moved)
         self.overlay.mode_chosen.connect(self.choose_new_char_mode)
         self.overlay.action.connect(self.on_tool)
 
         self.tray = QSystemTrayIcon(make_icon())
-        self.tray.setToolTip("POE2 캠페인 가이드")
+        self.tray.setToolTip(t("POE2 캠페인 가이드"))
         self.tray.activated.connect(self.on_tray)
         self.tray_menu = QMenu()
         self.tray_menu.aboutToShow.connect(lambda: self.build_menu(self.tray_menu, clear=True))
@@ -140,7 +147,7 @@ class Controller:
                 break
         self.hotkeys.failed = [k for k in self.hotkeys.failed if k not in ("Ctrl+Alt+R", "Ctrl+Alt+C", "Ctrl+Alt+Q", "Ctrl+Alt+G", "Ctrl+Alt+J")]
         if self.hotkeys.failed:
-            self.notice = "단축키 등록 실패: " + ", ".join(self.hotkeys.failed)
+            self.notice = t("단축키 등록 실패: ") + ", ".join(self.hotkeys.failed)
 
         self.bootstrap()
 
@@ -181,7 +188,7 @@ class Controller:
     def bootstrap(self) -> None:
         """저장된 진행도를 불러오고, 그 뒤로 쌓인 로그를 재생해서 현재 상태를 맞춘다."""
         if not self.log_path:
-            self.notice = "로그 파일을 찾지 못했습니다. 메뉴 → 로그 파일 선택"
+            self.notice = t("로그 파일을 찾지 못했습니다. 메뉴 → 로그 파일 선택")
             return
         size = self.log_path.stat().st_size
         saved = config.load_progress()
@@ -386,12 +393,12 @@ class Controller:
             return False
         if not self.overlay.compact:  # 막 시작됨 → Tab 안내
             self._tab_until = time.monotonic() + 3 if self.settings.get("tab_hint", True) else 0
-        name = html.escape(next(iter(subs)) if subs else (snap.boss or "보스"))
-        head = (f'<span style="color:#ff8a65">⚔ {name} 전투 중</span>' if fighting
-                else f'<span style="color:#e8b04a">⚠ 곧 {name}</span>')
+        name = html.escape(next(iter(subs)) if subs else (snap.boss or t("보스")))
+        head = (f'<span style="color:#ff8a65">{t("⚔ {name} 전투 중", name=name)}</span>' if fighting
+                else f'<span style="color:#e8b04a">{t("⚠ 곧 {name}", name=name)}</span>')
         gap = c.area_level - c.level if c.area_level else 0
-        lv = f'<span style="color:{"#ff8a65" if gap >= 3 else "#9a9284"}"> · Lv {c.level} · 지역 {c.area_level}</span>'
-        tab = (' <b style="color:#e8b04a">· Tab→미니맵</b>' if time.monotonic() < self._tab_until else "")
+        lv = f'<span style="color:{"#ff8a65" if gap >= 3 else "#9a9284"}">{t(" · Lv {lv} · 지역 {area}", lv=c.level, area=c.area_level)}</span>'
+        tab = (' <b style="color:#e8b04a">' + t("· Tab→미니맵") + '</b>' if time.monotonic() < self._tab_until else "")
         self.overlay.render_compact(head + lv + tab)
         return True
 
@@ -431,7 +438,7 @@ class Controller:
         self._last_level[c.name] = c.level
         if prev is not None and c.level > prev and gems.unlocked_at:
             names = " · ".join(self.gem_names(g.id) for g in gems.unlocked_at)
-            self.flash = f"💎 Lv {c.level} — {names} 장착 가능"
+            self.flash = t("💎 Lv {lv} — {names} 장착 가능", lv=c.level, names=names)
             QTimer.singleShot(10000, self._clear_flash)
 
     def set_char_build(self, family: Optional[str]) -> None:
@@ -460,7 +467,7 @@ class Controller:
                 return
         self._regex_copied_at = now
         QApplication.clipboard().setText(rule.regex)
-        self.flash = f"📋 {rule.name} 정규식 복사됨 — 검색창에 Ctrl+V"
+        self.flash = t("📋 {name} 정규식 복사됨 — 검색창에 Ctrl+V", name=rule.name)
         QTimer.singleShot(4000, self._clear_flash)
         self.refresh()
 
@@ -480,7 +487,7 @@ class Controller:
                 return
             self._last_copy_at = now
             if gap <= DOUBLE_COPY_SEC:  # 같은 아이템을 연달아 두 번 (더블클릭처럼) = 장착 기준 등록
-                self.set_equipped(via="두 번 복사")
+                self.set_equipped(via=t("두 번 복사"))
                 self._last_copy_at = 0.0  # 다음 등록(칸 옮기기)도 다시 두 번 복사로
             return
         self._last_copy_at = now
@@ -494,22 +501,22 @@ class Controller:
             return
         self.last_item_text = text
         keys = slot_keys(item.slot)  # 반지는 두 칸
-        label = lambda k: (k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else item.slot
+        label = lambda k: t((k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else item.slot)
         if any(c.gear.get(k) == text for k in keys):
             k = next(k for k in keys if c.gear.get(k) == text)
             title, _, _ = compare(item, None)
-            self._show_item(f'📌 장착 중 ({label(k)}) · {title}', "#9a9284")
+            self._show_item(t("📌 장착 중 ({slot}) · {title}", slot=label(k), title=title), "#9a9284")
             return
         empty = [k for k in keys if k not in c.gear]
         prev_text = self.prev_copied.get(item.slot)
         self.prev_copied[item.slot] = text
         if empty and is_town(c.zone) and len(empty) == len(keys):  # 마을에서 복사한 건 대부분 상점/창고 아이템
-            hint = f'<br><span style="color:#9a9284">장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 등록</span>'
+            hint = f'<br><span style="color:#9a9284">' + t("장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {key}) 로 등록", key=HOTKEYS["equip"]) + '</span>'
             if prev_text and prev_text != text:  # 기준이 없으면 직전에 복사한 같은 부위 아이템과 비교
                 title, diffs, verdict = compare(item, parse_item(prev_text))
                 color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
-                mark = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷")
-                body = f'{mark} · {item.slot} {title} (직전 복사 대비)' + ("<br>" + " · ".join(diffs) if diffs else "")
+                mark = t({1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷"))
+                body = f'{mark} · {t(item.slot)} {title} {t("(직전 복사 대비)")}' + ("<br>" + " · ".join(diffs) if diffs else "")
                 self._show_item(body + hint, color)
                 return
             title, _, _ = compare(item, None)
@@ -519,7 +526,7 @@ class Controller:
             c.gear[empty[0]] = text
             self.dirty = True
             title, _, _ = compare(item, None)
-            self._show_item(f'📌 {label(empty[0])} 장착 기준 저장 · {title}', "#8fd18b")
+            self._show_item(t("📌 {slot} 장착 기준 저장 · {title}", slot=label(empty[0]), title=title), "#8fd18b")
             return
         # 비교 대상: 칸이 여러 개면 가장 약한 쪽 (바꾼다면 그걸 뺀다)
         filled = [k for k in keys if k in c.gear]
@@ -532,26 +539,26 @@ class Controller:
             body = f'{item.slot} {title}'
             for k in sorted(filled, key=lambda k: k != target):
                 _, d, v = compare(item, parse_item(c.gear[k]))
-                body += (f'<br>{marks.get(v, "≈ 비슷")} · {label(k)} 대비'
-                         + (" (약한 쪽)" if k == target else "") + (" — " + " · ".join(d) if d else ""))
+                body += (f'<br>{t(marks.get(v, "≈ 비슷"))} · {t("{slot} 대비", slot=label(k))}'
+                         + (t(" (약한 쪽)") if k == target else "") + (" — " + " · ".join(d) if d else ""))
         else:
-            body = f'{marks.get(verdict, "≈ 비슷")} · {item.slot} {title}' + (f" ({label(target)} 대비)" if len(keys) > 1 else "")
+            body = f'{t(marks.get(verdict, "≈ 비슷"))} · {t(item.slot)} {title}' + (" " + t("({slot} 대비)", slot=label(target)) if len(keys) > 1 else "")
             if diffs:
                 body += "<br>" + " · ".join(diffs)
-        body += f'<br><span style="color:#9a9284">장착했다면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 기준 갱신</span>'
+        body += f'<br><span style="color:#9a9284">' + t("장착했다면 한 번 더 Ctrl+C (또는 {key}) 로 기준 갱신", key=HOTKEYS["equip"]) + '</span>'
         self._show_item(body, color)
 
     def _show_uncut(self, kind: str, level: int) -> None:
         snap = self.tracker.snapshot()
         c = snap.character
-        title = {"skill": "미가공 스킬 젬", "support": "미가공 보조 젬", "spirit": "미가공 정신력 젬"}[kind]
-        title += f" ({level}레벨)" if level else ""
+        title = t({"skill": "미가공 스킬 젬", "support": "미가공 보조 젬", "spirit": "미가공 정신력 젬"}[kind])
+        title += t(" ({lv}레벨)", lv=level) if level else ""
         gp = self.gem_plan(c, snap.step.act if snap.step else "") if c else None
         if gp is None:
-            body = "빌드가 연결되지 않았습니다 — 우클릭 메뉴 → 빌드 (젬 안내)"
+            body = t("빌드가 연결되지 않았습니다 — 우클릭 메뉴 → 빌드 (젬 안내)")
         else:
             body = uncut_advice(gp.build, kind, level, c.level, self.gem_names)
-        self._show_item(f"💎 {title} → 빌드 기준<br>{body}", "#9fd3ff")
+        self._show_item(t("💎 {title} → 빌드 기준", title=title) + f"<br>{body}", "#9fd3ff")
 
     def _show_item(self, html_text: str, color: str) -> None:
         self.item_color = color
@@ -570,7 +577,7 @@ class Controller:
         if c is None or item is None or not is_gear(item):  # 젬·화폐(미가공 젬 등)는 장착 기준이 아니다
             return
         keys = slot_keys(item.slot)
-        name = lambda k: (k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else k
+        name = lambda k: t((k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else k)
         how = f"{via} → " if via else ""
         title, _, _ = compare(item, None)
         cur = next((k for k in keys if c.gear.get(k) == self.last_item_text), None)
@@ -591,10 +598,10 @@ class Controller:
         self._equip_undo = (key, c.gear.get(key, ""))
         c.gear[key] = self.last_item_text
         self.dirty = True
-        msg = f'📌 {how}{name(key)} 장착 기준 등록 · {title}'
+        msg = t("📌 {how}{slot} 장착 기준 등록 · {title}", how=how, slot=name(key), title=title)
         if len(keys) > 1:
             other = name(keys[(keys.index(key) + 1) % len(keys)])
-            msg += f'<br><span style="color:#9a9284">{other} 자리에 꼈다면 한 번 더 두 번 복사 (또는 {HOTKEYS["equip"]})</span>'
+            msg += f'<br><span style="color:#9a9284">' + t("{other} 자리에 꼈다면 한 번 더 두 번 복사 (또는 {key})", other=other, key=HOTKEYS["equip"]) + '</span>'
         self._show_item(msg, "#8fd18b")
 
     def _clear_flash(self) -> None:
@@ -703,6 +710,17 @@ class Controller:
         self.settings["auto_copy_regex"] = not self.settings.get("auto_copy_regex", True)
         config.save_settings(self.settings)
 
+    def set_language(self, lang: str) -> None:
+        """언어를 바꾸면 가이드·데이터 파일도 바뀌므로 오버레이를 다시 시작한다."""
+        if self.settings.get("language", "auto") == lang:
+            return
+        self.settings["language"] = lang
+        config.save_settings(self.settings)
+        self.save()
+        args = sys.argv[1:] if getattr(sys, "frozen", False) else sys.argv
+        QProcess.startDetached(sys.executable, args)
+        self.app.quit()
+
     def toggle_pb(self) -> None:
         self.settings["show_pb"] = not self.settings.get("show_pb", False)
         config.save_settings(self.settings)
@@ -721,7 +739,7 @@ class Controller:
         config.save_settings(self.settings)
         if not self.settings["auto_hide"] and not self.user_hidden:
             self.overlay.show()
-        self.flash = "자동 숨김 켜짐" if self.settings["auto_hide"] else "자동 숨김 꺼짐 (항상 표시)"
+        self.flash = t("자동 숨김 켜짐") if self.settings["auto_hide"] else t("자동 숨김 꺼짐 (항상 표시)")
         QTimer.singleShot(3000, self._clear_flash)
         self.refresh()
 
@@ -757,7 +775,7 @@ class Controller:
         self.refresh()
 
     def choose_log(self) -> None:
-        path, _ = QFileDialog.getOpenFileName(None, "POE2 로그 파일 선택", "", "로그 (*.txt)")
+        path, _ = QFileDialog.getOpenFileName(None, t("POE2 로그 파일 선택"), "", t("로그 (*.txt)"))
         if path:
             self.settings["log_path"] = path
             config.save_settings(self.settings)
@@ -770,7 +788,7 @@ class Controller:
             self.refresh()
 
     def choose_guide(self) -> None:
-        path, _ = QFileDialog.getOpenFileName(None, "가이드 CSV 선택", "", "CSV (*.csv)")
+        path, _ = QFileDialog.getOpenFileName(None, t("가이드 CSV 선택"), "", "CSV (*.csv)")
         if path:
             self.settings["guide_path"] = path
             config.save_settings(self.settings)
@@ -793,13 +811,13 @@ class Controller:
     def build_menu(self, m: QMenu, clear: bool = False) -> None:
         if clear:
             m.clear()
-        m.addAction(f"다음 단계  ({HOTKEYS['next']})", lambda: self.step(1))
-        m.addAction(f"이전 단계  ({HOTKEYS['prev']})", lambda: self.step(-1))
+        m.addAction(t("다음 단계  ({key})", key=HOTKEYS['next']), lambda: self.step(1))
+        m.addAction(t("이전 단계  ({key})", key=HOTKEYS['prev']), lambda: self.step(-1))
         m.addSeparator()
 
-        cm = m.addMenu("캐릭터")
+        cm = m.addMenu(t("캐릭터"))
         grp = QActionGroup(cm)
-        auto = QAction("자동 인식", cm, checkable=True)
+        auto = QAction(t("자동 인식"), cm, checkable=True)
         auto.setChecked(not self.tracker.manual_lock)
         auto.triggered.connect(lambda: self.select_character(None))
         grp.addAction(auto)
@@ -815,36 +833,36 @@ class Controller:
             cm.addAction(a)
 
         cur = self.tracker.snapshot().character
-        mm = m.addMenu(f"모드: {cur.mode or '미지정'}" if cur else "모드")
+        mm = m.addMenu(t("모드: {mode}", mode=t(cur.mode or '미지정')) if cur else t("모드"))
         mm.setEnabled(cur is not None)
         mgrp = QActionGroup(mm)
         for mode in ("", "소프트코어", "하드코어", "SSF", "HC SSF"):
-            a = QAction(mode or "미지정", mm, checkable=True)
+            a = QAction(t(mode or "미지정"), mm, checkable=True)
             a.setChecked(bool(cur) and cur.mode == mode)
             a.triggered.connect(lambda _=False, md=mode: self.set_mode(md))
             mgrp.addAction(a)
             mm.addAction(a)
 
         self.rescan_builds()  # 메뉴를 열 때는 항상 최신 목록
-        bm = m.addMenu("빌드 (젬 안내)")
+        bm = m.addMenu(t("빌드 (젬 안내)"))
         cur_c = self.tracker.snapshot().character
         cur_f = self.settings.get("char_builds", {}).get(cur_c.name) if cur_c else None
         bgrp = QActionGroup(bm)
-        auto_b = QAction("게임에 연결된 빌드 따라가기", bm, checkable=True)
+        auto_b = QAction(t("게임에 연결된 빌드 따라가기"), bm, checkable=True)
         auto_b.setChecked(not cur_f)
         auto_b.triggered.connect(lambda: self.set_char_build(None))
         bgrp.addAction(auto_b)
         bm.addAction(auto_b)
         bm.addSeparator()
         for fam, files in families(self.build_files).items():
-            a = QAction(f"{files[0].label}  ({len(files)}개 구간)", bm, checkable=True)
+            a = QAction(t("{label}  ({n}개 구간)", label=files[0].label, n=len(files)), bm, checkable=True)
             a.setChecked(fam == cur_f)
             a.triggered.connect(lambda _=False, f=fam: self.set_char_build(f))
             bgrp.addAction(a)
             bm.addAction(a)
 
         cur_op = float(self.settings.get("window_opacity", 1.0))
-        om = m.addMenu(f"투명도: {round(cur_op * 100)}%  ({HOTKEYS['opacity_up']} / Down)")
+        om = m.addMenu(t("투명도: {v}%  ({key} / Down)", v=round(cur_op * 100), key=HOTKEYS['opacity_up']))
         ogrp = QActionGroup(om)
         for v in OPACITY_STEPS:
             a = QAction(f"{round(v * 100)}%", om, checkable=True)
@@ -855,41 +873,50 @@ class Controller:
 
         for key, text in (("boss_compact", "보스전 간단 모드 (한 줄)"), ("tab_hint", "보스전 시작 시 Tab → 미니맵 안내"),
                           ("zone_tips", "지역 길 찾기 메모 (🧭)")):
-            act = QAction(text, m, checkable=True)
+            act = QAction(t(text), m, checkable=True)
             act.setChecked(self.settings.get(key, True))
             act.triggered.connect(lambda _=False, k=key: self.toggle_setting(k))
             m.addAction(act)
-        rx = QAction("상인 대화 시 정규식 자동 복사", m, checkable=True)
+        rx = QAction(t("상인 대화 시 정규식 자동 복사"), m, checkable=True)
         rx.setChecked(self.settings.get("auto_copy_regex", True))
         rx.triggered.connect(self.toggle_auto_copy)
         m.addAction(rx)
-        pb = QAction("PB 비교 표시 (연습용)", m, checkable=True)
+        pb = QAction(t("PB 비교 표시 (연습용)"), m, checkable=True)
         pb.setChecked(self.settings.get("show_pb", False))
         pb.triggered.connect(self.toggle_pb)
         m.addAction(pb)
 
-        ct = QAction(f"클릭 통과  ({HOTKEYS['click_through']})", m, checkable=True)
+        ct = QAction(t("클릭 통과  ({key})", key=HOTKEYS['click_through']), m, checkable=True)
         ct.setChecked(self.overlay.click_through)
         ct.triggered.connect(self.toggle_click_through)
         m.addAction(ct)
-        m.addAction(f"숨기기/보이기  ({HOTKEYS['toggle']})", self.toggle_visible)
-        ah = QAction(f"게임 창이 아닐 때 자동 숨김  ({HOTKEYS['auto_hide']})", m, checkable=True)
+        m.addAction(t("숨기기/보이기  ({key})", key=HOTKEYS['toggle']), self.toggle_visible)
+        ah = QAction(t("게임 창이 아닐 때 자동 숨김  ({key})", key=HOTKEYS['auto_hide']), m, checkable=True)
         ah.setChecked(self.settings.get("auto_hide", True))
         ah.triggered.connect(self.toggle_auto_hide)
         m.addAction(ah)
-        m.addAction(f"영구 보상 전체 목록  ({HOTKEYS['rewards']})", self.toggle_rewards)
-        m.addAction(f"젬 카드  ({HOTKEYS['gems']})", self.toggle_gem_card)
+        m.addAction(t("영구 보상 전체 목록  ({key})", key=HOTKEYS['rewards']), self.toggle_rewards)
+        m.addAction(t("젬 카드  ({key})", key=HOTKEYS['gems']), self.toggle_gem_card)
         m.addSeparator()
-        m.addAction("위치 초기화 (왼쪽 위 기본 위치)", self.reset_position)
-        m.addAction("가이드 CSV 선택…", self.choose_guide)
-        m.addAction("가이드 파일 열기", lambda: os.startfile(self.guide.source))
-        m.addAction("로그 파일 선택…", self.choose_log)
-        info = m.addAction(f"가이드: {Path(self.guide.source).name} ({len(self.guide)}단계)")
+        m.addAction(t("위치 초기화 (왼쪽 위 기본 위치)"), self.reset_position)
+        m.addAction(t("가이드 CSV 선택…"), self.choose_guide)
+        m.addAction(t("가이드 파일 열기"), lambda: os.startfile(self.guide.source))
+        m.addAction(t("로그 파일 선택…"), self.choose_log)
+        info = m.addAction(t("가이드: {name} ({n}단계)", name=Path(self.guide.source).name, n=len(self.guide)))
         info.setEnabled(False)
-        info2 = m.addAction(f"로그: {self.log_path or '없음'}")
+        info2 = m.addAction(t("로그: {path}", path=self.log_path or t('없음')))
         info2.setEnabled(False)
+        lm = m.addMenu(t("언어 / Language"))
+        lgrp = QActionGroup(lm)
+        cur_lang = self.settings.get("language", "auto")
+        for key, text in (("auto", t("자동 (로그 파일 기준)")), ("ko", "한국어"), ("en", "English")):
+            a = QAction(text, lm, checkable=True)
+            a.setChecked(cur_lang == key)
+            a.triggered.connect(lambda _=False, k=key: self.set_language(k))
+            lgrp.addAction(a)
+            lm.addAction(a)
         m.addSeparator()
-        m.addAction("종료", self.app.quit)
+        m.addAction(t("종료"), self.app.quit)
 
 
 def main() -> int:

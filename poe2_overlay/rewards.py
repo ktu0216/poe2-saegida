@@ -53,6 +53,12 @@ def load_passive_sources(path: Path) -> list[PassiveSource]:
     return [PassiveSource(s["zone"].lower(), s.get("match", ""), s["label"]) for s in d.get("sources", [])]
 
 
+def _norm(text: str) -> str:
+    """보상 문구 비교용: 대소문자·"Global"·띄어쓰기 차이는 무시 (영어 클라이언트 문구가 조금 달라도 맞게)."""
+    t = text.lower().replace("global ", "")
+    return " ".join(t.split())
+
+
 class RewardTable:
     def __init__(self, slots: list[Slot], quest_passive_total: int):
         self.slots = slots
@@ -70,16 +76,18 @@ class RewardTable:
         같은 보상이 두 번 나오는 경우(정신력 +30)는 앞 칸부터 채워진다.
         여러 줄짜리 선택지(저항 3종)는 같은 칸에 이어서 모은다."""
         states = [SlotState(s, []) for s in self.slots]
+        opts = {id(st): [[_norm(x) for x in o] for o in st.slot.options] for st in states}
         for text in received:
+            n = _norm(text)
             target = None
             for st in states:  # 이미 시작된 여러 줄 선택지를 먼저 채운다
-                if st.got and any(text in o and st.got[0] in o and text not in st.got
-                                  for o in st.slot.options):
+                if st.got and any(n in o and _norm(st.got[0]) in o and text not in st.got
+                                  for o in opts[id(st)]):
                     target = st
                     break
             if target is None:
                 target = next((st for st in states if not st.got
-                               and any(text in o for o in st.slot.options)), None)
+                               and any(n in o for o in opts[id(st)])), None)
             if target is not None:
                 target.got.append(text)
         return states

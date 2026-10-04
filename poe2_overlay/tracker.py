@@ -193,7 +193,7 @@ class Tracker:
                 if c.league.startswith("HC "):
                     c.league = c.league[3:]
         elif isinstance(ev, Reward):
-            if c := self._identify(ev.name, ev.ts):
+            if c := (self._identify(ev.name, ev.ts) if ev.name else self._active()):
                 c.rewards.append(ev.text)
                 # 보스가 떨군 퀘스트 아이템 사용(검은턱 → 화염 저항) = 전투가 끝났다
                 f = self._flags(c)

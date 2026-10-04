@@ -257,7 +257,22 @@ class GemNames:
             return bool(e.get("spirit"))
         return is_spirit(gem_id)
 
+    english = False  # 영어 화면: 게임 표시 영어 이름 그대로
+
+    def _english_name(self, gem_id: str) -> str:
+        last = gem_id.rsplit("/", 1)[-1]
+        if (e := self.pob.get(last)) is not None:
+            return e["name"]
+        if "PlayerDefault" in last:
+            return "Default attack (not a gem)"
+        if last.startswith("SkillGemAscendancy"):
+            return f"Ascendancy skill: {_english(gem_id).removeprefix('Ascendancy ')}"
+        m = re.match(r"^(.*?)( (?:II|III|IV))?$", _english(gem_id))
+        return self.ids.get(m[1].lower(), m[1]) + (m[2] or "")
+
     def __call__(self, gem_id: str) -> str:
+        if self.english:
+            return self._english_name(gem_id)
         if (e := self.pob.get(gem_id.rsplit("/", 1)[-1])) is not None:  # 내부 ID → 표시 이름 (POB)
             shown = e["name"]
             if ko := self.names.get(shown.lower()):
