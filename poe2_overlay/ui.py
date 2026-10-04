@@ -38,15 +38,15 @@ def rich(text: str) -> str:
 
 
 def _timer_line(t: TimerView) -> str:
+    """한 줄에 들어가게: PB 는 차이만 (PB 기록 자체는 Ctrl+Alt+R 구간 기록에)."""
     act, cur, pb = t.act, t.act_time, t.pb
     if t.rows[-1][0] == CAMPAIGN:  # 캠페인을 끝낸 캐릭터는 완주 시간만
-        act, cur, _, pb = t.rows[-1]
-        act += " 완료"
+        _, cur, _, pb = t.rows[-1]
+        act = "캠페인 완료"
     line = f'⏱ {html.escape(act)} <b style="color:{TEXT}">{fmt(cur)}</b>'
     if pb:
         diff = cur - pb
-        color = OK if diff <= 0 else WARN
-        line += f' · PB {fmt(pb)} <span style="color:{color}">({fmt_delta(diff)})</span>'
+        line += f' <span style="color:{OK if diff <= 0 else WARN}">(PB {fmt_delta(diff)})</span>'
     return line + f' · 전체 {fmt(t.total)}'
 
 
