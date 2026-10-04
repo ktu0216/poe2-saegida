@@ -46,7 +46,7 @@ def _timer_line(t: TimerView) -> str:
     if pb:
         diff = cur - pb
         color = OK if diff <= 0 else WARN
-        line += f' · PB {fmt(t.pb)} <span style="color:{color}">({fmt_delta(diff)})</span>'
+        line += f' · PB {fmt(pb)} <span style="color:{color}">({fmt_delta(diff)})</span>'
     return line + f' · 전체 {fmt(t.total)}'
 
 
@@ -129,25 +129,35 @@ def _xp_badge(level: int, area_level: int) -> str:
 
 
 def _endgame_html(eg) -> str:
-    """엔드게임 세션 요약 (캠페인을 끝낸 캐릭터: 마지막 가이드 단계 대신)."""
-    if eg.maps:
-        line = f'이번 세션 지도 <b style="color:{TEXT}">{eg.maps}</b>판'
-        if eg.avg_secs:
-            line += f" · 평균 {fmt(eg.avg_secs)}"
-    else:
-        line = "이번 세션 지도 아직 없음"
+    """엔드게임 요약 (캠페인을 끝낸 캐릭터: 마지막 가이드 단계 대신). 짧게 — 보스별 자세한 기록은 Ctrl+Alt+R."""
+    line = f'세션 지도 <b style="color:{TEXT}">{eg.maps}</b>판'
+    if eg.avg_secs:
+        line += f" · 평균 {fmt(eg.avg_secs)}"
     if eg.deaths:
         line += f' · <span style="color:{WARN}">사망 {eg.deaths}</span>'
+    line += f' <span style="color:{DIM}">(누적 {eg.total_maps})</span>'
     out = [line]
     if eg.cur_name:
-        out.append(f'▶ 지금: <b style="color:{TEXT}">{html.escape(eg.cur_name)}</b> {fmt(eg.cur_secs)}')
+        out.append(f'▶ <b style="color:{TEXT}">{html.escape(eg.cur_name)}</b> {fmt(eg.cur_secs)}')
+    if eg.bosses:
+        kills = sum(k for _, _, k, _, ok in eg.bosses if ok)
+        tries = sum(t for _, t, _, _, _ in eg.bosses)
+        out.append(f'<span style="color:{DIM}">👑 최종 보스 처치 {kills} · 도전 {tries}</span>')
+    return f'<span style="font-size:small">{"<br>".join(out)}</span>'
+
+
+def _endgame_detail(eg) -> str:
+    """Ctrl+Alt+R 목록: 최종 보스별 도전·처치·사망."""
+    if not eg.bosses:
+        return ""
+    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>최종 보스</b> '
+           f'<span style="color:{DIM}">(처치는 확인되는 보스만)</span></div>']
     for name, tries, kills, deaths, countable in sorted(eg.bosses, key=lambda b: -b[1]):
         stat = f"처치 {kills} / 도전 {tries}" if countable else f"도전 {tries}"
         if deaths:
             stat += f" · 사망 {deaths}"
-        out.append(f'<span style="color:{DIM}">👑 {html.escape(name)} {stat}</span>')
-    out.append(f'<span style="color:{DIM}">누적 지도 {eg.total_maps}판</span>')
-    return "<br>".join(out)
+        out.append(f'<div style="color:{TEXT}">👑 {html.escape(name)} <span style="color:{DIM}">{stat}</span></div>')
+    return "".join(out)
 
 
 def _league_line(league: str, mode: str, cls_html: str = "") -> str:
@@ -407,7 +417,7 @@ class Overlay(QWidget):
             if gap >= 3:
                 loc_html += f' <span style="color:{WARN}">(−{gap})</span>'
             loc_html += " · " + _xp_badge(c.level, c.area_level)
-        if s.off_route and not is_town(c.zone):
+        if s.off_route and not is_town(c.zone) and endgame is None:  # 캠페인을 끝낸 캐릭터는 가이드 경로가 없다
             loc_html += f' · <span style="color:{WARN}">가이드 경로 밖</span>'
         self.loc_lbl.setText(loc_html)
 
@@ -469,6 +479,7 @@ class Overlay(QWidget):
             foot.append(line)
             if self.show_rewards:
                 self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else "")
+                                        + (_endgame_detail(endgame) if endgame else "")
                                         + (_gem_table(gems, gem_names) if gems else ""))
                 self.reward_lbl.setVisible(True)
         if notice:
