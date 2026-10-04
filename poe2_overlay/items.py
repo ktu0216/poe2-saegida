@@ -21,8 +21,10 @@ ELEMENTS = ("화염", "냉기", "번개")
 
 _RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈) 피해: (\d+)-(\d+)")
 _NUM = re.compile(r"^([^:{]+): ([\d.]+)")
+# "모든 소환수 스킬 레벨 +1", "+1 to Level of all Minion Skills" (셉터·투구·목걸이 등)
+_SKILL_LV = re.compile(r"모든 (.+?) 스킬 레벨 \+(\d+)|\+(\d+) to Level of all (.+?) Skills")
 _RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|모든 원소) 저항|(화염|냉기|번개|혼돈|모든 원소) 저항 \+(\d+)%)")
-_LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|최대 생명력 \+(\d+))")
+_LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+))")  # 게임 문구는 "생명력 최대치 +29"
 _MOVE = re.compile(r"이동 속도 (\d+)% 증가")
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
 _ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
@@ -46,6 +48,8 @@ class Item:
     res: dict[str, int] = field(default_factory=dict)
     added: dict[str, tuple[int, int]] = field(default_factory=dict)  # 공격 시 피해 추가 (장신구 등)
     item_level: int = 0
+    spirit: int = 0  # 셉터 등의 정신력 (속성 줄 "정신력: 132")
+    skill_levels: dict[str, int] = field(default_factory=dict)  # 소환수/투사체/주문 … → +N
 
     @property
     def is_weapon(self) -> bool:
@@ -127,6 +131,8 @@ def parse_item(text: str) -> Optional[Item]:
                 item.energy_shield = int(val)
             elif key == "아이템 레벨":
                 item.item_level = int(val)
+            elif key in ("정신력", "Spirit"):
+                item.spirit = int(val)
             continue
         if ln.startswith("{"):
             continue  # 옵션 등급 설명 줄
@@ -141,6 +147,9 @@ def parse_item(text: str) -> Optional[Item]:
             item.life += int(m[1] or m[2])
         if m := _MOVE.search(ln):
             item.move_speed += int(m[1])
+        for m in _SKILL_LV.finditer(ln):
+            kind = (m[1] or m[4]).strip()
+            item.skill_levels[kind] = item.skill_levels.get(kind, 0) + int(m[2] or m[3])
     return item
 
 
@@ -183,9 +192,12 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
         return title, diffs, verdict
 
     def rows(it: Item):
-        return {"방어도": it.armour, "회피": it.evasion, "에너지 보호막": it.energy_shield,
-                "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed,
-                "공격 추가 피해": round(it.added_avg, 1)}
+        r = {"방어도": it.armour, "회피": it.evasion, "에너지 보호막": it.energy_shield,
+             "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed,
+             "공격 추가 피해": round(it.added_avg, 1), "정신력": it.spirit}
+        for kind in set(new.skill_levels) | set(old.skill_levels if old else {}):
+            r[f"{kind} 스킬 레벨"] = it.skill_levels.get(kind, 0)
+        return r
 
     cur = rows(new)
     if old is None:
@@ -193,7 +205,9 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
         return " · ".join(parts) or new.item_class, [], 0
     prev = rows(old)
     diffs = [f"{k} {cur[k] - prev[k]:+g}" for k in cur if cur[k] != prev[k]]
-    score = sum(cur[k] - prev[k] for k in ("생명력", "저항 합", "이동 속도", "공격 추가 피해")) * 2 + \
-        sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
+    score = (sum(cur[k] - prev[k] for k in ("생명력", "저항 합", "이동 속도", "공격 추가 피해")) * 2
+             + sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
+             + (cur["정신력"] - prev["정신력"]) / 2
+             + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30)  # 스킬 레벨 +1 은 매우 큼
     verdict = 1 if score > 2 else (-1 if score < -2 else 0)
     return new.item_class, diffs, verdict

@@ -82,3 +82,14 @@ def test_uncut_gem_is_not_gear():
     t = "아이템 종류: 미가공 보조 젬\n아이템 희귀도: 화폐\n미가공 보조 젬 (2레벨)\n--------\n보조 젬 생성하기\n"
     it = parse_item(t)
     assert it is None or not is_gear(it)
+
+
+def test_sceptre_compares_spirit_and_minion_levels():
+    from poe2_overlay.items import compare, parse_item
+    old = parse_item("아이템 종류: 셉터\n아이템 희귀도: 마법\n남작의 덜컹대는 셉터 - 흥분\n--------\n정신력: 132 (augmented)\n"
+                     "--------\n정신력 32(27-32)% 증가\n마나 재생 속도 15(10-19)% 증가\n")
+    new = parse_item("아이템 종류: 셉터\n아이템 희귀도: 희귀\n어둠 지팡이\n덜컹대는 셉터\n--------\n정신력: 100\n"
+                     "--------\n모든 소환수 스킬 레벨 +1\n")
+    assert old.spirit == 132 and new.skill_levels == {"소환수": 1}
+    title, diffs, verdict = compare(new, old)
+    assert verdict == 1 and "소환수 스킬 레벨 +1" in diffs and "정신력 -32" in diffs
