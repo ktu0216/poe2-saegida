@@ -26,7 +26,7 @@ def area(code, lvl=1, pid="26920"):
 
 def test_parse_lines():
     assert parse_line(P + 'Generating level 2 area "G1_2" with seed 1293246616') == AreaEntered(
-        "2026/09/26 22:57:03", "26920", "G1_2", 2)
+        "2026/09/26 22:57:03", "26920", "G1_2", 2, "1293246616")
     assert parse_line(I + "[SCENE] Set Source [클리어펠]").name == "클리어펠"
     assert parse_line(I + "[SCENE] Set Source [(null)]") is None
     lv = parse_line(I + ": char_g(소서리스) 님이 2레벨이 되었습니다.")

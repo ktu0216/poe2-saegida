@@ -13,7 +13,7 @@ _PREFIX = re.compile(
     r"^(?P<date>\d{4}/\d{2}/\d{2}) (?P<time>\d{2}:\d{2}:\d{2}) \d+ \w+ \[(?P<lvl>\w+) Client (?P<pid>\d+)\] (?P<body>.*)$"
 )
 
-_AREA = re.compile(r'^Generating level (?P<level>\d+) area "(?P<code>[^"]+)"')
+_AREA = re.compile(r'^Generating level (?P<level>\d+) area "(?P<code>[^"]+)"(?: with seed (?P<seed>\d+))?')
 _SCENE = re.compile(r"^\[SCENE\] Set Source \[(?P<name>[^\]]*)\]")
 _LOGIN = re.compile(r"^Async connecting to .*login", re.IGNORECASE)
 
@@ -48,6 +48,7 @@ class AreaEntered:
     pid: str
     code: str
     level: int
+    seed: str = ""  # 같은 지역 코드라도 시드가 다르면 다른 판(인스턴스)
 
 
 @dataclass(frozen=True)
@@ -167,7 +168,7 @@ def parse_line(line: str) -> Optional[Event]:
     body = m["body"]
 
     if a := _AREA.match(body):
-        return AreaEntered(ts, pid, a["code"], int(a["level"]))
+        return AreaEntered(ts, pid, a["code"], int(a["level"]), a["seed"] or "")
     if s := _SCENE.match(body):
         name = s["name"]
         if name in ("(null)", "(unknown)", ""):

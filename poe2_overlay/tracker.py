@@ -12,6 +12,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional
 
+from . import endgame
 from .encounters import Encounters
 from .guide import Guide, Step, act_label, is_town
 from .logparse import (
@@ -95,6 +96,11 @@ class Character:
     last_field_zone: str = ""  # 마지막으로 있던 마을 밖 지역
     jump_from: int = -1  # 단계를 건너뛰며 전진하기 직전 단계 (원래 지역으로 돌아오면 되돌린다)
     ascendancy: list[str] = field(default_factory=list)  # 찍은 전직 노드 ID (로그의 전직 패시브 줄)
+    # 엔드게임 기록 (endgame.py): 지도·최종 보스 판, 보스별 도전/처치/사망, 지금 있는 판
+    eg_maps: list[dict] = field(default_factory=list)
+    eg_bosses: dict[str, dict] = field(default_factory=dict)
+    eg_cur: str = ""
+    eg_since: str = ""
 
     @property
     def ascension(self) -> int:
@@ -130,6 +136,7 @@ class Tracker:
                  current: Optional[str] = None, encounters: Optional[Encounters] = None):
         self.guide = guide
         self.encounters = encounters or Encounters()
+        self.endgame = endgame.EndgameBosses({})  # 최종 보스 지역 (app 이 넣어 준다)
         self.passive_sources: list = []  # rewards.PassiveSource: 퀘스트 패시브를 주는 단계 (app 이 넣어 준다)
         self.chars: dict[str, Character] = characters or {}
         self.current: Optional[str] = current if current in self.chars else None
@@ -172,6 +179,7 @@ class Tracker:
         elif isinstance(ev, Death):
             if c := self._identify(ev.name, ev.ts):
                 c.deaths += 1
+                endgame.death(c)
                 self._dead_here = True  # 사망 직후 보스의 승리 대사(타바카이: 무로 돌아가라)로 전투 중이 되살아나지 않게
                 f = self._flags(c)
                 if f is not None and f.get("boss") == "engaged":
@@ -286,6 +294,8 @@ class Tracker:
 
     def _on_npc(self, ev: NpcLine) -> None:
         c = self._active()
+        if c:
+            endgame.npc(c, ev.who, ev.text, self.endgame)
         f = self._flags(c) if c else None
         if f is None:
             return
@@ -336,25 +346,27 @@ class Tracker:
         nc = Character(name=NEW_CHAR, league=self.league, mode=old.mode if old and old.name in PLACEHOLDERS else "",
                        mode_prompt=old.mode_prompt if old and old.name == NEW_CHAR else True)
         for p in self.pending:
-            self._apply_area(nc, p.code, p.level, p.ts)
+            self._apply_area(nc, p.code, p.level, p.ts, p.seed)
         nc.play_seconds = self._pending_play
         self.provisional = nc
 
     def _on_area(self, ev: AreaEntered) -> None:
         if self.confirmed and self.current:
-            self._apply_area(self.chars[self.current], ev.code, ev.level, ev.ts)
+            self._apply_area(self.chars[self.current], ev.code, ev.level, ev.ts, ev.seed)
             return
         self.pending.append(ev)
         self.provisional = self._guess()
         if self.provisional:
-            self._apply_area(self.provisional, ev.code, ev.level, ev.ts)
+            self._apply_area(self.provisional, ev.code, ev.level, ev.ts, ev.seed)
 
     def _on_scene(self, ev: SceneName) -> None:
         if c := self._active():
+            endgame.scene(c, ev.name)
             if c.zone and not c.area_name:
                 c.area_name = ev.name
 
-    def _apply_area(self, c: Character, code: str, level: int, ts: str) -> None:
+    def _apply_area(self, c: Character, code: str, level: int, ts: str, seed: str = "") -> None:
+        endgame.enter(c, code, seed, ts, self.endgame)
         prev_zone = c.zone
         if prev_zone and not is_town(prev_zone):
             c.last_field_zone = prev_zone  # 마을에서 퀘스트 보상(책)을 쓰면 직전 사냥터의 보상으로 본다
@@ -436,7 +448,7 @@ class Tracker:
         else:
             replay = self.pending
         for p in replay:
-            self._apply_area(c, p.code, p.level, p.ts)
+            self._apply_area(c, p.code, p.level, p.ts, p.seed)
         if c is not self.provisional:  # 추정본을 채택한 경우는 이미 시간이 쌓여 있다
             c.play_seconds += self._pending_play
         self._pending_play = 0.0
@@ -524,8 +536,8 @@ class Tracker:
         self.confirmed = False
         self.pending = []
         self.provisional = Character(name=UNKNOWN_CHAR)
-        for code, level, ts in pending:
-            self._on_area(AreaEntered(ts, self.pid or "", code, int(level)))
+        for code, level, ts, *seed in pending:
+            self._on_area(AreaEntered(ts, self.pid or "", code, int(level), seed[0] if seed else ""))
         if self.provisional and scene and not self.provisional.area_name:
             self.provisional.area_name = scene
 

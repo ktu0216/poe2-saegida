@@ -13,7 +13,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
 
-from . import config
+from . import config, endgame
 from .guide import Guide, is_town
 from .logparse import parse_line
 from .logtail import LogTail, iter_lines
@@ -25,7 +25,7 @@ from .items import compare, defense_score, is_gear, is_item_text, parse_item, sl
 from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
 from .ui import Overlay, make_icon
-from .timing import personal_bests, timer_view
+from .timing import ENDGAME, personal_bests, timer_view
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -70,7 +70,9 @@ class Controller:
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
         self.encounters = Encounters.load(config.resource_dir() / "guides" / "encounters_ko.json")
+        self.endgame_bosses = endgame.EndgameBosses.load(config.resource_dir() / "guides" / "endgame_bosses_ko.json")
         self.tracker = Tracker(self.guide, encounters=self.encounters)
+        self.tracker.endgame = self.endgame_bosses
         self.tracker.passive_sources = self.passive_sources
         self.tail: Optional[LogTail] = None
         self.dirty = False
@@ -191,6 +193,7 @@ class Controller:
                 for k in [k for k in ch.gear if "젬" in k or (parse_item(ch.gear[k]) and not is_gear(parse_item(ch.gear[k])))]:
                     del ch.gear[k]
             self.tracker = Tracker(self.guide, chars, saved.get("current"), self.encounters)
+            self.tracker.endgame = self.endgame_bosses
             self.tracker.passive_sources = self.passive_sources
             self.tracker.pid = saved.get("pid")
             self.tracker.last_ts = parse_ts(saved.get("last_ts") or "")
@@ -213,12 +216,26 @@ class Controller:
                     c.mode = old.get("mode", "") or c.mode
                     c.league = old.get("league", "") or c.league
                     c.gear = old.get("gear") or c.gear  # Ctrl+C 로 지정한 장착 기준도 로그로는 되살릴 수 없다
+        if not saved.get("eg_backfill"):  # 엔드게임 기록 기능 이전 캐릭터: 전체 로그로 한 번 채운다 (몇 초)
+            self._backfill_endgame(size)
         self.tail = LogTail(self.log_path, size)
         self.dirty = True
         self._pbs_for = None
         # 과거 로그 재생이 끝난 뒤에만 현재 리그를 적용 (옛 캐릭터에 현재 리그가 찍히지 않도록)
         self._cfg_mtime = None
         self.check_league()
+
+    def _backfill_endgame(self, size: int) -> None:
+        tmp = Tracker(self.guide, encounters=self.encounters)
+        tmp.endgame = self.endgame_bosses
+        for ln in iter_lines(self.log_path, 0, size):
+            if ev := parse_line(ln):
+                tmp.feed(ev)
+        for name, src in tmp.chars.items():
+            if (c := self.tracker.chars.get(name)) and not c.eg_maps and not c.eg_bosses:
+                c.eg_maps, c.eg_bosses, c.eg_cur, c.eg_since = src.eg_maps, src.eg_bosses, src.eg_cur, src.eg_since
+            if (p := self.tracker.provisional) and p.name == name and not p.eg_maps:  # 확정 전 추정 캐릭터
+                p.eg_maps, p.eg_bosses, p.eg_cur, p.eg_since = src.eg_maps, src.eg_bosses, src.eg_cur, src.eg_since
 
     @staticmethod
     def _build_dir_sig() -> tuple:
@@ -343,9 +360,14 @@ class Controller:
         if self._boss_compact(snap):
             return
         self.overlay.zone_tips = self.zone_tips if self.settings.get("zone_tips", True) else {}
+        eg = None
+        if c and ENDGAME in c.splits and snap.step and snap.step.index == snap.total - 1:
+            eg = endgame.summary(c, self.tracker.endgame, datetime.now())
+            if eg is None:
+                eg = endgame.Summary(0, 0.0, 0, 0, "", 0.0, [])
         self.overlay.render(snap, self.notice, states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
-                            gems, self.gem_names, self.show_gem_card, self.item_color)
+                            gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -636,8 +658,9 @@ class Controller:
             "last_ts": self.tracker.last_ts.strftime("%Y/%m/%d %H:%M:%S") if self.tracker.last_ts else "",
             "afk": self.tracker.afk,
             "confirmed": self.tracker.confirmed,
-            "pending": [[p.code, p.level, p.ts] for p in self.tracker.pending],
+            "pending": [[p.code, p.level, p.ts, p.seed] for p in self.tracker.pending],
             "relog": self.tracker.relog,
+            "eg_backfill": True,
             "pending_scene": self.tracker.provisional.area_name if self.tracker.provisional else "",
             "pending_mode": self.tracker.provisional.mode if self.tracker.provisional else "",
             # 추정 상태의 캐릭터(모드 지정·퀘스트 패시브 등 확정 전 변경 포함)를 통째로 저장
@@ -737,6 +760,7 @@ class Controller:
             config.save_settings(self.settings)
             self.log_path = Path(path)
             self.tracker = Tracker(self.guide, encounters=self.encounters)
+            self.tracker.endgame = self.endgame_bosses
             self.tracker.passive_sources = self.passive_sources
             self.notice = ""
             self.bootstrap()

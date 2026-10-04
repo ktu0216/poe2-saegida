@@ -1,0 +1,13 @@
+{
+  "_comment": "엔드게임 최종 보스 지역 (로그 지역 코드) → 이름, 처치 신호. 예전 캐릭터 로그(2026-09)에서 확인. kill = 처치 뒤 나오는 NPC 대사(화자, 일부). kill 이 없는 보스는 도전·사망만 센다 (처치 순간을 알려주는 줄이 없음).",
+  "zones": {
+    "MapUberBoss_Monolith": {"label": "재의 중재자", "kill": [["도리아니", "살아남았군"]]},
+    "MapUberBoss_Divinity": {"label": "신성의 중재자"},
+    "MapUberBoss_Ritual": {"label": "의식 최종 보스 (보닥)", "kill": [["이퍼", "해냈구나"]]},
+    "RitualLeagueBoss": {"label": "연무 속의 왕"},
+    "MapUberBoss_IronCitadel_Quest": {"label": "철의 성채 (지오너)"},
+    "MapUberBoss_StoneCitadel_Quest": {"label": "돌의 성채 (도리아니)"},
+    "Abyss_Depths3": {"label": "심연 (쿨레막)"},
+    "Delirium_HungerBoss": {"label": "섬망 보스"}
+  }
+}

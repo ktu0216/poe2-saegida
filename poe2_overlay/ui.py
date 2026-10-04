@@ -128,6 +128,28 @@ def _xp_badge(level: int, area_level: int) -> str:
     return text
 
 
+def _endgame_html(eg) -> str:
+    """엔드게임 세션 요약 (캠페인을 끝낸 캐릭터: 마지막 가이드 단계 대신)."""
+    if eg.maps:
+        line = f'이번 세션 지도 <b style="color:{TEXT}">{eg.maps}</b>판'
+        if eg.avg_secs:
+            line += f" · 평균 {fmt(eg.avg_secs)}"
+    else:
+        line = "이번 세션 지도 아직 없음"
+    if eg.deaths:
+        line += f' · <span style="color:{WARN}">사망 {eg.deaths}</span>'
+    out = [line]
+    if eg.cur_name:
+        out.append(f'▶ 지금: <b style="color:{TEXT}">{html.escape(eg.cur_name)}</b> {fmt(eg.cur_secs)}')
+    for name, tries, kills, deaths, countable in sorted(eg.bosses, key=lambda b: -b[1]):
+        stat = f"처치 {kills} / 도전 {tries}" if countable else f"도전 {tries}"
+        if deaths:
+            stat += f" · 사망 {deaths}"
+        out.append(f'<span style="color:{DIM}">👑 {html.escape(name)} {stat}</span>')
+    out.append(f'<span style="color:{DIM}">누적 지도 {eg.total_maps}판</span>')
+    return "<br>".join(out)
+
+
 def _league_line(league: str, mode: str, cls_html: str = "") -> str:
     parts = []
     if league.startswith("HC ") and mode and "하드코어" not in mode and "HC" not in mode:
@@ -303,7 +325,7 @@ class Overlay(QWidget):
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
                item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
-               item_color: str = ACCENT) -> None:
+               item_color: str = ACCENT, endgame=None) -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names, hidden=gem_card)
         # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
@@ -393,7 +415,10 @@ class Overlay(QWidget):
             self.step_area.setText(html.escape(step.area))
             self.step_text.setText(rich(step.text) or "이동")
             here = s.character.zone if s.character else ""  # 하위 지역(집정관의 능묘 등)에 있으면 그 지역 메모
-            if tip := self.zone_tips.get(here) or self.zone_tips.get(step.zone):
+            if endgame is not None:  # 캠페인을 끝낸 캐릭터: 마지막 단계 문구 대신 엔드게임 기록
+                self.step_area.setText("🗺 엔드게임")
+                self.step_text.setText(_endgame_html(endgame))
+            elif tip := self.zone_tips.get(here) or self.zone_tips.get(step.zone):
                 self.step_tip.setText("🧭 " + html.escape(tip))
                 self.step_tip.setVisible(True)
             parts = []
