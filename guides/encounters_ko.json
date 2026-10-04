@@ -138,7 +138,11 @@
                   {"speaker": "백작 부인", "text": "놈들을 처리해라", "label": "", "soon": true},
                   {"speaker": "유토피아의 첫 번째 전령, 베네딕투스", "text": "구원자를 위하여", "label": "", "kill": true}
                 ]},
-    "g4_11_2": {"bosses": ["타바카이"]},
+    "g4_11_2": {"bosses": ["타바카이"],
+                "markers": [
+                  {"speaker": "타바카이", "text": "선조들이여, 저를 도와", "label": "2페이즈", "phase": true},
+                  {"speaker": "투코하마", "text": "길이 아니다", "label": "3페이즈", "phase": true}
+                ]},
     "p3_7":    {"bosses": ["피의 여사제 젤리나", "피의 사제 졸린"]},
     "p2_7":    {"bosses": ["파리둔 왕자 아즈마디"]},
     "p1_5":    {"bosses": ["죽음의 간수 오스윈"]},

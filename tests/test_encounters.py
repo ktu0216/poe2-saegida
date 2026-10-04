@@ -298,3 +298,17 @@ def test_tasks_count_trials_in_any_order():
     feed(t, NpcLine("t", "1", "라키아타", "타살리오가 네 유연함에 미소를 보낸다."))
     assert t.snapshot().flags["marker"] == "시험 3/3 (마아타 · 카옴 · 라키아타)"
     assert "boss" not in t.snapshot().flags
+
+
+def test_boss_line_after_death_does_not_reengage():
+    g = Guide(parse_csv("g4_11_2,부족의 심장부,타바카이 처치\ng4_town,킹스마치,마을\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G4_11_2", 53), LevelUp("t", "1", "me", "머서너리", 51),
+         NpcLine("t", "1", "타바카이", "또 네가 이해하지 못하는 일에 끼여드는군!"))
+    assert t.snapshot().flags["boss"] == "engaged"
+    feed(t, Death("t", "1", "me"), NpcLine("t", "1", "타바카이", "무로 돌아가라... 외지인..."))
+    assert t.snapshot().flags["boss"] == "died"
+    feed(t, AreaEntered("t", "1", "G4_town", 53), AreaEntered("t", "1", "G4_11_2", 53))
+    assert t.snapshot().step.zone == "g4_11_2"  # 보스 전 마을 정비는 단계를 넘기지 않는다
+    feed(t, NpcLine("t", "1", "타바카이", "또 네가 이해하지 못하는 일에 끼여드는군!"))
+    assert t.snapshot().flags["boss"] == "engaged"  # 다시 들어와 싸우면 다시 전투 중

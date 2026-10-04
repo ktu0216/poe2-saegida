@@ -142,6 +142,7 @@ class Tracker:
         self.league = ""  # 게임 설정 파일의 현재 리그 (라이브 감시 중에만 설정)
         self.last_ts: Optional[datetime] = None  # 현재 세션의 마지막 로그 시각
         self.afk = False
+        self._dead_here = False  # 이 지역에서 죽음: 지역을 다시 들어올 때까지 보스 대사로 전투를 다시 잡지 않는다
         self._pending_play = 0.0  # 미확정 동안 쌓인 플레이 시간
         self.new_char_session = False  # 튜토리얼 줄로 '새 캐릭터'가 확정된 세션
         self.relog = False  # 게임을 끄지 않고 캐릭터 선택에 다녀온 세션
@@ -161,6 +162,7 @@ class Tracker:
             self._new_session()
             self.relog = not new_pid
         elif isinstance(ev, AreaEntered):
+            self._dead_here = False
             self._on_area(ev)
         elif isinstance(ev, SceneName):
             self._on_scene(ev)
@@ -170,6 +172,7 @@ class Tracker:
         elif isinstance(ev, Death):
             if c := self._identify(ev.name, ev.ts):
                 c.deaths += 1
+                self._dead_here = True  # 사망 직후 보스의 승리 대사(타바카이: 무로 돌아가라)로 전투 중이 되살아나지 않게
                 f = self._flags(c)
                 if f is not None and f.get("boss") == "engaged":
                     f["boss"] = "died"
@@ -291,6 +294,8 @@ class Tracker:
             return
         enc = self.encounters.get(c.zone)
         if not enc:
+            return
+        if self._dead_here:
             return
         engaged = f.get("boss") == "engaged"
         killed = f.get("boss") == "killed"
