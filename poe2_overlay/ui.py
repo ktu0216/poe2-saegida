@@ -129,14 +129,16 @@ def _xp_badge(level: int, area_level: int) -> str:
 
 
 def _league_line(league: str, mode: str, cls_html: str = "") -> str:
-    parts = [cls_html] if cls_html else []
-    if league and not (cls_html and mode):  # 직업·모드가 다 있으면 리그 이름은 생략 (한 줄에 들어가게)
+    parts = []
+    if league:
         parts.append(f"🏳 {html.escape(league)}")
     if mode:
         parts.append(f'<b style="color:{MODE_COLOR.get(mode, DIM)}">{html.escape(mode)}</b>')
+    cls_line = (f'<br><span style="color:{DIM};font-weight:normal;font-size:small">{cls_html}</span>'
+                if cls_html else "")  # 직업·전직은 따로 한 줄 (리그와 합치면 줄이 넘어간다)
     if not parts:
-        return ""
-    return f'<br><span style="color:{DIM};font-weight:normal;font-size:small">{" · ".join(parts)}</span>'
+        return cls_line
+    return cls_line + f'<br><span style="color:{DIM};font-weight:normal;font-size:small">{" · ".join(parts)}</span>'
 
 
 def make_icon() -> QIcon:
@@ -471,7 +473,7 @@ class Overlay(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         bg = QColor(BG)
-        bg.setAlphaF(min(1.0, self.opacity * getattr(self, "bg_factor", 1.0)))
+        bg.setAlphaF(self.opacity)
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
@@ -555,9 +557,7 @@ class Overlay(QWidget):
         self.toast.set_cards(self.toast.cards, visible)
 
     def setWindowOpacity(self, value: float) -> None:
-        """투명도는 배경에만: 창 전체를 투명하게 하면 글자까지 비쳐 밝은 화면에서 흐려진다."""
-        self.bg_factor = value
-        self.update()
+        super().setWindowOpacity(value)  # 글자까지 함께 투명하게 (사용자 선택)
         self.toast.setWindowOpacity(value)
 
     def mousePressEvent(self, e):
