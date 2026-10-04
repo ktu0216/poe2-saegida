@@ -124,13 +124,13 @@ def _xp_badge(level: int, area_level: int) -> str:
     text = f'<span style="color:{color}">경험치 {pct}%</span>'
     if pct < 100:
         lo, hi = full_xp_areas(level)
-        text += f' <span style="color:{DIM}">(100%: 지역 {lo}~{hi})</span>'
+        text += f' <span style="color:{DIM}">(100%: {lo}~{hi})</span>'
     return text
 
 
-def _league_line(league: str, mode: str) -> str:
-    parts = []
-    if league:
+def _league_line(league: str, mode: str, cls_html: str = "") -> str:
+    parts = [cls_html] if cls_html else []
+    if league and not (cls_html and mode):  # 직업·모드가 다 있으면 리그 이름은 생략 (한 줄에 들어가게)
         parts.append(f"🏳 {html.escape(league)}")
     if mode:
         parts.append(f'<b style="color:{MODE_COLOR.get(mode, DIM)}">{html.escape(mode)}</b>')
@@ -358,12 +358,13 @@ class Overlay(QWidget):
             return
 
         name = "새 캐릭터 (이름 확인 중)" if c.name == NEW_CHAR else html.escape(c.name)
-        cls = f" · {html.escape(c.cls)}" if c.cls else ""
+        # 첫 줄은 이름·레벨만 (전직 이름이 길면 줄이 밀린다), 직업·전직은 리그 줄로
+        cls = f'<span style="color:{TEXT}">{html.escape(c.cls)}</span>' if c.cls else ""
         if c.ascension:
-            cls += f' <span style="color:{DIM};font-weight:normal">{c.ascension}차</span>'
+            cls += f" {c.ascension}차"
         tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
-        league = _league_line(s.league, c.mode)
-        self.char_lbl.setText(f"{name}{cls} · Lv {c.level}{tag}{league}")
+        league = _league_line(s.league, c.mode, cls)
+        self.char_lbl.setText(f"{name} · Lv {c.level}{tag}{league}")
 
         step = s.step
         if step:
@@ -376,9 +377,9 @@ class Overlay(QWidget):
         if c.area_level and not is_town(c.zone):  # 마을은 안전 지대라 레벨·경험치 표시 없음
             gap = c.area_level - c.level
             color = WARN if gap >= 3 else (OK if gap <= 0 else DIM)
-            loc_html += f' · <span style="color:{color}">지역 Lv {c.area_level}</span>'
+            loc_html += f' · <span style="color:{color}">Lv {c.area_level}</span>'  # 한 줄에 들어가게 짧게
             if gap >= 3:
-                loc_html += f' <span style="color:{WARN}">(레벨 {gap} 부족)</span>'
+                loc_html += f' <span style="color:{WARN}">(−{gap})</span>'
             loc_html += " · " + _xp_badge(c.level, c.area_level)
         if s.off_route and not is_town(c.zone):
             loc_html += f' · <span style="color:{WARN}">가이드 경로 밖</span>'
@@ -470,7 +471,7 @@ class Overlay(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         bg = QColor(BG)
-        bg.setAlphaF(self.opacity)
+        bg.setAlphaF(min(1.0, self.opacity * getattr(self, "bg_factor", 1.0)))
         p.setBrush(bg)
         p.setPen(QColor(90, 78, 60, 160))
         p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), 8, 8)
@@ -554,7 +555,9 @@ class Overlay(QWidget):
         self.toast.set_cards(self.toast.cards, visible)
 
     def setWindowOpacity(self, value: float) -> None:
-        super().setWindowOpacity(value)
+        """투명도는 배경에만: 창 전체를 투명하게 하면 글자까지 비쳐 밝은 화면에서 흐려진다."""
+        self.bg_factor = value
+        self.update()
         self.toast.setWindowOpacity(value)
 
     def mousePressEvent(self, e):
