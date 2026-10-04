@@ -13,3 +13,6 @@ TODO.md
 release/
 dist_onefile/
 build_onefile/
+
+# 내부 검토 메모 (저장소에 올리지 않음)
+notes/
