@@ -91,6 +91,11 @@
                   {"speaker": "도리아니", "text": "치명적이진 않아", "label": "2페이즈", "phase": true},
                   {"speaker": "도리아니", "text": "그렇게 애썼는데", "label": "", "kill": true}
                 ]},
+    "g4_2_2":  {"label": "하틀린 선장",
+                "markers": [
+                  {"speaker": "하틀린 선장", "text": "누구도 저주받은 섬을", "label": "", "engage": true},
+                  {"speaker": "하틀린 선장", "text": "거짓말을... 믿지 마라", "label": "", "kill": true}
+                ]},
     "g4_3_2":  {"bosses": ["죽음의 노래 디아모라"]},
     "g4_1_2":  {"bosses": ["혈족의 군주 크루톡"]},
     "g4_4_2":  {"bosses": ["하얀 야마"]},
