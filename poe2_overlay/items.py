@@ -26,6 +26,7 @@ _SKILL_LV = re.compile(r"모든 (.+?) 스킬 레벨 \+(\d+)|\+(\d+) to Level of 
 _RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|모든 원소) 저항|(화염|냉기|번개|혼돈|모든 원소) 저항 \+(\d+)%)")
 _LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+))")  # 게임 문구는 "생명력 최대치 +29"
 _MOVE = re.compile(r"이동 속도 (\d+)% 증가")
+_SPIRIT_MOD = re.compile(r"^정신력 \+(\d+)$|^\+(\d+) to Spirit$")  # 목걸이 고정 옵션 등 (셉터는 속성 줄 "정신력: N")
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
 _ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
 # 옵션 수치 뒤의 등급 범위 표기 제거: "화염 저항 +7(6-10)%" -> "화염 저항 +7%"
@@ -147,6 +148,8 @@ def parse_item(text: str) -> Optional[Item]:
             item.life += int(m[1] or m[2])
         if m := _MOVE.search(ln):
             item.move_speed += int(m[1])
+        if item.item_class not in ("셉터", "Sceptres") and (m := _SPIRIT_MOD.match(ln)):
+            item.spirit += int(m[1] or m[2])
         for m in _SKILL_LV.finditer(ln):
             kind = (m[1] or m[4]).strip()
             item.skill_levels[kind] = item.skill_levels.get(kind, 0) + int(m[2] or m[3])
@@ -205,7 +208,11 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
         return " · ".join(parts) or new.item_class, [], 0
     prev = rows(old)
     diffs = [f"{k} {cur[k] - prev[k]:+g}" for k in cur if cur[k] != prev[k]]
-    score = (sum(cur[k] - prev[k] for k in ("생명력", "저항 합", "이동 속도", "공격 추가 피해")) * 2
+    # 액트 진행 기준 가중치: 저항 1% 는 생명력 3 정도로 본다 (하드코어·저항 미달 구간에서 저항이 더 귀함)
+    score = ((cur["생명력"] - prev["생명력"])
+             + (cur["저항 합"] - prev["저항 합"]) * 3
+             + (cur["이동 속도"] - prev["이동 속도"]) * 3
+             + (cur["공격 추가 피해"] - prev["공격 추가 피해"]) * 2
              + sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
              + (cur["정신력"] - prev["정신력"]) / 2
              + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30)  # 스킬 레벨 +1 은 매우 큼

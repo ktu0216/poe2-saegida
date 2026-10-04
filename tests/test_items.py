@@ -93,3 +93,14 @@ def test_sceptre_compares_spirit_and_minion_levels():
     assert old.spirit == 132 and new.skill_levels == {"소환수": 1}
     title, diffs, verdict = compare(new, old)
     assert verdict == 1 and "소환수 스킬 레벨 +1" in diffs and "정신력 -32" in diffs
+
+
+def test_amulet_resist_vs_life_and_spirit_mod():
+    from poe2_overlay.items import compare, parse_item
+    old = parse_item("아이템 종류: 목걸이\n아이템 희귀도: 희귀\n룬 문자 부적\n태양의 목걸이\n--------\n정신력 +14(10-15)\n--------\n"
+                     "생명력 최대치 +62(60-69)\n치명타 확률 12(10-14)% 증가\n")
+    new = parse_item("아이템 종류: 목걸이\n아이템 희귀도: 희귀\n피의 펜던트\n태양의 목걸이\n--------\n정신력 +15(10-15)\n--------\n"
+                     "생명력 최대치 +15(10-19)\n번개 저항 +9(6-10)%\n화염 저항 +21(21-25)%\n")
+    assert old.spirit == 14 and new.spirit == 15
+    _, diffs, verdict = compare(new, old)
+    assert verdict == 1 and "저항 합 +30" in diffs and "정신력 +1" in diffs
