@@ -272,3 +272,16 @@ def test_book_used_in_town_after_late_field_kill():
     feed(t, AreaEntered("t", "9", "G3_3", 34), AreaEntered("t", "9", "G3_town", 44))
     t.feed(PassivePoints("t", "9", 2, False))
     assert c.step_flags["0"].get("passive") and not c.step_flags.get("2", {}).get("passive")
+
+
+def test_doryani_signals():
+    g = Guide(parse_csv("id,area_name,quest\ng3_17,검은 내실,도리아니 처치\ng3_town,지구라트 야영지,마을"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G3_17", 45), LevelUp("t", "9", "a", "소서리스", 42))
+    t.feed(NpcLine("t", "9", "도리아니", "여기에 침입자가? 나푸앗지는...?"))
+    f = t.chars["a"].step_flags["0"]
+    assert "boss" not in f  # 입장 직후 대사는 전투가 아님
+    t.feed(NpcLine("t", "9", "도리아니", "그래... 최후의 전야에 앗조아틀의 악마가 마침내 나를 찾아왔구나!"))
+    assert f["boss"] == "engaged"
+    t.feed(NpcLine("t", "9", "도리아니", "으윽... 어떻게 이런 일이... 그렇게 애썼는데. 그렇게 희생했는데..."))
+    assert f["boss"] == "killed"
