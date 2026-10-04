@@ -62,7 +62,8 @@ class Controller:
         self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""), self.lang)
         self.guide = Guide.load(self.guide_file)
         self._guide_mtime = self._mtime(self.guide_file)
-        self.rewards = RewardTable.load(config.data_file("rewards", self.lang), config.data_file("rewards", self.log_lang))
+        self.rewards = RewardTable.load(config.data_file("rewards", self.lang),
+                                        *(config.data_file("rewards", lg) for lg in ("ko", "en")))
         self.passive_sources = load_passive_sources(config.data_file("quest_passives", self.lang))
         rx = config.data_file("regex", self.log_lang)
         # 상인 정규식은 게임 언어의 아이템 문구라야 한다: 그 언어 데이터가 없으면 끈다
@@ -78,6 +79,7 @@ class Controller:
         self.current_regex = None
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
+        self._restarting = False
         self.encounters = Encounters.load(config.data_file("encounters", self.log_lang))
         if self.lang != self.log_lang:  # 보스 이름표만 화면 언어로
             self.encounters.display = Encounters.load(config.data_file("encounters", self.lang))
@@ -322,6 +324,11 @@ class Controller:
             return
         self._ticks += 1
         changed = self._ticks % 7 == 0 and self.check_league()
+        if self.tracker.scene_lang and self.tracker.scene_lang != self.log_lang and not self._restarting:
+            # 게임 언어를 바꿨다 (카카오판도 영어 가능): 로그와 맞춰 보는 데이터·화면 언어(자동)를 다시 정한다
+            self._restarting = True
+            self.restart()
+            return
         if self._ticks % 7 == 3 and self.rescan_builds():  # 빌드 파일을 넣거나 지운 경우
             changed = True
         if self._ticks % 7 == 5 and self.reload_guide_if_changed():
@@ -725,6 +732,9 @@ class Controller:
             return
         self.settings["language"] = lang
         config.save_settings(self.settings)
+        self.restart()
+
+    def restart(self) -> None:
         self.save()
         args = sys.argv[1:] if getattr(sys, "frozen", False) else sys.argv
         QProcess.startDetached(sys.executable, args)

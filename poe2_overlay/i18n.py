@@ -17,11 +17,39 @@ def set_lang(lang: str) -> None:
 
 
 def resolve(setting: str, log_path) -> str:
-    """설정(auto/ko/en)과 로그 파일 이름으로 실제 언어."""
+    """설정(auto/ko/en)과 로그로 실제 언어. auto 는 로그 내용(마지막 지역 이름이 한글인지), 없으면 파일 이름."""
     if setting in ("ko", "en"):
         return setting
+    if lang := detect_log_lang(log_path):
+        return lang
     name = str(log_path or "").lower()
     return "ko" if not name or "kakao" in name else "en"
+
+
+_SCENE = re.compile(rb"\[SCENE\] Set Source \[([^\]\r\n]+)\]")
+_HANGUL = re.compile("[가-힣]")
+
+
+def scene_lang(name: str) -> str:
+    """지역 이름(로그 [SCENE]) → 게임 클라이언트 언어. 카카오판도 영어로 바꿀 수 있어 파일 이름만으로는 모른다."""
+    return "ko" if _HANGUL.search(name) else "en"
+
+
+def detect_log_lang(log_path, tail: int = 2 * 1024 * 1024) -> str:
+    """로그 끝부분의 마지막 지역 이름으로 게임 언어. 모르면 ""."""
+    try:
+        with open(log_path, "rb") as f:
+            f.seek(0, 2)
+            size = f.tell()
+            f.seek(max(0, size - tail))
+            data = f.read()
+    except (OSError, TypeError):
+        return ""
+    for m in reversed(_SCENE.findall(data)):
+        name = m.decode("utf-8", "replace")
+        if name not in ("(null)", "(unknown)"):
+            return scene_lang(name)
+    return ""
 
 
 def t(ko: str, **kw) -> str:

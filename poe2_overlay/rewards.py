@@ -75,12 +75,14 @@ class RewardTable:
         return slots, int(d.get("quest_passive_total", 0))
 
     @classmethod
-    def load(cls, path: Path, log_lang_path: Optional[Path] = None) -> "RewardTable":
-        """path = 화면 언어 표. log_lang_path = 게임 로그 언어 표 (다르면: 로그에 찍힌 문구를 화면 언어 문구로 바꿔 맞춘다.
-        두 파일은 칸·선택지 순서가 같다)."""
+    def load(cls, path: Path, *other_langs: Path) -> "RewardTable":
+        """path = 화면 언어 표. other_langs = 다른 언어 표들: 로그에 다른 언어로 찍힌 보상도 화면 언어 문구로 바꿔 맞춘다
+        (게임 언어를 중간에 바꾸면 기록에 한국어·영어가 섞인다). 표들은 칸·선택지 순서가 같다."""
         table = cls(*cls._slots(path))
-        if log_lang_path and log_lang_path != path and log_lang_path.is_file():
-            other, _ = cls._slots(log_lang_path)
+        for other_path in other_langs:
+            if other_path == path or not other_path.is_file():
+                continue
+            other, _ = cls._slots(other_path)
             for a, b in zip(other, table.slots):
                 if a.zone != b.zone:
                     continue

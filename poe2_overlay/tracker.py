@@ -12,7 +12,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional
 
-from . import endgame
+from . import endgame, i18n
 from .encounters import Encounters
 from .guide import Guide, Step, act_label, is_town
 from .logparse import (
@@ -38,6 +38,12 @@ ASCENDANCY_KO = {
     "Mercenary2": "위치헌터", "Mercenary3": "젬링 리저네어", "Warrior1": "타이탄", "Warrior2": "워브링어",
     "Warrior3": "스미스 오브 키타바", "Sorceress1": "스톰위버", "Huntress1": "아마존", "Witch3": "리치",
     "Druid1": "오라클", "Druid2": "샤먼",
+}
+# 영어 클라이언트 (전직 노드를 찍은 뒤 다음 레벨업 줄 전까지 클래스 이름)
+ASCENDANCY_EN = {
+    "Mercenary2": "Witchhunter", "Mercenary3": "Gemling Legionnaire", "Warrior1": "Titan", "Warrior2": "Warbringer",
+    "Warrior3": "Smith of Kitava", "Sorceress1": "Stormweaver", "Sorceress3": "Disciple of Varashta",
+    "Huntress1": "Amazon", "Witch3": "Lich", "Druid1": "Oracle", "Druid2": "Shaman",
 }
 ASCENSION_MAX = 4  # 전직 시련 1~4차, 한 번에 2포인트
 
@@ -136,6 +142,7 @@ class Tracker:
                  current: Optional[str] = None, encounters: Optional[Encounters] = None):
         self.guide = guide
         self.encounters = encounters or Encounters()
+        self.scene_lang = ""  # 마지막 지역 이름으로 본 게임 언어 ("ko"/"en")
         self.endgame = endgame.EndgameBosses({})  # 최종 보스 지역 (app 이 넣어 준다)
         self.passive_sources: list = []  # rewards.PassiveSource: 퀘스트 패시브를 주는 단계 (app 이 넣어 준다)
         self.chars: dict[str, Character] = characters or {}
@@ -211,8 +218,10 @@ class Tracker:
                     c.ascendancy.append(ev.node)
                 elif not ev.allocated and ev.node in c.ascendancy:
                     c.ascendancy.remove(ev.node)
-                if ev.allocated and (ko := ASCENDANCY_KO.get(ev.asc)):
-                    c.cls = ko
+                # 클래스 이름은 게임 언어대로 (지금 이름에 한글이 있으면 한국어 클라이언트)
+                names = ASCENDANCY_KO if re.search("[가-힣]", c.cls) else ASCENDANCY_EN
+                if ev.allocated and (name := names.get(ev.asc)):
+                    c.cls = name
         elif isinstance(ev, PassivePoints):
             if c := self._active():
                 if ev.weapon_set:
@@ -360,6 +369,7 @@ class Tracker:
             self._apply_area(self.provisional, ev.code, ev.level, ev.ts, ev.seed)
 
     def _on_scene(self, ev: SceneName) -> None:
+        self.scene_lang = i18n.scene_lang(ev.name)  # 게임 언어 (한글 지역 이름 = 한국어 클라이언트)
         if c := self._active():
             endgame.scene(c, ev.name)
             if c.zone and not c.area_name:
@@ -375,7 +385,8 @@ class Tracker:
         c.area_level = level
         c.last_seen = ts
         act = zone_act(code)
-        if act and act not in c.splits:
+        # 구간은 그 액트의 사냥터에 처음 들어갈 때 시작 (막간 마을은 서로 오갈 수 있어 들르기만 해도 시작되면 안 된다)
+        if act and act not in c.splits and not is_town(code):
             c.splits[act] = c.play_seconds
         if self.league:
             c.league = self.league

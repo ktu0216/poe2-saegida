@@ -13,10 +13,17 @@ def test_translate_and_fallback():
     assert t("세션 지도 {n}판", n=3) == "세션 지도 3판"
 
 
-def test_resolve_language_from_log():
-    assert i18n.resolve("auto", r"C:\Daum Games\Path of Exile2\logs\KakaoClient.txt") == "ko"
-    assert i18n.resolve("auto", r"C:\Steam\steamapps\common\Path of Exile 2\logs\Client.txt") == "en"
-    assert i18n.resolve("en", r"KakaoClient.txt") == "en"
+def test_resolve_language_from_log(tmp_path):
+    # 로그 내용(마지막 지역 이름)으로: 카카오판도 영어로 바꿀 수 있다
+    log = tmp_path / "KakaoClient.txt"
+    log.write_text("2026/10/05 00:46:42 1 a [INFO Client 1] [SCENE] Set Source [클리어펠]\n"
+                   "2026/10/05 00:46:42 1 a [INFO Client 1] [SCENE] Set Source [The Glade]\n"
+                   "2026/10/05 00:46:43 1 a [INFO Client 1] [SCENE] Set Source [(null)]\n", encoding="utf-8")
+    assert i18n.resolve("auto", log) == "en"
+    # 내용이 없으면 파일 이름으로
+    assert i18n.resolve("auto", tmp_path / "none" / "KakaoClient.txt") == "ko"
+    assert i18n.resolve("auto", tmp_path / "none" / "Client.txt") == "en"
+    assert i18n.resolve("en", log) == "en"
 
 
 def test_english_data_files_load():
@@ -42,3 +49,14 @@ def test_rewards_from_korean_log_show_in_english():
     done = {s.slot.zone: s.got for s in states if s.done}
     assert done["g1_2"] == ["+10% to Cold Resistance"]
     assert done["g4_4_2"] == ["+5 to Dexterity", "+5 to Intelligence", "+5 to Strength"]
+
+
+def test_rewards_mixed_languages():
+    # 게임 언어를 중간에 바꾼 캐릭터: 한국어·영어 보상 기록이 섞여도 모두 받음으로
+    from poe2_overlay import config
+    from poe2_overlay.rewards import RewardTable
+    for ui in ("ko", "en"):
+        table = RewardTable.load(config.data_file("rewards", ui), config.data_file("rewards", "ko"),
+                                 config.data_file("rewards", "en"))
+        states = table.evaluate(["냉기 저항 +10%", "+40 to Spirit"])
+        assert sum(s.done for s in states) == 2
