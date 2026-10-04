@@ -61,10 +61,9 @@ Hover the panel for the top-right icons: `◀ ▶` step, `🏆` rewards & splits
 ### Guide files
 
 1. A file picked with Right-click → **Choose guide CSV…**
-2. Korean UI only: **Reim's PoE Act Guide** (`PoE Act Guide*` folder under Desktop, Downloads or Documents) — its `act_guide_1.csv`
-3. The bundled guide `guides/default_en.csv` / `default_ko.csv`
+2. The bundled guide `guides/default_en.csv` / `default_ko.csv` (matching the screen language)
 
-Format: `id,area_name,quest` (same as Reim's guide). Edits are picked up automatically. Wrap a word in 「 」 to highlight it.
+Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Edits are picked up automatically. Wrap a word in 「 」 to highlight it.
 
 ## 4. Boss fights
 

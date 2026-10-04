@@ -42,7 +42,7 @@ run.bat
 
 ## 가이드 데이터
 
-CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/act_guide_1.csv`)와 같다.
+CSV 형식은 `id,area_name,quest` (레임의 PoE Act Guide `act_guide_1.csv` 와 호환 — 메뉴에서 직접 고르면 쓸 수 있다. 자동으로 찾지는 않는다).
 
 1. 메뉴에서 직접 고른 CSV
 2. 바탕화면/다운로드/문서 아래 `PoE Act Guide*` 폴더의 `act_guide_1.csv` (자동 탐색)
@@ -118,7 +118,7 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
   구간: `Lv a-b`, `액트 N`, `액트 N-M`, `액트 N Lv a-b`·`액트 N Lv a+`(같은 액트를 레벨로 나눈 경우), `막간`, `엔드`, `엔드 초기/중기/후기`, `액트 올인원`(자동 선택에서 제외).
 - 젬 이름: 빌드 파일은 게임 내부 ID(`SupportGemMartialTempo`)를 쓰므로 Path of Building(PoE2) `Data/Gems.lua` 로 만든 표(`guides/gem_ids_pob.json`, `tools/update_gem_ids.py`)로 표시 이름(`Rapid Attacks I`)을 찾은 뒤 거래소 이름표로 한국어를 찾는다. 정신력 젬 구분도 이 표의 persistent 태그.
 - 패널에 지금 쓸 젬 / 다음 레벨에 쓸 젬, 전체 목록에 보조 젬까지. 레벨업으로 새 젬을 쓸 수 있게 되면 알림.
-- 젬 한국어 이름은 레임 가이드의 `pob_leveling/ko_names.json`, `gems_ko.json` 을 읽는다(없으면 영어).
+- 젬 한국어 이름: `guides/gem_ids_pob.json`(내부 ID → 영어) → `gem_names_trade.json`(거래소 영어 → 한국어), 예외는 `gem_names_ko.json`.
 
 ## 경험치 효율
 

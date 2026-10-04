@@ -85,4 +85,4 @@ If you notice a reward that never ticks or a boss that never shows, please open 
 - English boss, area and reward names: [poe2db.tw](https://poe2db.tw)
 - English client log format: documented in [bear421/poe-map-log-viewer](https://github.com/bear421/poe-map-log-viewer) (MIT)
 - Gem internal ID → name: [Path of Building (PoE2)](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2) `Data/Gems.lua`
-- If Reim's PoE Act Guide CSV is on your PC, it is used as the Korean guide (not bundled).
+- Some interlude tips: summarised from the [poe2way act guide](https://www.poe2way.com/act-guide/ko)

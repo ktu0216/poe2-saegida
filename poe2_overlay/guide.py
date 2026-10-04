@@ -1,6 +1,6 @@
 """액트 가이드(네비게이션) 데이터와 진행 위치 계산.
 
-가이드 CSV 형식은 레임의 PoE Act Guide(data_editable/poe2/act_guide_*.csv)와 같다:
+가이드 CSV 형식 (레임의 PoE Act Guide act_guide_*.csv 와 호환):
     id,area_name,quest
     g1_1,강둑,불어터진 방어꾼 처치
 '#' 으로 시작하는 줄과 빈 줄은 무시한다.

@@ -138,47 +138,17 @@ def read_active_builds(path: Optional[Path]) -> dict[str, str]:
     return out
 
 
-def _reim_guide_candidates() -> list[Path]:
-    home = Path.home()
-    roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "OneDrive" / "바탕 화면"]
-    out = []
-    for r in roots:
-        if not r.is_dir():
-            continue
-        # 최대 2단계 아래의 "PoE Act Guide*" 폴더
-        for pat in ("PoE Act Guide*", "*/PoE Act Guide*"):
-            for d in r.glob(pat):
-                f = d / "data_editable" / "poe2" / "act_guide_1.csv"
-                if f.is_file():
-                    out.append(f)
-    return out
-
-
 def build_planner_dir() -> Optional[Path]:
     cfg = find_game_config()
     return cfg.parent / "BuildPlanner" if cfg else None
 
 
-def find_reim_gem_data() -> Optional[Path]:
-    """레임 가이드의 젬 한국어 이름 데이터 폴더 (data_editable/pob_leveling)."""
-    for f in _reim_guide_candidates():
-        d = f.parents[1] / "pob_leveling"
-        if d.is_dir():
-            return d
-    return None
-
-
 def find_guide(configured: str = "", lang: str = "ko") -> Path:
+    """메뉴에서 고른 CSV, 없으면 동봉된 화면 언어 가이드."""
     if configured and Path(configured).is_file():
         return Path(configured)
-    if lang == "en":  # 레임 가이드는 한국어 전용
-        en = resource_dir() / "guides" / "default_en.csv"
-        if en.is_file():
-            return en
-    reim = _reim_guide_candidates()
-    if reim:
-        return max(reim, key=lambda p: p.stat().st_mtime)
-    return resource_dir() / "guides" / "default_ko.csv"
+    own = resource_dir() / "guides" / f"default_{lang}.csv"
+    return own if own.is_file() else resource_dir() / "guides" / "default_ko.csv"
 
 
 def data_file(name: str, lang: str = "ko") -> Path:

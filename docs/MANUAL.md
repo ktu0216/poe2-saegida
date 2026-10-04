@@ -61,10 +61,9 @@
 ### 가이드 파일
 
 1. 우클릭 → **가이드 CSV 선택…**으로 고른 파일
-2. 바탕 화면·다운로드·문서 아래에 **레임의 PoE Act Guide**(`PoE Act Guide*` 폴더)가 있으면 그 `act_guide_1.csv` (한국어)
-3. 동봉된 기본 가이드 `guides/default_ko.csv` / `default_en.csv`
+2. 동봉된 기본 가이드 `guides/default_ko.csv` / `default_en.csv` (화면 언어에 맞춰)
 
-형식은 `id,area_name,quest` 입니다(레임 가이드와 같음). 파일을 고치면 자동으로 다시 읽습니다. 「단어」로 감싸면 강조됩니다.
+형식은 `id,area_name,quest` 입니다(`id` = 로그의 지역 코드, 소문자). 파일을 고치면 자동으로 다시 읽습니다. 「단어」로 감싸면 강조됩니다.
 
 ## 4. 보스 전투
 

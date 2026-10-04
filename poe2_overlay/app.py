@@ -69,7 +69,7 @@ class Controller:
         # 상인 정규식은 게임 언어의 아이템 문구라야 한다: 그 언어 데이터가 없으면 끈다
         self.regex_book = RegexBook.load(rx) if rx.stem.endswith(self.log_lang) else RegexBook([], set())
         self.active_builds: dict[str, str] = {}
-        self.gem_names = GemNames.load(config.find_reim_gem_data(), config.resource_dir() / "guides" / "gem_names_ko.json",
+        self.gem_names = GemNames.load(None, config.resource_dir() / "guides" / "gem_names_ko.json",
                                        config.resource_dir() / "guides" / "gem_names_trade.json",
                                        config.resource_dir() / "guides" / "gem_ids_pob.json")
         self.gem_names.english = self.lang == "en"

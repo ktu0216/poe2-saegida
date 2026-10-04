@@ -1,12 +1,20 @@
 {
-  "_comment": "젬 이름 보정. ids: 빌드 파일의 내부 젬 ID(영어) → 게임 표시 영어 이름 (등급 I/II 제외). names: 게임에서 직접 확인한 한국어 이름(가장 우선). 표시 이름 → 한국어는 guides/gem_names_trade.json(거래소 데이터)을 쓴다.",
-  "ids": {
-    "Scattershot": "Multishot",
-    "Primal Armament": "Elemental Armament",
-    "Expedite": "Short Fuse",
-    "Overpower": "Stun",
-    "Wolf Pounce": "Pounce"
-  },
-  "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정. Wolf Pounce → Pounce(급습)는 모발리틱스 가이드의 '급습 Pounce' 표기로 확인.",
-  "names": {}
+ "_comment": "젬 이름 보정. ids: 빌드 파일의 내부 젬 ID(영어) → 게임 표시 영어 이름 (등급 I/II 제외). names: 게임에서 직접 확인한 한국어 이름(가장 우선). 표시 이름 → 한국어는 guides/gem_names_trade.json(거래소 데이터)을 쓴다.",
+ "ids": {
+  "Scattershot": "Multishot",
+  "Primal Armament": "Elemental Armament",
+  "Expedite": "Short Fuse",
+  "Overpower": "Stun",
+  "Wolf Pounce": "Pounce"
+ },
+ "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정. Wolf Pounce → Pounce(급습)는 모발리틱스 가이드의 '급습 Pounce' 표기로 확인.",
+ "names": {
+  "malice": "적의",
+  "parry": "흘려보내기",
+  "firebolt": "화염 화살",
+  "purity of fire": "불의 순수함",
+  "purity of ice": "얼음의 순수함",
+  "purity of lightning": "번개의 순수함",
+  "righteous descent": "정의로운 강하"
+ }
 }

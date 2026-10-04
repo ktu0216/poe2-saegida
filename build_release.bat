@@ -3,8 +3,9 @@ rem Release build: release\poe2-overlay-setup-<ver>.exe (installer) + release\po
 rem Needs Inno Setup 6 (ISCC.exe). Version comes from poe2_overlay\__init__.py
 cd /d "%~dp0"
 ".venv\Scripts\python.exe" -m pytest -q || exit /b 1
-call build.bat || exit /b 1
-for /f "delims=" %%v in ('".venv\Scripts\python.exe" -c "import poe2_overlay; print(poe2_overlay.__version__)"') do set VER=%%v
+call "%~dp0build.bat" || exit /b 1
+".venv\Scripts\python.exe" -c "import poe2_overlay; print(poe2_overlay.__version__)" > "%TEMP%\poe2-overlay-ver.txt" || exit /b 1
+set /p VER=<"%TEMP%\poe2-overlay-ver.txt"
 set ISCC=%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe
 if not exist "%ISCC%" set ISCC=%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe
 if not exist "%ISCC%" set ISCC=%ProgramFiles%\Inno Setup 6\ISCC.exe

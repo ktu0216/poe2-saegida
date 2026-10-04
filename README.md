@@ -78,4 +78,4 @@ Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.
 - 보스·지역·보상 영어 이름: [poe2db.tw](https://poe2db.tw)
 - 영어 클라이언트 로그 형식: [bear421/poe-map-log-viewer](https://github.com/bear421/poe-map-log-viewer) (MIT) 문서
 - 젬 내부 ID → 이름: [Path of Building (PoE2)](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2) `Data/Gems.lua`
-- 레임의 PoE Act Guide CSV가 PC에 있으면 그대로 가이드로 사용합니다(동봉하지 않음).
+- 막간 지역 팁 일부: [poe2way 액트 가이드](https://www.poe2way.com/act-guide/ko) 요약
