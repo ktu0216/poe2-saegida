@@ -246,3 +246,12 @@ def test_rudja_kill_by_lisu_thanks():
     t.feed(NpcLine("t", "9", "공포의 기술자 룻자", "미쳤다고? 미친 게 뭔지 보여주지!"))
     t.feed(NpcLine("t", "9", "파리둔 탈주자 리수", "바람이 그대를 축복하길!"))
     assert t.chars["a"].step_flags["0"]["boss"] == "killed"
+
+
+def test_silent_boss_killed_when_leaving_after_soon():
+    g = Guide(parse_csv("id,area_name,quest\ng3_6_2,지콰니의 지성소,지코아틀\ng3_3,밀림 유적,다음"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "9", "G3_6_2", 38), LevelUp("t", "9", "a", "소서리스", 33))
+    t.feed(NpcLine("t", "9", "알바", "이런. 이제 저 거대한 구조물에서 제거하기만 하면 되는데... 행운을 빌게!"))
+    t.feed(AreaEntered("t", "9", "G3_town", 44))
+    assert t.chars["a"].step_flags["0"]["boss"] == "killed"

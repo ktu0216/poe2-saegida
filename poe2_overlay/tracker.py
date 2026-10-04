@@ -352,6 +352,10 @@ class Tracker:
         flags = c.step_flags.get(str(c.cursor), {}) if cur else {}
         if cur and flags.get("boss") == "engaged" and code.lower() != cur.zone:
             flags["boss"] = "killed"  # 보스와 싸우다 죽지 않고 지역을 떠남 = 처치
+        enc_cur = self.encounters.get(cur.zone) if cur else None
+        if (cur and enc_cur and enc_cur.silent and flags.get("soon") and not flags.get("boss")
+                and code.lower() != cur.zone):
+            flags["boss"] = "killed"  # 말 없는 보스: 곧 보스 신호 뒤 지역을 떠남 = 처치
         if cur and (sub := self._subzone(cur.zone, prev_zone)) and code.lower() != prev_zone:
             subs = flags.get("sub", {})
             if subs.get(sub.label) == "engaged":

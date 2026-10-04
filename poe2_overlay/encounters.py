@@ -32,6 +32,7 @@ class ZoneEncounter:
     engage_after_soon: tuple[str, ...] = ()  # 곧 보스 신호 뒤에는 전투로 보는 화자
     book_kill: str = ""  # 특화의 서 사용 = 처치: "engaged"(전투 중일 때만) / "any"
     label: str = ""  # 표시용 보스 이름 (대사 없는 보스)
+    silent: bool = False  # 보스가 말하지 않음: "곧 보스" 뒤에 지역을 떠나면 처치로 본다 (지코아틀 등)
 
 
 @dataclass
@@ -48,7 +49,8 @@ class Encounters:
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
                              bool(m.get("kill")), bool(m.get("soon"))) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
-                tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""))
+                tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""),
+                bool(z.get("silent")))
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:
