@@ -12,10 +12,15 @@ class Slot:
     zone: str
     source: str
     options: tuple[tuple[str, ...], ...]
+    short: str = ""  # 패널 한 줄용 짧은 이름 (택1 보상의 긴 문구 대신)
 
     @property
     def label(self) -> str:
         return " 또는 ".join(", ".join(o) for o in self.options)
+
+    @property
+    def brief(self) -> str:
+        return self.short or self.label
 
 
 @dataclass
@@ -56,7 +61,7 @@ class RewardTable:
     def load(cls, path: Path) -> "RewardTable":
         d = json.loads(path.read_text(encoding="utf-8"))
         slots = [Slot(s["act"], s["zone"].lower(), s["source"],
-                      tuple(tuple(o) for o in s["options"])) for s in d["slots"]]
+                      tuple(tuple(o) for o in s["options"]), s.get("short", "")) for s in d["slots"]]
         return cls(slots, int(d.get("quest_passive_total", 0)))
 
     def evaluate(self, received: list[str]) -> list[SlotState]:

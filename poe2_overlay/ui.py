@@ -409,7 +409,7 @@ class Overlay(QWidget):
                 parts.append(f'<span style="color:{OK}">✓ {boss} 처치</span>')
             elif state == "died":
                 parts.append(f'<span style="color:{WARN}">☠ {boss}에게 사망</span>')
-            gifts = [html.escape(r.slot.label) for r in rewards if not r.done and r.slot.zone == step.zone]
+            gifts = [html.escape(r.slot.brief) for r in rewards if not r.done and r.slot.zone == step.zone]
             passive = [src for src in self.passive_sources if src.on(step.zone, step.text)]
             if passive and s.flags.get("passive"):  # 이 단계에서 이미 받음
                 parts.append(f'<span style="color:{OK}">✓ 퀘스트 패시브 +2 받음</span>')
@@ -437,7 +437,7 @@ class Overlay(QWidget):
             left = [r.slot for r in rewards if not r.done and step and r.slot.act == step.act]
             if left:
                 line += f" · {html.escape(step.act)} 남음: " + " · ".join(
-                    f'<span style="color:{GIFT}">{html.escape(sl.label)}</span>' for sl in left)
+                    f'<span style="color:{GIFT}">{html.escape(sl.brief)}</span>' for sl in left)
             foot.append(line)
             if self.show_rewards:
                 self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else "")
