@@ -398,7 +398,9 @@ class Overlay(QWidget):
         cls = f'<span style="color:{TEXT}">{html.escape(c.cls)}</span>' if c.cls else ""
         if c.ascension:
             cls += f" {c.ascension}차"
-        tag = "" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
+        if c.deaths:  # 이 캐릭터 누적 사망 (로그의 "사망했습니다")
+            cls += f' · <span style="color:{WARN}">☠ {c.deaths}</span>'
+        tag ="" if s.confirmed else f' <span style="color:{DIM};font-weight:normal">(추정)</span>'
         league = _league_line(s.league, c.mode, cls)
         self.char_lbl.setText(f"{name} · Lv {c.level}{tag}{league}")
 
