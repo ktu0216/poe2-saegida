@@ -116,6 +116,12 @@
                 "markers": [
                   {"speaker": "두건 쓴 자", "text": "이게 마지막 조각이다", "label": "", "kill": true}
                 ]},
+    "g4_4_1":  {"task_label": "시험",
+                "markers": [
+                  {"speaker": "카옴", "text": "미소를 보낸다", "label": "", "task": "카옴"},
+                  {"speaker": "마아타", "text": "미소를 보낸다", "label": "", "task": "마아타"},
+                  {"speaker": "라키아타", "text": "미소를 보낸다", "label": "", "task": "라키아타"}
+                ]},
     "g4_4_2":  {"bosses": ["하얀 야마"]},
     "g4_10":   {"bosses": ["유토피아의 첫 번째 전령, 베네딕투스"]},
     "g4_11_2": {"bosses": ["타바카이"]},

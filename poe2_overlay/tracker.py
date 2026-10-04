@@ -296,6 +296,13 @@ class Tracker:
         killed = f.get("boss") == "killed"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
+                if m.task:  # 할 일 체크 (보스 전투와 별개)
+                    done = f.setdefault("tasks", [])
+                    if m.task not in done:
+                        done.append(m.task)
+                    if not engaged:  # 할 일 진행을 표시: "시험 2/3 (카옴 · 마아타)"
+                        f["marker"] = f"{enc.task_label} {len(done)}/{len(enc.tasks)} ({' · '.join(done)})"
+                    return
                 if killed and (m.phase or m.engage or m.soon or m.kill):
                     return  # 처치 뒤 대화(지오너: 광기가...)로 전투·페이즈 표시가 되살아나지 않게
                 if m.soon:  # 곧 보스 등장

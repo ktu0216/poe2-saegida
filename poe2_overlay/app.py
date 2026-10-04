@@ -115,6 +115,7 @@ class Controller:
         self.item_msg = ""
         self.item_color = "#e8b04a"
         self.last_item_text = ""
+        self._equip_undo: tuple[str, str] = ("", "")  # 반지 칸 옮기기: (방금 등록한 칸, 그 칸에 있던 아이템)
         self.compare_target = ""  # 마지막으로 비교한 장착 칸 (Ctrl+Alt+E 가 바꿀 칸)
         self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
         self._last_copy_at = 0.0
@@ -456,6 +457,7 @@ class Controller:
             self._last_copy_at = now
             if gap <= DOUBLE_COPY_SEC:  # 같은 아이템을 연달아 두 번 (더블클릭처럼) = 장착 기준 등록
                 self.set_equipped(via="두 번 복사")
+                self._last_copy_at = 0.0  # 다음 등록(칸 옮기기)도 다시 두 번 복사로
             return
         self._last_copy_at = now
         if uncut := parse_uncut(text):  # 미가공 젬: 빌드 기준으로 만들 젬 안내
@@ -544,17 +546,32 @@ class Controller:
         if c is None or item is None or not is_gear(item):  # 젬·화폐(미가공 젬 등)는 장착 기준이 아니다
             return
         keys = slot_keys(item.slot)
-        if any(c.gear.get(k) == self.last_item_text for k in keys):
-            return
-        empty = [k for k in keys if k not in c.gear]
-        # 빈 칸 > 마지막으로 비교한 칸(가장 약한 쪽) > 첫 칸
-        key = empty[0] if empty else (self.compare_target if self.compare_target in keys else keys[0])
+        name = lambda k: (k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else k
+        how = f"{via} → " if via else ""
+        title, _, _ = compare(item, None)
+        cur = next((k for k in keys if c.gear.get(k) == self.last_item_text), None)
+        if cur is not None:
+            if len(keys) == 1:
+                return
+            # 반지처럼 칸이 둘: 다시 등록하면 다른 칸으로 옮긴다 (원래 칸은 등록 전 반지로 되돌림)
+            key = keys[(keys.index(cur) + 1) % len(keys)]
+            back_key, back_text = self._equip_undo
+            if back_key == cur and back_text:
+                c.gear[cur] = back_text
+            else:
+                c.gear.pop(cur, None)
+        else:
+            empty = [k for k in keys if k not in c.gear]
+            # 빈 칸 > 마지막으로 비교한 칸(가장 약한 쪽) > 첫 칸
+            key = empty[0] if empty else (self.compare_target if self.compare_target in keys else keys[0])
+        self._equip_undo = (key, c.gear.get(key, ""))
         c.gear[key] = self.last_item_text
         self.dirty = True
-        title, _, _ = compare(item, None)
-        name = (key.replace("#", " ") if "#" in key else f"{key} 1") if len(keys) > 1 else key
-        how = f"{via} → " if via else ""
-        self._show_item(f'📌 {how}{name} 장착 기준 등록 · {title}', "#8fd18b")
+        msg = f'📌 {how}{name(key)} 장착 기준 등록 · {title}'
+        if len(keys) > 1:
+            other = name(keys[(keys.index(key) + 1) % len(keys)])
+            msg += f'<br><span style="color:#9a9284">{other} 자리에 꼈다면 한 번 더 두 번 복사 (또는 {HOTKEYS["equip"]})</span>'
+        self._show_item(msg, "#8fd18b")
 
     def _clear_flash(self) -> None:
         self.flash = ""

@@ -285,3 +285,16 @@ def test_doryani_signals():
     assert f["boss"] == "engaged"
     t.feed(NpcLine("t", "9", "도리아니", "으윽... 어떻게 이런 일이... 그렇게 애썼는데. 그렇게 희생했는데..."))
     assert f["boss"] == "killed"
+
+
+def test_tasks_count_trials_in_any_order():
+    g = Guide(parse_csv("g4_4_1,히네코라의 눈,시험 3개\ng4_4_2,죽음의 전당,하얀 야마\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G4_4_1", 51), LevelUp("t", "1", "me", "머서너리", 47),
+         NpcLine("t", "1", "마아타", "숲이 네 기개에 미소를 보낸다."),
+         NpcLine("t", "1", "카옴", "나마후가 네 힘에 미소를 보낸다."),
+         NpcLine("t", "1", "카옴", "나마후가 네 힘에 미소를 보낸다."))
+    assert t.snapshot().flags["marker"] == "시험 2/3 (마아타 · 카옴)"
+    feed(t, NpcLine("t", "1", "라키아타", "타살리오가 네 유연함에 미소를 보낸다."))
+    assert t.snapshot().flags["marker"] == "시험 3/3 (마아타 · 카옴 · 라키아타)"
+    assert "boss" not in t.snapshot().flags

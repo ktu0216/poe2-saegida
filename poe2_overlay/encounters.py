@@ -16,6 +16,7 @@ class Marker:
     phase: bool = False  # 전투 중 진행 표시 (2페이즈 등)
     kill: bool = False  # 보스 처치 대사
     soon: bool = False  # 곧 보스 등장
+    task: str = ""  # 지역 안의 할 일 하나 완료 (히네코라의 눈 시험 3개 등) → "시험 2/3"
 
 
 @dataclass(frozen=True)
@@ -33,6 +34,11 @@ class ZoneEncounter:
     book_kill: str = ""  # 특화의 서 사용 = 처치: "engaged"(전투 중일 때만) / "any"
     label: str = ""  # 표시용 보스 이름 (대사 없는 보스)
     silent: bool = False  # 보스가 말하지 않음: "곧 보스" 뒤에 지역을 떠나면 처치로 본다 (지코아틀 등)
+    task_label: str = "할 일"  # 할 일 체크 표시 이름 ("시험 2/3")
+
+    @property
+    def tasks(self) -> list[str]:
+        return list(dict.fromkeys(m.task for m in self.markers if m.task))
 
 
 @dataclass
@@ -47,10 +53,10 @@ class Encounters:
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
-                             bool(m.get("kill")), bool(m.get("soon"))) for m in z.get("markers", [])),
+                             bool(m.get("kill")), bool(m.get("soon")), m.get("task", "")) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
                 tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""),
-                bool(z.get("silent")))
+                bool(z.get("silent")), z.get("task_label", "할 일"))
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:
