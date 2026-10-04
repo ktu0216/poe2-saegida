@@ -5,3 +5,10 @@ __pycache__/
 build/
 dist/
 *.spec
+
+# 내부 개발 기록 (저장소에 올리지 않음)
+TODO.md
+
+# 단일 exe 빌드
+dist_onefile/
+build_onefile/

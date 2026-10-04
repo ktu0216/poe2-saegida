@@ -33,9 +33,12 @@ You don't press anything to advance the guide.
 
 ## Getting started
 
-1. Download `poe2-overlay-*.zip` from [Releases](../../releases) and unzip it anywhere.
+1. Download one of these from [Releases](../../releases):
+   - `poe2-overlay.exe` — a single file, just run it (starts 1–2 s slower)
+   - `poe2-overlay-*.zip` — a folder; unzip anywhere (starts faster, and the guide/data files in `guides` can be edited)
 2. Set the game to **Windowed Fullscreen** (borderless). The overlay cannot draw over exclusive fullscreen.
 3. Run `poe2-overlay.exe`. The game log is found automatically.
+   If Windows SmartScreen says "unknown publisher", click **More info → Run anyway** (it is an unsigned personal tool).
 4. Log in and change area — the character and guide position are picked up on their own.
 
 On the first run it reads your whole log, so earlier characters' progress and splits come back too (a few seconds).
@@ -68,6 +71,10 @@ The English client is newer than the Korean one. Area tracking, level-ups, death
 the endgame log work. Boss **kill and phase lines** are only known for the Korean client so far — on English,
 a boss fight starts on the boss's first line and counts as killed when you leave the area alive.
 If you notice a reward that never ticks or a boss that never shows, please open an issue with the log lines.
+
+## License
+
+[MIT](LICENSE)
 
 ## Credits
 
