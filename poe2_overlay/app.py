@@ -62,7 +62,8 @@ class Controller:
         # 게임(로그) 언어: 로그와 맞춰 보는 데이터(보상 문구, 보스 대사, 상인 정규식)는 화면 언어가 아니라 이것을 따른다
         self.log_lang = i18n.resolve("auto", self.log_path)
         i18n.set_lang(self.lang)
-        self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""), self.lang)
+        self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""), self.lang,
+                                                                  self.settings.get("guide_kind", "default"))
         self.guide = Guide.load(self.guide_file)
         self._guide_mtime = self._mtime(self.guide_file)
         self.rewards = RewardTable.load(config.data_file("rewards", self.lang),
@@ -924,13 +925,22 @@ class Controller:
         path, _ = QFileDialog.getOpenFileName(None, t("가이드 CSV 선택"), "", "CSV (*.csv)")
         if path:
             self.settings["guide_path"] = path
-            config.save_settings(self.settings)
-            self.guide_file = Path(path)
-            self._guide_mtime = self._mtime(self.guide_file)
-            self.guide = Guide.load(self.guide_file)
-            self.tracker.set_guide(self.guide)
-            self.dirty = True
-            self.refresh()
+            self._use_guide(Path(path))
+
+    def set_guide_kind(self, kind: str) -> None:
+        """동봉 가이드 바꾸기 (기본 / 스피드런). 직접 고른 CSV 는 해제. 진행 위치는 지역 코드로 다시 맞춘다."""
+        self.settings["guide_kind"] = kind
+        self.settings["guide_path"] = ""
+        self._use_guide(config.find_guide("", self.lang, kind))
+
+    def _use_guide(self, path: Path) -> None:
+        config.save_settings(self.settings)
+        self.guide_file = path
+        self._guide_mtime = self._mtime(self.guide_file)
+        self.guide = Guide.load(self.guide_file)
+        self.tracker.set_guide(self.guide)
+        self.dirty = True
+        self.refresh()
 
     def on_tool(self, key: str) -> None:
         """패널 오른쪽 위 아이콘."""
@@ -1037,8 +1047,19 @@ class Controller:
         m.addAction(t("젬 카드  ({key})", key=HOTKEYS['gems']), self.toggle_gem_card)
         m.addSeparator()
         m.addAction(t("위치 초기화 (왼쪽 위 기본 위치)"), self.reset_position)
-        m.addAction(t("가이드 CSV 선택…"), self.choose_guide)
-        m.addAction(t("가이드 파일 열기"), lambda: os.startfile(self.guide.source))
+        gm = m.addMenu(t("가이드: {name}", name=Path(self.guide.source).name))
+        ggrp = QActionGroup(gm)
+        custom = bool(self.settings.get("guide_path"))
+        for kind, text in (("default", t("기본 (보상 다 챙기기)")), ("speedrun", t("스피드런"))):
+            a = QAction(text, gm, checkable=True)
+            a.setEnabled(config.bundled_guide(kind, self.lang) is not None)
+            a.setChecked(not custom and self.settings.get("guide_kind", "default") == kind)
+            a.triggered.connect(lambda _=False, k=kind: self.set_guide_kind(k))
+            ggrp.addAction(a)
+            gm.addAction(a)
+        gm.addSeparator()
+        gm.addAction(t("가이드 CSV 선택…"), self.choose_guide)
+        gm.addAction(t("가이드 파일 열기"), lambda: os.startfile(self.guide.source))
         m.addAction(t("로그 파일 선택…"), self.choose_log)
         info = m.addAction(t("가이드: {name} ({n}단계)", name=Path(self.guide.source).name, n=len(self.guide)))
         info.setEnabled(False)
@@ -1060,7 +1081,7 @@ class Controller:
         a.setEnabled(bool(cur_c and ENDGAME in cur_c.splits))
         a = rm.addAction(t("LiveSplit 스플릿 파일 (.lss)"), self.export_lss)
         a.setEnabled(has_splits)
-        rm.addAction(t("저장 폴더 열기"), lambda: os.startfile(export.out_dir()) if export.out_dir().is_dir() else None)
+        rm.addAction(t("저장 폴더 열기"), export.open_out_dir)
         um = m.addMenu(t("업데이트 (현재 {v})", v=__version__))
         um.addAction(t("지금 확인"), lambda: self.start_update_check(manual=True))
         uc = QAction(t("새 버전 자동 확인"), um, checkable=True)

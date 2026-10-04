@@ -14,12 +14,27 @@ from .timing import CAMPAIGN, ENDGAME, TimerView, fmt, fmt_delta
 
 
 def out_dir() -> Path:
-    """사진 폴더 아래 POE2 Saegida (없으면 문서 폴더)."""
+    """사진 폴더 아래 POE2 Saegida (OneDrive 로 옮긴 사진 폴더도 Windows 가 알려주는 실제 위치로)."""
+    try:
+        from PySide6.QtCore import QStandardPaths
+        pics = QStandardPaths.writableLocation(QStandardPaths.PicturesLocation)
+        if pics and Path(pics).is_dir():
+            return Path(pics) / "POE2 Saegida"
+    except Exception:
+        pass
     home = Path(os.environ.get("USERPROFILE", Path.home()))
     for base in (home / "Pictures", home / "Documents", home):
         if base.is_dir():
             return base / "POE2 Saegida"
     return home / "POE2 Saegida"
+
+
+def open_out_dir() -> Path:
+    """내보내기 폴더를 (없으면 만들어서) 탐색기로 연다."""
+    d = out_dir()
+    d.mkdir(parents=True, exist_ok=True)
+    os.startfile(d)
+    return d
 
 
 def safe_name(text: str) -> str:

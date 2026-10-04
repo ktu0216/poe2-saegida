@@ -153,12 +153,22 @@ def build_planner_dir() -> Optional[Path]:
     return cfg.parent / "BuildPlanner" if cfg else None
 
 
-def find_guide(configured: str = "", lang: str = "ko") -> Path:
-    """메뉴에서 고른 CSV, 없으면 동봉된 화면 언어 가이드."""
+GUIDE_KINDS = ("default", "speedrun")  # 동봉 가이드: 기본(보상 다 챙기기) / 스피드런
+
+
+def bundled_guide(kind: str, lang: str) -> Optional[Path]:
+    p = resource_dir() / "guides" / f"{kind}_{lang}.csv"
+    return p if p.is_file() else None
+
+
+def find_guide(configured: str = "", lang: str = "ko", kind: str = "default") -> Path:
+    """메뉴에서 고른 CSV, 없으면 동봉 가이드(종류·화면 언어), 그것도 없으면 기본 가이드."""
     if configured and Path(configured).is_file():
         return Path(configured)
-    own = resource_dir() / "guides" / f"default_{lang}.csv"
-    return own if own.is_file() else resource_dir() / "guides" / "default_ko.csv"
+    for k, lg in ((kind, lang), ("default", lang), ("default", "ko")):
+        if p := bundled_guide(k, lg):
+            return p
+    return resource_dir() / "guides" / "default_ko.csv"
 
 
 def data_file(name: str, lang: str = "ko") -> Path:
