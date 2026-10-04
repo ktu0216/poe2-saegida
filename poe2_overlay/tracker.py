@@ -396,7 +396,7 @@ class Tracker:
                 new = None  # 보스를 이미 잡은 단계로는 되돌리지 않는다 (마을 갔다가 다시 들른 경우)
         if new is not None and cur and new == c.cursor + 1 and steps[new].is_town:
             enc = self.encounters.get(cur.zone)
-            if enc and enc.bosses and flags.get("boss") != "killed":
+            if enc and enc.bosses and enc.gate and flags.get("boss") != "killed":
                 new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is not None:
             skipped = any(not steps[k].is_town for k in range(c.cursor + 1, new))

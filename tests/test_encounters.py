@@ -312,3 +312,12 @@ def test_boss_line_after_death_does_not_reengage():
     assert t.snapshot().step.zone == "g4_11_2"  # 보스 전 마을 정비는 단계를 넘기지 않는다
     feed(t, NpcLine("t", "1", "타바카이", "또 네가 이해하지 못하는 일에 끼여드는군!"))
     assert t.snapshot().flags["boss"] == "engaged"  # 다시 들어와 싸우면 다시 전투 중
+
+
+def test_unverified_boss_does_not_block_town_step():
+    # 막간 보스(gate=false)는 말을 안 해도 마을에 가면 다음 단계로 넘어간다
+    g = Guide(parse_csv("p2_1,카리 교차로,아크티 처치 후 마을\np2_town,카리 장터,리수 대화\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P2_1", 54), LevelUp("t", "1", "me", "머서너리", 54),
+         AreaEntered("t", "1", "P2_town", 64))
+    assert t.snapshot().step.zone == "p2_town"

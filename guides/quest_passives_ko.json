@@ -1,5 +1,5 @@
 {
-  "_comment": "퀘스트 패시브(패시브 스킬 포인트 2 + 무기 세트 2) 출처. sources: 가이드 단계에 🎁 표시할 12곳 (zone = 지역 코드, match = 같은 지역 단계가 여러 개일 때 단계 문구에 들어 있어야 하는 말). observed: 로그로 직접 확인한 기록. 출처 교차 확인: 모발리틱스 빌드 가이드 보상 목록, POE2Radar zone_notes.json(MIT), 레임 가이드 문구.",
+  "_comment": "퀘스트 패시브(패시브 스킬 포인트 2 + 무기 세트 2) 출처. sources: 가이드 단계에 🎁 표시할 12곳 (zone = 지역 코드, match = 같은 지역 단계가 여러 개일 때 단계 문구에 들어 있어야 하는 말). observed: 로그로 직접 확인한 기록. 출처 교차 확인: 모발리틱스 빌드 가이드 보상 목록, POE2Radar zone_notes.json(MIT), 레임 가이드 문구. 막간 출처는 poe2db.tw/kr/Interlude·poe2way.com 액트 가이드(2026-10-04)로 교차 확인.",
   "observed": [
     {
       "act": "액트 1",
@@ -150,21 +150,21 @@
       "act": "막간 1",
       "zone": "p1_5",
       "match": "",
-      "label": "오스윈",
+      "label": "죽음의 간수 오스윈",
       "observed": false
     },
     {
       "act": "막간 2",
       "zone": "p2_town",
       "match": "리수",
-      "label": "아크티와 아눈드르 → 리수 보상",
+      "label": "아크티와 아눈드르 처치 → 마을 리수",
       "observed": false
     },
     {
       "act": "막간 3",
       "zone": "p3_4",
       "match": "",
-      "label": "흉물스러운 설인",
+      "label": "흉물스러운 설인 → 얼음 엄니 → 마을 힐다",
       "observed": false
     }
   ]

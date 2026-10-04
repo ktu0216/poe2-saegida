@@ -35,6 +35,7 @@ class ZoneEncounter:
     label: str = ""  # 표시용 보스 이름 (대사 없는 보스)
     silent: bool = False  # 보스가 말하지 않음: "곧 보스" 뒤에 지역을 떠나면 처치로 본다 (지코아틀 등)
     task_label: str = "할 일"  # 할 일 체크 표시 이름 ("시험 2/3")
+    gate: bool = True  # 보스 처치 전 마을 방문은 단계를 넘기지 않음. 로그로 확인 안 된 보스(말을 안 할 수 있음)는 false
 
     @property
     def tasks(self) -> list[str]:
@@ -50,13 +51,15 @@ class Encounters:
         d = json.loads(path.read_text(encoding="utf-8"))
         zones = {}
         for code, z in d.get("zones", {}).items():
+            if code.startswith("_"):  # 설명 메모
+                continue
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
                              bool(m.get("kill")), bool(m.get("soon")), m.get("task", "")) for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
                 tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""),
-                bool(z.get("silent")), z.get("task_label", "할 일"))
+                bool(z.get("silent")), z.get("task_label", "할 일"), bool(z.get("gate", True)))
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:
