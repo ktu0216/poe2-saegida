@@ -69,6 +69,25 @@ def act(name: str) -> str:
     return EN.get(name, name)
 
 
+# 직업·전직 이름: 로그에 찍힌 게임 언어 그대로 저장되므로 화면에 보일 때 바꾼다
+CLASS_EN = {
+    "워리어": "Warrior", "머서너리": "Mercenary", "레인저": "Ranger", "헌트리스": "Huntress",
+    "위치": "Witch", "소서리스": "Sorceress", "몽크": "Monk", "드루이드": "Druid",
+    "타이탄": "Titan", "워브링어": "Warbringer", "스미스 오브 키타바": "Smith of Kitava",
+    "위치헌터": "Witchhunter", "젬링 리저네어": "Gemling Legionnaire", "택티션": "Tactician",
+    "데드아이": "Deadeye", "패스파인더": "Pathfinder", "아마존": "Amazon", "리추얼리스트": "Ritualist",
+    "스피릿 워커": "Spirit Walker", "인퍼널리스트": "Infernalist", "블러드 메이지": "Blood Mage", "리치": "Lich",
+    "스톰위버": "Stormweaver", "크로노맨서": "Chronomancer", "디사이플 오브 바라시타": "Disciple of Varashta",
+    "인보커": "Invoker", "애콜라이트 오브 차율라": "Acolyte of Chayula", "오라클": "Oracle", "샤먼": "Shaman",
+}
+CLASS_KO = {v: k for k, v in CLASS_EN.items()}
+
+
+def cls(name: str) -> str:
+    """직업 이름 (게임 언어) → 화면 언어."""
+    return CLASS_EN.get(name, name) if LANG == "en" else CLASS_KO.get(name, name)
+
+
 EN: dict[str, str] = {
     # 액트·모드 (내부 키)
     "엔드게임": "Endgame",

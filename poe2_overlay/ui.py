@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from .guide import Step, is_town
-from .i18n import act as tact, t
+from .i18n import act as tact, cls as tcls, t
 from .regex import RegexRule
 from .rewards import SlotState
 from .timing import CAMPAIGN, TimerView, fmt, fmt_delta
@@ -398,7 +398,7 @@ class Overlay(QWidget):
 
         name = t("새 캐릭터 (이름 확인 중)") if c.name == NEW_CHAR else html.escape(c.name)
         # 첫 줄은 이름·레벨만 (전직 이름이 길면 줄이 밀린다), 직업·전직은 리그 줄로
-        cls = f'<span style="color:{TEXT}">{html.escape(c.cls)}</span>' if c.cls else ""
+        cls = f'<span style="color:{TEXT}">{html.escape(tcls(c.cls))}</span>' if c.cls else ""
         if c.ascension:
             cls += t(" {n}차", n=c.ascension)
         if c.deaths:  # 이 캐릭터 누적 사망 (로그의 "사망했습니다")

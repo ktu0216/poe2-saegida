@@ -157,9 +157,9 @@ CLASS_IDS = {"워리어": "Warrior", "머서너리": "Mercenary", "레인저": "
 
 def family_for_class(builds: list[BuildFile], cls: str) -> Optional[str]:
     """직업(또는 전직)이 맞는 빌드 묶음이 딱 하나면 그 묶음."""
-    from .tracker import ASCENDANCY_KO
-    ids = [k for k, v in ASCENDANCY_KO.items() if v == cls]  # 전직 이름이면 정확히
-    prefix = CLASS_IDS.get(cls)
+    from .tracker import ASCENDANCY_EN, ASCENDANCY_KO
+    ids = [k for names in (ASCENDANCY_KO, ASCENDANCY_EN) for k, v in names.items() if v == cls]  # 전직 이름이면 정확히
+    prefix = CLASS_IDS.get(cls) or (cls if cls in CLASS_IDS.values() else None)  # 한국어·영어 클라이언트
     fams = {b.family for b in builds
             if b.ascendancy and (b.ascendancy in ids or (prefix and b.ascendancy.startswith(prefix)))}
     return fams.pop() if len(fams) == 1 else None

@@ -60,3 +60,14 @@ def test_rewards_mixed_languages():
                                  config.data_file("rewards", "en"))
         states = table.evaluate(["냉기 저항 +10%", "+40 to Spirit"])
         assert sum(s.done for s in states) == 2
+
+
+def test_class_names_follow_screen_language():
+    i18n.set_lang("en")
+    try:
+        assert i18n.cls("디사이플 오브 바라시타") == "Disciple of Varashta"
+        assert i18n.cls("Titan") == "Titan"
+    finally:
+        i18n.set_lang("ko")
+    assert i18n.cls("Disciple of Varashta") == "디사이플 오브 바라시타"
+    assert i18n.cls("젬링 리저네어") == "젬링 리저네어"

@@ -845,7 +845,7 @@ class Controller:
         chars = sorted((c for c in self.tracker.chars.values() if c.name not in PLACEHOLDERS),
                        key=lambda c: c.last_seen, reverse=True)
         for c in chars[:15]:
-            a = QAction(f"{c.name}  ({c.cls} Lv{c.level})", cm, checkable=True)
+            a = QAction(f"{c.name}  ({i18n.cls(c.cls)} Lv{c.level})", cm, checkable=True)
             a.setChecked(self.tracker.manual_lock and self.tracker.current == c.name)
             a.triggered.connect(lambda _=False, n=c.name: self.select_character(n))
             grp.addAction(a)
