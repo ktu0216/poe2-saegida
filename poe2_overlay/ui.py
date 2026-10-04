@@ -99,18 +99,24 @@ def _gem_table(gems, names) -> str:
 
 
 def _reward_list(rewards: list[SlotState]) -> str:
-    """액트별 전체 보상 체크리스트."""
-    out, act = [], None
+    """액트별 전체 보상 체크리스트. 다 받은 액트는 한 줄로 접는다 (목록이 길면 위쪽 패널이 눌린다)."""
+    groups: dict[str, list[SlotState]] = {}
     for r in rewards:
-        if r.slot.act != act:
-            act = r.slot.act
-            out.append(f'<div style="color:{ACCENT};margin-top:4px"><b>{html.escape(act)}</b></div>')
-        if r.done:
-            out.append(f'<div style="color:{OK}">✓ {html.escape(", ".join(r.got))}'
-                       f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
-        else:
-            out.append(f'<div style="color:{TEXT}">○ {html.escape(r.slot.label)}'
-                       f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
+        groups.setdefault(r.slot.act, []).append(r)
+    out = []
+    for act, rs in groups.items():
+        if all(r.done for r in rs):
+            out.append(f'<div style="color:{OK}">✓ <b>{html.escape(act)}</b> '
+                       f'<span style="color:{DIM}">— {len(rs)}개 모두 받음</span></div>')
+            continue
+        out.append(f'<div style="color:{ACCENT};margin-top:4px"><b>{html.escape(act)}</b></div>')
+        for r in rs:
+            if r.done:
+                out.append(f'<div style="color:{OK}">✓ {html.escape(", ".join(r.got))}'
+                           f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
+            else:
+                out.append(f'<div style="color:{TEXT}">○ {html.escape(r.slot.label)}'
+                           f' <span style="color:{DIM}">— {html.escape(r.slot.source)}</span></div>')
     return "".join(out)
 
 
@@ -304,6 +310,10 @@ class Overlay(QWidget):
 
         self.next_lbl = _label(fs - 1, DIM)
         root.addWidget(self.next_lbl)
+
+        # 창 높이를 줄이지 않아 남는 공간은 여기(영구 보상 줄 위)에만 모은다.
+        # 없으면 Qt 가 위쪽 줄 사이에 나눠 넣어, 목록을 펼치거나(Ctrl+Alt+R) 접을 때 위쪽이 들썩인다.
+        root.addStretch(1)
 
         self.foot_lbl = _label(fs - 3, DIM)
         root.addWidget(self.foot_lbl)
