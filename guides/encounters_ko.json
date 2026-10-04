@@ -141,7 +141,8 @@
     "g4_11_2": {"bosses": ["타바카이"],
                 "markers": [
                   {"speaker": "타바카이", "text": "선조들이여, 저를 도와", "label": "2페이즈", "phase": true},
-                  {"speaker": "투코하마", "text": "길이 아니다", "label": "3페이즈", "phase": true}
+                  {"speaker": "투코하마", "text": "길이 아니다", "label": "3페이즈", "phase": true},
+                  {"speaker": "타바카이", "text": "내가 무슨 짓을", "label": "", "kill": true}
                 ]},
     "p3_7":    {"bosses": ["피의 여사제 젤리나", "피의 사제 졸린"]},
     "p2_7":    {"bosses": ["파리둔 왕자 아즈마디"]},
