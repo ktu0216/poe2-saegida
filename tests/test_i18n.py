@@ -71,3 +71,18 @@ def test_class_names_follow_screen_language():
         i18n.set_lang("ko")
     assert i18n.cls("Disciple of Varashta") == "디사이플 오브 바라시타"
     assert i18n.cls("젬링 리저네어") == "젬링 리저네어"
+
+
+def test_speedrun_guides_match_and_keep_passive_steps():
+    # 스피드런 가이드: 한국어·영어가 같은 경로, 퀘스트 패시브 단계 표시용 문구가 남아 있어야 한다
+    from poe2_overlay import config
+    from poe2_overlay.guide import Guide
+    from poe2_overlay.rewards import load_passive_sources
+    for lang in ("ko", "en"):
+        assert config.bundled_guide("speedrun", lang) is not None
+    ko = Guide.load(config.bundled_guide("speedrun", "ko"))
+    en = Guide.load(config.bundled_guide("speedrun", "en"))
+    assert [s.zone for s in ko.steps] == [s.zone for s in en.steps]
+    for lang, g in (("ko", ko), ("en", en)):
+        for src in load_passive_sources(config.data_file("quest_passives", lang)):
+            assert any(s.zone == src.zone and src.match in s.text for s in g.steps), (lang, src.zone)
