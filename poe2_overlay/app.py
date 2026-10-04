@@ -56,15 +56,17 @@ class Controller:
         self.log_path: Optional[Path] = config.find_log(self.settings.get("log_path", ""))
         # 화면 언어: 설정(auto/ko/en). auto 는 로그 파일로 (Client.txt = 영어 클라이언트, KakaoClient.txt = 한국어)
         self.lang = i18n.resolve(self.settings.get("language", "auto"), self.log_path)
+        # 게임(로그) 언어: 로그와 맞춰 보는 데이터(보상 문구, 보스 대사, 상인 정규식)는 화면 언어가 아니라 이것을 따른다
+        self.log_lang = i18n.resolve("auto", self.log_path)
         i18n.set_lang(self.lang)
         self.guide_file: Optional[Path] = config.find_guide(self.settings.get("guide_path", ""), self.lang)
         self.guide = Guide.load(self.guide_file)
         self._guide_mtime = self._mtime(self.guide_file)
-        self.rewards = RewardTable.load(config.data_file("rewards", self.lang))
+        self.rewards = RewardTable.load(config.data_file("rewards", self.lang), config.data_file("rewards", self.log_lang))
         self.passive_sources = load_passive_sources(config.data_file("quest_passives", self.lang))
-        rx = config.data_file("regex", self.lang)
-        # 상인 정규식은 게임 언어의 아이템 문구라야 한다: 영어 데이터가 없으면 끈다
-        self.regex_book = RegexBook.load(rx) if rx.stem.endswith(self.lang) else RegexBook([], set())
+        rx = config.data_file("regex", self.log_lang)
+        # 상인 정규식은 게임 언어의 아이템 문구라야 한다: 그 언어 데이터가 없으면 끈다
+        self.regex_book = RegexBook.load(rx) if rx.stem.endswith(self.log_lang) else RegexBook([], set())
         self.active_builds: dict[str, str] = {}
         self.gem_names = GemNames.load(config.find_reim_gem_data(), config.resource_dir() / "guides" / "gem_names_ko.json",
                                        config.resource_dir() / "guides" / "gem_names_trade.json",
@@ -76,8 +78,15 @@ class Controller:
         self.current_regex = None
         self._regex_copied_at = 0.0
         self.flash = ""  # 잠깐 보여줄 알림 (정규식 복사됨 등)
-        self.encounters = Encounters.load(config.data_file("encounters", self.lang))
-        self.endgame_bosses = endgame.EndgameBosses.load(config.data_file("endgame_bosses", self.lang))
+        self.encounters = Encounters.load(config.data_file("encounters", self.log_lang))
+        if self.lang != self.log_lang:  # 보스 이름표만 화면 언어로
+            self.encounters.display = Encounters.load(config.data_file("encounters", self.lang))
+        self.endgame_bosses = endgame.EndgameBosses.load(config.data_file("endgame_bosses", self.log_lang))
+        if self.lang != self.log_lang:  # 처치 대사는 로그 언어, 이름표는 화면 언어
+            shown = endgame.EndgameBosses.load(config.data_file("endgame_bosses", self.lang))
+            for code, b in self.endgame_bosses.bosses.items():
+                if (s := shown.get(code)) is not None:
+                    self.endgame_bosses.bosses[code] = endgame.Boss(b.key, s.label, b.kill)
         self.tracker = Tracker(self.guide, encounters=self.encounters)
         self.tracker.endgame = self.endgame_bosses
         self.tracker.passive_sources = self.passive_sources

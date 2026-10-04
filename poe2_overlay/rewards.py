@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -17,7 +18,8 @@ class Slot:
 
     @property
     def label(self) -> str:
-        return " 또는 ".join(", ".join(o) for o in self.options)
+        from .i18n import t
+        return t(" 또는 ").join(", ".join(o) for o in self.options)
 
     @property
     def brief(self) -> str:
@@ -63,13 +65,29 @@ class RewardTable:
     def __init__(self, slots: list[Slot], quest_passive_total: int):
         self.slots = slots
         self.quest_passive_total = quest_passive_total
+        self.alias: dict[str, str] = {}  # 게임(로그) 언어 문구 → 화면 언어 문구
 
-    @classmethod
-    def load(cls, path: Path) -> "RewardTable":
+    @staticmethod
+    def _slots(path: Path) -> tuple[list[Slot], int]:
         d = json.loads(path.read_text(encoding="utf-8"))
         slots = [Slot(s["act"], s["zone"].lower(), s["source"],
                       tuple(tuple(o) for o in s["options"]), s.get("short", ""), s.get("tip", "")) for s in d["slots"]]
-        return cls(slots, int(d.get("quest_passive_total", 0)))
+        return slots, int(d.get("quest_passive_total", 0))
+
+    @classmethod
+    def load(cls, path: Path, log_lang_path: Optional[Path] = None) -> "RewardTable":
+        """path = 화면 언어 표. log_lang_path = 게임 로그 언어 표 (다르면: 로그에 찍힌 문구를 화면 언어 문구로 바꿔 맞춘다.
+        두 파일은 칸·선택지 순서가 같다)."""
+        table = cls(*cls._slots(path))
+        if log_lang_path and log_lang_path != path and log_lang_path.is_file():
+            other, _ = cls._slots(log_lang_path)
+            for a, b in zip(other, table.slots):
+                if a.zone != b.zone:
+                    continue
+                for oa, ob in zip(a.options, b.options):
+                    for xa, xb in zip(oa, ob):
+                        table.alias[_norm(xa)] = xb
+        return table
 
     def evaluate(self, received: list[str]) -> list[SlotState]:
         """받은 순서대로 아직 비어 있는 칸 중 문구가 맞는 첫 칸에 배정한다.
@@ -78,6 +96,7 @@ class RewardTable:
         states = [SlotState(s, []) for s in self.slots]
         opts = {id(st): [[_norm(x) for x in o] for o in st.slot.options] for st in states}
         for text in received:
+            text = self.alias.get(_norm(text), text)
             n = _norm(text)
             target = None
             for st in states:  # 이미 시작된 여러 줄 선택지를 먼저 채운다

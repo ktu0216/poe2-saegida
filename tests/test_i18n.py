@@ -31,3 +31,14 @@ def test_english_data_files_load():
     g = Guide.load(config.resource_dir() / "guides" / "default_en.csv")
     assert len(g) == len(Guide.load(config.resource_dir() / "guides" / "default_ko.csv"))
     assert len(config.load_zone_tips(config.data_file("zone_tips", "en"))) == 85
+
+
+def test_rewards_from_korean_log_show_in_english():
+    # 카카오(한국어) 로그로 받은 보상 → 화면 영어 표에서도 받은 것으로
+    from poe2_overlay import config
+    from poe2_overlay.rewards import RewardTable
+    table = RewardTable.load(config.data_file("rewards", "en"), config.data_file("rewards", "ko"))
+    states = table.evaluate(["냉기 저항 +10%", "민첩 +5", "지능 +5", "힘 +5"])
+    done = {s.slot.zone: s.got for s in states if s.done}
+    assert done["g1_2"] == ["+10% to Cold Resistance"]
+    assert done["g4_4_2"] == ["+5 to Dexterity", "+5 to Intelligence", "+5 to Strength"]

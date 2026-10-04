@@ -65,7 +65,11 @@ class Encounters:
     def get(self, zone: str) -> Optional[ZoneEncounter]:
         return self.zones.get(zone.lower())
 
+    display: Optional["Encounters"] = None  # 화면 언어 이름표 (게임 로그 언어와 다를 때)
+
     def boss_name(self, zone: str) -> str:
+        if self.display is not None and (name := self.display.boss_name(zone)):
+            return name
         z = self.get(zone)
         if not z:
             return ""

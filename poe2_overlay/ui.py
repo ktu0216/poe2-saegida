@@ -73,10 +73,10 @@ def _gem_card(gems, names) -> tuple[str, str]:
     head = (f'💎 {html.escape(b.label)} <span style="color:{DIM};font-weight:normal">'
             f'· {html.escape(b.stage or "-")}</span>')
     out = []
-    for g in (g for g in gems.now if g.supports):
-        out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">● {html.escape(names(g.id))}</b></div>')
+    for g in (g for g in gems.now if g.supports):  # 스킬 하나에 한 줄 (두 줄이면 카드가 화면 밖으로 길어진다)
         sup = " · ".join(html.escape(names(s)) for s in g.supports)
-        out.append(f'<div style="color:#c8bfae;margin-left:14px">└ {sup}</div>')
+        out.append(f'<div style="margin-top:2px"><b style="color:{TEXT}">● {html.escape(names(g.id))}</b>'
+                   f' <span style="color:#c8bfae">— {sup}</span></div>')
     alone = [g for g in gems.now if not g.supports]
     if alone:
         out.append(f'<div style="margin-top:3px"><b style="color:{TEXT}">◆ {" · ".join(html.escape(names(g.id)) for g in alone)}</b>'
@@ -88,18 +88,6 @@ def _gem_card(gems, names) -> tuple[str, str]:
             out.append(f'<div style="margin-top:6px;color:{DIM}">{t("다음 Lv {lv}:", lv=lv)} <b style="color:#c8bfae">{html.escape(names(g.id))}</b>'
                        + (f' + {sup}' if sup else "") + '</div>')
     return head, "".join(out)
-
-def _gem_table(gems, names) -> str:
-    out = [f'<div style="color:{ACCENT};margin-top:6px"><b>{t("젬")}</b> <span style="color:{DIM}">'
-           f'{html.escape(gems.build.name)}</span></div>']
-    for g in gems.now:
-        sup = ", ".join(html.escape(names(s)) for s in g.supports)
-        out.append(f'<div style="color:{TEXT}">● {html.escape(names(g.id))}'
-                   + (f' <span style="color:{DIM}">+ {sup}</span>' if sup else "") + "</div>")
-    for g in gems.upcoming[:6]:
-        out.append(f'<div style="color:{DIM}">Lv {g.lo} · {html.escape(names(g.id))}</div>')
-    return "".join(out)
-
 
 def _reward_list(rewards: list[SlotState]) -> str:
     """액트별 전체 보상 체크리스트. 다 받은 액트는 한 줄로 접는다 (목록이 길면 위쪽 패널이 눌린다)."""
@@ -496,8 +484,7 @@ class Overlay(QWidget):
             foot.append(line)
             if self.show_rewards:
                 self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else "")
-                                        + (_endgame_detail(endgame) if endgame else "")
-                                        + (_gem_table(gems, gem_names) if gems else ""))
+                                        + (_endgame_detail(endgame) if endgame else ""))  # 젬은 젬 카드(Ctrl+Alt+G)에
                 self.reward_lbl.setVisible(True)
         if notice:
             foot.append(notice)
@@ -737,10 +724,10 @@ class Toast(QWidget):
         lay.setContentsMargins(10, 6, 10, 8)
         lay.setSpacing(3)
         if head:
-            h = _label(self.fs, color, True)
+            h = _label(self.fs - 1, color, True)
             h.setText(head)
             lay.addWidget(h)
-        b = _label(self.fs, TEXT)
+        b = _label(self.fs - 2, TEXT)
         b.setText(body)
         lay.addWidget(b)
         return f
@@ -749,8 +736,14 @@ class Toast(QWidget):
         super().setWindowOpacity(max(value, 0.9))  # 카드는 패널보다 덜 투명하게 (읽기 쉽게)
 
     def follow(self, g) -> None:
-        screen = self.screen().availableGeometry() if self.screen() else None
-        y = g.bottom() + 6
+        """패널 아래, 자리가 없으면 위, 둘 다 없으면(패널이 길 때) 패널 오른쪽 위에 붙인다."""
+        scr = QGuiApplication.screenAt(g.center()) or self.screen()
+        screen = scr.availableGeometry() if scr else None
+        x, y = g.left(), g.bottom() + 6
         if screen is not None and y + self.height() > screen.bottom():
             y = g.top() - self.height() - 6
-        self.move(g.left(), y)
+            if y < screen.top():
+                x, y = g.right() + 6, max(screen.top(), g.top())
+                if x + self.width() > screen.right():
+                    x = g.left() - self.width() - 6
+        self.move(x, y)

@@ -151,6 +151,7 @@ EN: dict[str, str] = {
     "📌 {how}{slot} 장착 기준 등록 · {title}": "📌 {how}saved as equipped {slot} · {title}",
     "{other} 자리에 꼈다면 한 번 더 두 번 복사 (또는 {key})": "Worn in {other}? Double copy again (or {key})",
     "반지 1": "Ring 1",
+    " 또는 ": " or ",
     "물리": "Phys",
     "원소": "Ele",
     "공속": "APS",
