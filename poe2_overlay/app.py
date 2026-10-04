@@ -499,12 +499,19 @@ class Controller:
         filled = [k for k in keys if k in c.gear]
         target = min(filled, key=lambda k: defense_score(parse_item(c.gear[k])))
         self.compare_target = target
+        marks = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}
         title, diffs, verdict = compare(item, parse_item(c.gear[target]))
         color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
-        mark = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷")
-        body = f'{mark} · {item.slot} {title}' + (f" ({label(target)} 대비)" if len(keys) > 1 else "")
-        if diffs:
-            body += "<br>" + " · ".join(diffs)
+        if len(filled) > 1:  # 반지: 두 칸 모두와 비교해 보여 준다 (바꾼다면 약한 쪽 기준 판정)
+            body = f'{item.slot} {title}'
+            for k in sorted(filled, key=lambda k: k != target):
+                _, d, v = compare(item, parse_item(c.gear[k]))
+                body += (f'<br>{marks.get(v, "≈ 비슷")} · {label(k)} 대비'
+                         + (" (약한 쪽)" if k == target else "") + (" — " + " · ".join(d) if d else ""))
+        else:
+            body = f'{marks.get(verdict, "≈ 비슷")} · {item.slot} {title}' + (f" ({label(target)} 대비)" if len(keys) > 1 else "")
+            if diffs:
+                body += "<br>" + " · ".join(diffs)
         body += f'<br><span style="color:#9a9284">장착했다면 한 번 더 Ctrl+C (또는 {HOTKEYS["equip"]}) 로 기준 갱신</span>'
         self._show_item(body, color)
 

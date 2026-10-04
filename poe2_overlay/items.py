@@ -167,8 +167,9 @@ def slot_keys(slot: str) -> list[str]:
 
 def defense_score(it: Item) -> float:
     """방어구·장신구 비교 점수 (compare 의 판정과 같은 가중치)."""
-    return (it.life + it.res_total + it.move_speed + it.added_avg) * 2 + \
-        (it.armour + it.evasion + it.energy_shield) / 10
+    return (it.life + it.res_total * 3 + it.move_speed * 3 + it.added_avg * 2
+            + (it.armour + it.evasion + it.energy_shield) / 10 + it.spirit / 2
+            + sum(it.skill_levels.values()) * 30)
 
 
 def _pct(new: float, old: float) -> str:
