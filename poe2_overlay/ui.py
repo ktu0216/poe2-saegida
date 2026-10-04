@@ -215,6 +215,7 @@ def _label(size: int, color: str = TEXT, bold: bool = False, wrap: bool = True) 
 class Overlay(QWidget):
     moved = Signal(int, int)
     mode_chosen = Signal(str)  # 새 캐릭터 모드 선택 ("" = 건너뛰기)
+    action = Signal(str)  # 오른쪽 위 아이콘: prev / next / rewards / gems
 
     def __init__(self, settings: dict):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -332,6 +333,7 @@ class Overlay(QWidget):
                                   self.gem_lbl, self.next_lbl, self.foot_lbl, self.reward_lbl, self.mode_box)]
 
         self.setFixedWidth(int(settings["window"].get("w", 420)))
+        self._build_tools(fs)
         self._grow_key = None  # 이 값(캐릭터)이 같은 동안은 창 높이를 줄이지 않는다 (흔들림 방지)
         self._min_h = 0
         # 아이템 비교·정규식·알림은 패널 아래에 붙는 별도 창에 (패널 크기가 변하지 않도록)
@@ -627,6 +629,58 @@ class Overlay(QWidget):
             self._drag = None
             self.clamp_to_screen()
             self.moved.emit(self.x(), self.y())
+
+    # ------------------------------------------------------------ 오른쪽 위 아이콘 (마우스를 올렸을 때만)
+    TOOLS = (("◀", "prev", "이전 단계 (Ctrl+Alt+←)"), ("▶", "next", "다음 단계 (Ctrl+Alt+→)"),
+             ("🏆", "rewards", "영구 보상·구간 기록 (Ctrl+Alt+R)"), ("💎", "gems", "젬 카드 (Ctrl+Alt+G)"),
+             ("⚙", "menu", "전체 메뉴 (우클릭과 같음)"))
+
+    def _build_tools(self, fs: int) -> None:
+        self.tools = QWidget(self)
+        self.tools.setStyleSheet(
+            "QWidget{background:rgba(18,16,14,215);border-radius:5px}"
+            f"QPushButton{{color:{TEXT};background:transparent;border:none;padding:1px 4px}}"
+            f"QPushButton:hover{{color:{ACCENT};background:rgba(232,176,74,40);border-radius:4px}}")
+        lay = QHBoxLayout(self.tools)
+        lay.setContentsMargins(3, 1, 3, 1)
+        lay.setSpacing(0)
+        for icon, key, tip in self.TOOLS:
+            b = QPushButton(icon, self.tools)
+            b.setFont(QFont("Segoe UI Emoji", max(8, fs - 4)))
+            b.setToolTip(tip)
+            b.setCursor(Qt.PointingHandCursor)
+            b.clicked.connect(lambda _=False, k=key, w=b: self._tool(k, w))
+            lay.addWidget(b)
+        self.tools.adjustSize()
+        self.tools.hide()
+
+    def _tool(self, key: str, button: QWidget) -> None:
+        if key == "menu":
+            if self.menu_builder:
+                m = QMenu(self)
+                self.menu_builder(m)
+                m.exec(button.mapToGlobal(QPoint(0, button.height())))
+        else:
+            self.action.emit(key)
+
+    def _place_tools(self) -> None:
+        self.tools.move(self.width() - self.tools.width() - 6, 4)
+        self.tools.raise_()
+
+    def enterEvent(self, e):
+        if not self.click_through:  # 클릭 통과 중엔 누를 수 없으니 보이지 않는다
+            self._place_tools()
+            self.tools.show()
+        super().enterEvent(e)
+
+    def leaveEvent(self, e):
+        self.tools.hide()
+        super().leaveEvent(e)
+
+    def resizeEvent(self, e):
+        super().resizeEvent(e)
+        if self.tools.isVisible():
+            self._place_tools()
 
     def contextMenuEvent(self, e):
         if self.menu_builder:

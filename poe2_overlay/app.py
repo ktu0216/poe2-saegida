@@ -91,6 +91,7 @@ class Controller:
         self.zone_tips = config.load_zone_tips(config.resource_dir() / "guides" / "zone_tips_ko.json")
         self.overlay.moved.connect(self.on_moved)
         self.overlay.mode_chosen.connect(self.choose_new_char_mode)
+        self.overlay.action.connect(self.on_tool)
 
         self.tray = QSystemTrayIcon(make_icon())
         self.tray.setToolTip("POE2 캠페인 가이드")
@@ -685,6 +686,8 @@ class Controller:
     def toggle_click_through(self) -> None:
         self.overlay.click_through = not self.overlay.click_through
         set_click_through(int(self.overlay.winId()), self.overlay.click_through)
+        if self.overlay.click_through:
+            self.overlay.tools.hide()  # 클릭 통과 중엔 아이콘을 누를 수 없다
         self.refresh()
 
     def set_opacity(self, value: float) -> None:
@@ -777,6 +780,15 @@ class Controller:
             self.tracker.set_guide(self.guide)
             self.dirty = True
             self.refresh()
+
+    def on_tool(self, key: str) -> None:
+        """패널 오른쪽 위 아이콘."""
+        if key in ("prev", "next"):
+            self.step(-1 if key == "prev" else 1)
+        elif key == "rewards":
+            self.toggle_rewards()
+        elif key == "gems":
+            self.toggle_gem_card()
 
     def build_menu(self, m: QMenu, clear: bool = False) -> None:
         if clear:
