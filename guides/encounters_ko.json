@@ -144,19 +144,43 @@
                   {"speaker": "투코하마", "text": "길이 아니다", "label": "3페이즈", "phase": true},
                   {"speaker": "타바카이", "text": "내가 무슨 짓을", "label": "", "kill": true}
                 ]},
-    "_interlude": "막간 보스 이름은 poe2db.tw/kr/Interlude (2026-10-04) 기준. 로그로 대사 확인 전이라 gate=false (말 없는 보스여도 마을 진행이 막히지 않게). 확인되면 markers 추가하고 gate 제거",
-    "p1_1":    {"bosses": ["검은 화염의 헬드라", "하얀 수의의 이졸데"], "gate": false},
-    "p1_2":    {"bosses": ["연무의 칼날 시오라"], "gate": false},
-    "p1_5":    {"bosses": ["죽음의 간수 오스윈"], "gate": false},
-    "p1_6":    {"bosses": ["테인 울프릭", "여인 엘스위트"], "gate": false},
-    "p2_1":    {"bosses": ["마지막 독침 아크티", "모래벌레 아눈드르"], "gate": false},
-    "p2_3":    {"bosses": ["코브라 군주 엘자라"], "gate": false},
-    "p2_5":    {"bosses": ["타락한 불길 보르나스"], "gate": false},
-    "p2_7":    {"bosses": ["파리둔 왕자 아즈마디"], "gate": false},
-    "p3_2":    {"bosses": ["방황하는 창 라이타라"], "gate": false},
-    "p3_3":    {"bosses": ["얼어붙은 발톱 라카르"], "gate": false},
-    "p3_4":    {"bosses": ["흉물스러운 설인"], "gate": false},
-    "p3_6":    {"bosses": ["수호자 폭풍선혈"], "gate": false},
-    "p3_7":    {"bosses": ["피의 여사제 젤리나", "피의 사제 졸린"], "gate": false}
+    "_interlude": "막간: 보스 이름 poe2db.tw/kr/Interlude, 대사는 char_e 등 예전 캐릭터 로그(2026-09, KakaoClient.txt)에서 확인. 말 없는 보스(아크티·아눈드르, 보르나스, 라카르, 설인)는 gate=false (마을 진행을 막지 않음). 사망 직후 보스 대사(오스윈 '참으로 달콤한 비명', 아즈마디 '이렇게 내 유산이 시작한다', 이졸데 '귀찮은 놈은 없어졌다')는 _dead_here 로 무시된다",
+    "p1_1":    {"bosses": ["검은 화염의 헬드라", "하얀 수의의 이졸데"],
+                "_note": "처치 대사 없음 → 지역을 떠나면 처치"},
+    "p1_2":    {"bosses": ["연무의 칼날 시오라"],
+                "markers": [
+                  {"speaker": "연무의 칼날 시오라", "text": "변하는 건 없다", "label": "2페이즈", "phase": true},
+                  {"speaker": "연무의 칼날 시오라", "text": "연무는 사라지지 않는다", "label": "", "kill": true}
+                ]},
+    "p1_5":    {"bosses": ["죽음의 간수 오스윈"],
+                "markers": [
+                  {"speaker": "죽음의 간수 오스윈", "text": "테인이 네 목을 취할", "label": "", "kill": true}
+                ]},
+    "p1_6":    {"bosses": ["테인 울프릭", "여인 엘스위트"],
+                "_note": "처치 대사 없음 → 지역을 떠나면 처치",
+                "markers": [
+                  {"speaker": "테인 울프릭", "text": "어둠이 될 수 있는데", "label": "2페이즈 (울프릭 변신)", "phase": true}
+                ]},
+    "p2_1":    {"bosses": ["마지막 독침 아크티", "모래벌레 아눈드르"], "gate": false, "_note": "로그에 대사 없음"},
+    "p2_3":    {"bosses": ["코브라 군주 엘자라"],
+                "markers": [
+                  {"speaker": "코브라 군주 엘자라", "text": "독사 혈족은 다시 부흥할", "label": "", "kill": true}
+                ]},
+    "p2_5":    {"bosses": ["타락한 불길 보르나스"], "gate": false, "_note": "로그에 대사 없음"},
+    "p2_7":    {"bosses": ["파리둔 왕자 아즈마디"],
+                "markers": [
+                  {"speaker": "파리둔 왕자 아즈마디", "text": "왕위를 거부당한 왕자", "label": "", "kill": true}
+                ]},
+    "p3_2":    {"bosses": ["방황하는 창 라이타라"],
+                "markers": [
+                  {"speaker": "방황하는 창 라이타라", "text": "날 용서하기를", "label": "", "kill": true}
+                ]},
+    "p3_3":    {"bosses": ["얼어붙은 발톱 라카르"], "gate": false, "_note": "로그에 대사 없음"},
+    "p3_4":    {"bosses": ["흉물스러운 설인"], "gate": false, "_note": "로그에 대사 없음"},
+    "p3_6":    {"bosses": ["폭풍선혈"], "_note": "로그 화자 이름은 '폭풍선혈' (poe2db 이름은 수호자 폭풍선혈). 처치 대사 미확인 → 지역을 떠나면 처치"},
+    "p3_7":    {"bosses": ["피의 여사제 젤리나", "피의 사제 졸린"],
+                "markers": [
+                  {"speaker": "피의 사제 졸린", "text": "항복하겠다", "label": "", "kill": true}
+                ]}
   }
 }

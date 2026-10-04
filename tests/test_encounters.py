@@ -321,3 +321,15 @@ def test_unverified_boss_does_not_block_town_step():
     feed(t, AreaEntered("t", "1", "P2_1", 54), LevelUp("t", "1", "me", "머서너리", 54),
          AreaEntered("t", "1", "P2_town", 64))
     assert t.snapshot().step.zone == "p2_town"
+
+
+def test_interlude_kill_line_and_death_taunt():
+    g = Guide(parse_csv("p2_7,키마 저수지,아즈마디 처치\np2_town,카리 장터,마을\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P2_7", 56), LevelUp("t", "1", "me", "머서너리", 56),
+         NpcLine("t", "1", "파리둔 왕자 아즈마디", "파리둔을 부흥시키리라!"),
+         Death("t", "1", "me"), NpcLine("t", "1", "파리둔 왕자 아즈마디", "이렇게 내 유산이 시작한다."))
+    assert t.snapshot().flags["boss"] == "died"
+    feed(t, AreaEntered("t", "1", "P2_7", 56), NpcLine("t", "1", "파리둔 왕자 아즈마디", "나는 군단이다!"),
+         NpcLine("t", "1", "파리둔 왕자 아즈마디", "왕위를 거부당한 왕자..."))
+    assert t.snapshot().flags["boss"] == "killed"
