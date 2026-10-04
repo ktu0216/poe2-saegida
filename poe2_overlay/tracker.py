@@ -92,6 +92,7 @@ class Character:
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
     step_flags: dict[str, dict] = field(default_factory=dict)
     gear: dict[str, str] = field(default_factory=dict)  # 부위 -> 장착 기준 아이템 텍스트 (Ctrl+C)
+    last_field_zone: str = ""  # 마지막으로 있던 마을 밖 지역
     jump_from: int = -1  # 단계를 건너뛰며 전진하기 직전 단계 (원래 지역으로 돌아오면 되돌린다)
     ascendancy: list[str] = field(default_factory=list)  # 찍은 전직 노드 ID (로그의 전직 패시브 줄)
 
@@ -234,18 +235,26 @@ class Tracker:
         self.provisional = Character(name=UNKNOWN_CHAR)
 
     def _passive_step(self, c: Character) -> Optional[int]:
-        """퀘스트 패시브를 받은 단계: 지금 지역에서 패시브를 주는 단계(passive_sources) 중 아직 안 받은,
-        현재 단계에서 가장 가까운 것. (우나의 류트를 오검 마을 전에 바로 마을에 가져다준 경우 등)
-        못 찾으면 현재 단계."""
+        """퀘스트 패시브를 받은 단계: 패시브를 주는 단계(passive_sources) 중 아직 안 받은 것.
+        1) 지금 지역의 출처 (사냥터에서 바로 쓴 책, 마을 NPC 보상)
+        2) 마을에서 썼으면 직전에 있던 사냥터의 출처 (은빛 주먹을 늦게 잡고 마을에서 책 사용 등)
+        여러 개면 현재 단계에서 가까운 것. 못 찾으면 현재 단계가 출처일 때만 그 단계."""
         steps = self.guide.steps
         if not steps:
             return None
-        cands = [i for i, st in enumerate(steps)
-                 if st.zone == c.zone and any(src.on(st.zone, st.text) for src in self.passive_sources)
-                 and not c.step_flags.get(str(i), {}).get("passive")]
-        if cands:
-            return min(cands, key=lambda i: abs(i - c.cursor))
-        return c.cursor if 0 <= c.cursor < len(steps) else None
+
+        def cands(zone: str) -> list[int]:
+            return [i for i, st in enumerate(steps)
+                    if st.zone == zone and any(src.on(st.zone, st.text) for src in self.passive_sources)
+                    and not c.step_flags.get(str(i), {}).get("passive")]
+
+        found = cands(c.zone) or (cands(c.last_field_zone) if is_town(c.zone) and c.last_field_zone else [])
+        if found:
+            return min(found, key=lambda i: abs(i - c.cursor))
+        if 0 <= c.cursor < len(steps) and any(src.on(steps[c.cursor].zone, steps[c.cursor].text)
+                                               for src in self.passive_sources):
+            return c.cursor
+        return None
 
     def _flags(self, c: Character) -> Optional[dict]:
         """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때만)."""
@@ -333,6 +342,8 @@ class Tracker:
 
     def _apply_area(self, c: Character, code: str, level: int, ts: str) -> None:
         prev_zone = c.zone
+        if prev_zone and not is_town(prev_zone):
+            c.last_field_zone = prev_zone  # 마을에서 퀘스트 보상(책)을 쓰면 직전 사냥터의 보상으로 본다
         c.zone = code.lower()
         c.area_name = self.guide.area_name(code) or ""
         c.area_level = level

@@ -203,8 +203,10 @@ def test_riverbank_mortimer_signals():
 
 def test_passive_points_mark_step():
     from poe2_overlay.logparse import PassivePoints
+    from poe2_overlay.rewards import PassiveSource
     g = Guide(parse_csv("id,area_name,quest\ng1_11,사냥터,까마귀 종 처치"), "t")
     t = Tracker(g, encounters=ENC)
+    t.passive_sources = [PassiveSource("g1_11", "", "까마귀 종")]
     feed(t, AreaEntered("t", "9", "G1_11", 10), LevelUp("t", "9", "a", "소서리스", 8))
     t.feed(PassivePoints("t", "9", 2, False))
     f = t.chars["a"].step_flags["0"]
@@ -255,3 +257,18 @@ def test_silent_boss_killed_when_leaving_after_soon():
     t.feed(NpcLine("t", "9", "알바", "이런. 이제 저 거대한 구조물에서 제거하기만 하면 되는데... 행운을 빌게!"))
     t.feed(AreaEntered("t", "9", "G3_town", 44))
     assert t.chars["a"].step_flags["0"]["boss"] == "killed"
+
+
+def test_book_used_in_town_after_late_field_kill():
+    from poe2_overlay.logparse import PassivePoints
+    from poe2_overlay.rewards import PassiveSource
+    g = Guide(parse_csv("id,area_name,quest\ng3_3,밀림 유적,은빛 주먹 처치\ng3_town,지구라트 야영지,정비\n"
+                        "g3_16,아고라트,희생의 심장"), "t")
+    t = Tracker(g, encounters=ENC)
+    t.passive_sources = [PassiveSource("g3_3", "은빛 주먹", "은빛 주먹"), PassiveSource("g3_16", "", "희생의 심장")]
+    feed(t, AreaEntered("t", "9", "G3_3", 34), LevelUp("t", "9", "a", "소서리스", 40))
+    c = t.chars["a"]
+    c.cursor = 2  # 이미 아고라트 단계까지 진행
+    feed(t, AreaEntered("t", "9", "G3_3", 34), AreaEntered("t", "9", "G3_town", 44))
+    t.feed(PassivePoints("t", "9", 2, False))
+    assert c.step_flags["0"].get("passive") and not c.step_flags.get("2", {}).get("passive")
