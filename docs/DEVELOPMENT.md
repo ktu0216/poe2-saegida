@@ -168,3 +168,10 @@ CSV 형식(`id,area_name,quest`)은 레임의 PoE Act Guide(`data_editable/poe2/
 .venv\Scripts\pip install pillow
 .venv\Scripts\python.exe tools\screenshots.py
 ```
+
+## 릴리스 빌드
+
+`poe2_overlay/__init__.py` 의 `__version__` 을 올린 뒤 `build_release.bat` (Inno Setup 6 필요):
+
+- `release\poe2-overlay-setup-<버전>.exe` — 설치 파일 (`installer/poe2-overlay.iss`, 사용자별 설치·관리자 권한 불필요)
+- `release\poe2-overlay-<버전>-portable.zip` — 휴대용

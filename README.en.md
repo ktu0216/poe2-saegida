@@ -33,13 +33,16 @@ You don't press anything to advance the guide.
 
 ## Getting started
 
-1. Download one of these from [Releases](../../releases):
-   - `poe2-overlay.exe` — a single file, just run it (starts 1–2 s slower)
-   - `poe2-overlay-*.zip` — a folder; unzip anywhere (starts faster, and the guide/data files in `guides` can be edited)
+1. Download **`poe2-overlay-setup-*.exe`** (installer) from [Releases](../../releases) and run it.
+   - Installs for your account only, no admin rights. Creates a Start menu shortcut, and optionally a desktop icon and "Start with Windows".
+   - To update, run the new installer over the old one. Settings and progress are kept.
+   - Prefer no install? Unzip `poe2-overlay-*-portable.zip` anywhere and run `poe2-overlay.exe`.
+   - If Windows SmartScreen says "unknown publisher", click **More info → Run anyway** (it is an unsigned personal tool).
 2. Set the game to **Windowed Fullscreen** (borderless). The overlay cannot draw over exclusive fullscreen.
-3. Run `poe2-overlay.exe`. The game log is found automatically.
-   If Windows SmartScreen says "unknown publisher", click **More info → Run anyway** (it is an unsigned personal tool).
+3. Start the overlay. The game log is found automatically.
 4. Log in and change area — the character and guide position are picked up on their own.
+
+Uninstall from Windows **Settings → Apps**. Settings and progress (`%APPDATA%\poe2-overlay`) are kept; delete that folder too for a full removal.
 
 On the first run it reads your whole log, so earlier characters' progress and splits come back too (a few seconds).
 

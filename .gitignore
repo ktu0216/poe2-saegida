@@ -10,5 +10,6 @@ dist/
 TODO.md
 
 # 단일 exe 빌드
+release/
 dist_onefile/
 build_onefile/

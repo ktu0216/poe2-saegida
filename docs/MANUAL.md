@@ -21,7 +21,7 @@
 
 ## 1. 설치와 실행
 
-- Windows 10/11. 압축을 푼 폴더째로 두고 `poe2-overlay.exe`를 실행합니다(설치 과정 없음).
+- Windows 10/11. 설치 파일(`poe2-overlay-setup-*.exe`)로 설치하거나, 휴대용 zip을 풀어 폴더째로 두고 `poe2-overlay.exe`를 실행합니다.
 - 게임은 **창 모드 전체 화면**(테두리 없는 창)이어야 오버레이가 게임 위에 보입니다.
 - 로그 파일은 자동으로 찾습니다. 카카오판 `C:\Daum Games\Path of Exile2\logs\KakaoClient.txt`, Steam/GGG판 `…\Path of Exile 2\logs\Client.txt`.
   다른 곳에 설치했다면 우클릭 → **로그 파일 선택…**.

@@ -21,7 +21,7 @@
 
 ## 1. Install and run
 
-- Windows 10/11. Keep the unzipped folder together and run `poe2-overlay.exe` (no installer).
+- Windows 10/11. Install with `poe2-overlay-setup-*.exe`, or unzip the portable zip, keep the folder together and run `poe2-overlay.exe`.
 - Set the game to **Windowed Fullscreen** (borderless) so the overlay can draw on top.
 - The log file is found automatically: Steam/GGG `…\Path of Exile 2\logs\Client.txt`, Kakao `C:\Daum Games\Path of Exile2\logs\KakaoClient.txt`.
   Installed elsewhere? Right-click → **Choose log file…**.
