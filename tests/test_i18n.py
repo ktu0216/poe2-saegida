@@ -37,7 +37,8 @@ def test_english_data_files_load():
     assert Encounters.load(config.data_file("encounters", "en")).get("p1_5").bosses == ("Oswin, the Dread Warden",)
     g = Guide.load(config.resource_dir() / "guides" / "default_en.csv")
     assert len(g) == len(Guide.load(config.resource_dir() / "guides" / "default_ko.csv"))
-    assert len(config.load_zone_tips(config.data_file("zone_tips", "en"))) == 85
+    # 지역 메모는 한/영 같은 지역을 갖고 있어야 한다
+    assert set(config.load_zone_tips(config.data_file("zone_tips", "en"))) == set(config.load_zone_tips(config.data_file("zone_tips", "ko")))
 
 
 def test_rewards_from_korean_log_show_in_english():
