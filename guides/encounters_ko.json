@@ -170,7 +170,8 @@
     "p2_5":    {"bosses": ["타락한 불길 보르나스"], "gate": false, "_note": "로그에 대사 없음"},
     "p2_7":    {"bosses": ["파리둔 왕자 아즈마디"],
                 "markers": [
-                  {"speaker": "파리둔 왕자 아즈마디", "text": "왕위를 거부당한 왕자", "label": "", "kill": true}
+                  {"speaker": "파리둔 왕자 아즈마디", "text": "왕위를 거부당한 왕자", "label": "", "kill": true},
+                  {"speaker": "파리둔 왕자 아즈마디", "text": "내 대관식이어야", "label": "", "kill": true}
                 ]},
     "p3_2":    {"bosses": ["방황하는 창 라이타라"],
                 "markers": [

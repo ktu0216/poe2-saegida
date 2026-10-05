@@ -427,3 +427,13 @@ def test_interlude2_sanctuary_then_galai_and_qimah():
     assert z[i3:i3 + 5] == ["p2_3", "p2_1", "p2_5", "p2_6", "p2_7"]
     assert g.next_position(i3, "P2_1") == i3 + 1   # 성역 → 카리 교차로
     assert g.next_position(i3, "P2_6") == i3 + 3   # 성역 → 웨이포인트로 바로 키마
+
+
+def test_azmadi_second_death_line():
+    # 아즈마디 마지막 대사는 판마다 다르다: '왕위를 거부당한 왕자...' / '오늘은... 내 대관식이어야 했는데...' (2026-10-06)
+    g = Guide(parse_csv("p2_7,키마 저수지,아즈마디 처치\np2_town,카리 장터,마을\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P2_7", 60), LevelUp("t", "1", "me", "머서너리", 56),
+         NpcLine("t", "1", "파리둔 왕자 아즈마디", "지금은 우리의 시간이다!"),
+         NpcLine("t", "1", "파리둔 왕자 아즈마디", "오늘은... 내 대관식이어야 했는데..."))
+    assert t.snapshot().flags["boss"] == "killed"
