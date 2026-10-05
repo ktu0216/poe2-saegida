@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 사용 설명서 / Manual
+    url: https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md
+    about: 설치·단축키·문제 해결은 먼저 설명서를 확인해 주세요 / Setup, hotkeys and troubleshooting (English manual is docs/MANUAL.en.md)

@@ -177,6 +177,7 @@ Deleting `progress.json` makes the next start re-read the whole log (values that
 
 | Problem | Fix |
 |---|---|
+| "Windows protected your PC" when installing | Shown because the tool has no code-signing certificate. **More info → Run anyway**. To check the file, compare the release page's `sha256:` with PowerShell `Get-FileHash` |
 | Overlay not visible over the game | Use Windowed Fullscreen. Check it isn't hidden (`Ctrl+Alt+H`) or auto-hidden (`Ctrl+Alt+A`) |
 | Wrong guide step | Correct it with `Ctrl+Alt+→ / ←`; it keeps following from there |
 | Wrong character / stays `(guess)` | Confirmed on your next level-up etc. Or pick it: Right-click → Character |

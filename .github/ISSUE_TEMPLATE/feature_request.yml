@@ -1,0 +1,25 @@
+name: 기능 제안 / Feature request
+description: 있으면 좋겠는 기능이나 가이드 문구 개선 / A feature you'd like, or better guide text
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        새기다는 **게임 로그 파일만 읽습니다.** 게임 메모리 읽기, 키 입력 자동화, 게임 데이터 전송은 하지 않으며 그런 기능은 받지 않습니다.
+        Saegida **only reads the game's log file.** Memory reading, input automation or sending game data are out of scope.
+  - type: textarea
+    id: idea
+    attributes:
+      label: 어떤 기능인가요? / What would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 언제 필요한가요? / When would it help?
+      description: 캠페인·막간·엔드게임 중 어떤 상황인지 / Campaign, interludes or endgame — which situation?
+  - type: textarea
+    id: extra
+    attributes:
+      label: 참고 자료 / References
+      description: 관련 로그 줄, 스크린샷, 가이드 링크 등 / Log lines, screenshots or guide links

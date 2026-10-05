@@ -59,7 +59,12 @@ https://github.com/user-attachments/assets/2c27bfc5-b0f1-4ccb-b99c-745cacdffff7
    - Installs for your account only, no admin rights. Creates a Start menu shortcut, and optionally a desktop icon and "Start with Windows".
    - To update, run the new installer over the old one. Settings and progress are kept.
    - Prefer no install? Unzip `poe2-saegida-*-portable.zip` anywhere and run `poe2-saegida.exe`.
-   - If Windows SmartScreen says "unknown publisher", click **More info → Run anyway** (it is an unsigned personal tool).
+
+   > [!NOTE]
+   > On first launch Windows may show **"Windows protected your PC"**. It appears because this personal project has no code-signing certificate.
+   > Click **More info → Run anyway**. To check the download, compare the `sha256:` value next to the file on the release page
+   > with PowerShell `Get-FileHash <file>.exe`. All source code is in this repository.
+
 2. Set the game to **Windowed Fullscreen** (borderless). The overlay cannot draw over exclusive fullscreen.
 3. Start the overlay. The game log is found automatically.
 4. Log in and change area — the character and guide position are picked up on their own.
