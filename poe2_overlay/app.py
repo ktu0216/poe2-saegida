@@ -185,6 +185,8 @@ class Controller:
         self.update: Optional[updater.Release] = None
         self._update_result: Optional[tuple] = None  # 백그라운드 작업 결과 (종류, 값, 수동 여부)
         self._update_busy = False
+        self._update_msg = ""  # 수동 확인 결과 (대기 화면에도 보이도록 알림 줄에 잠깐)
+        self._update_msg_until = 0.0
         QTimer.singleShot(8000, self.start_update_check)
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.start_update_check)
@@ -687,6 +689,8 @@ class Controller:
                                                  and self.settings.get("update_check", True))):
             return
         self._update_busy = True
+        if manual:
+            self._set_update_msg(t("업데이트 확인 중…"), 30)
 
         def work():
             try:
@@ -703,8 +707,7 @@ class Controller:
             webbrowser.open(rel.page_url)
             return
         self._update_busy = True
-        self.flash = t("🆕 {v} 내려받는 중…", v=rel.version)
-        self.refresh()
+        self._set_update_msg(t("🆕 {v} 내려받는 중…", v=rel.version), 600)
 
         def work():
             try:
@@ -723,8 +726,10 @@ class Controller:
         if kind == "checked":
             if value is not None and updater.is_newer(value.version):
                 self.update = value
+                if manual:
+                    self._set_update_msg("", 0)  # 🆕 새 버전 줄이 대신 보인다
             elif manual:
-                self.flash = t("최신 버전입니다 ({v})", v=__version__)
+                self._set_update_msg(t("✓ 최신 버전입니다 ({v})", v=__version__), 8)
         elif kind == "downloaded":
             # 설치 파일이 오버레이를 닫고 덮어쓴 뒤 다시 실행한다 (/UPDATE=1)
             self.save()
@@ -733,7 +738,14 @@ class Controller:
             self.app.quit()
             return
         elif kind == "error" and manual:
-            self.flash = t("업데이트 확인 실패: {e}", e=value[:80])
+            self._set_update_msg(t("업데이트 확인 실패: {e}", e=value[:80]), 15)
+        self.refresh()
+
+    def _set_update_msg(self, text: str, seconds: float) -> None:
+        self._update_msg = text
+        self._update_msg_until = time.monotonic() + seconds
+        if text:
+            QTimer.singleShot(int(seconds * 1000) + 100, self.refresh)
         self.refresh()
 
     # ---------------------------------------------------------- 기록 내보내기
@@ -765,6 +777,8 @@ class Controller:
 
     def _notice_text(self) -> str:
         parts = [self.notice] if self.notice else []
+        if self._update_msg and time.monotonic() < self._update_msg_until:
+            parts.append(f'<span style="color:#9a9284">{html.escape(self._update_msg)}</span>')
         if self.update is not None:
             parts.append(f'<span style="color:#8fd18b">{t("🆕 새 버전 {v} — 우클릭 → 업데이트", v=self.update.version)}</span>')
         return "<br>".join(parts)
