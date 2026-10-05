@@ -417,3 +417,13 @@ def test_cuachic_vault_chant_is_soon_not_fight():
     assert t.snapshot().flags["boss"] == "engaged"
     feed(t, NpcLine("t", "1", "피의 사제 졸린", "그만, 항복하겠다!"))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_interlude2_sanctuary_then_galai_and_qimah():
+    # 막간 2: 성역(엘자라) 뒤 갈라이 문 → 키마 (봉인된 문은 자도 소환). 성역에서 바로 키마로 가도 따라간다
+    g = Guide.load(resource_dir() / "guides" / "default_ko.csv")
+    z = [s.zone for s in g.steps]
+    i3 = z.index("p2_3")
+    assert z[i3:i3 + 5] == ["p2_3", "p2_1", "p2_5", "p2_6", "p2_7"]
+    assert g.next_position(i3, "P2_1") == i3 + 1   # 성역 → 카리 교차로
+    assert g.next_position(i3, "P2_6") == i3 + 3   # 성역 → 웨이포인트로 바로 키마

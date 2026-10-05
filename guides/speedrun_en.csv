@@ -106,16 +106,14 @@ p3_6,Etched Ravine,Straight to The Cuachic Vault
 p3_7,The Cuachic Vault,Kill 「Zolin」 and 「Zelina」 (Zolin surrenders) → town
 p3_town,The Glade,Talk to Doryani → on to Interlude 2 (video 3:16:30)
 p2_town,The Khari Bazaar,No need to talk → bottom-right portal to The Khari Crossing
-p2_1,The Khari Crossing,Skullmaw Stairway (5% life) → town
+p2_1,The Khari Crossing,Akthi and Anundr to the right + Skullmaw Stairway on the right wall (5% life) → town
 p2_town,The Khari Bazaar,Reward from Risu → The Khari Crossing
-p2_1,The Khari Crossing,Go to The Galai Gates
-p2_5,The Galai Gates,Can't go further yet → back to The Khari Crossing (Vornas and Qimah come after the sanctuary boss)
-p2_1,The Khari Crossing,Right wall: Skullmaw Stairway → Molten Shrine (5% maximum life) → Pools of Khatal
+p2_1,The Khari Crossing,Pools of Khatal (the Galai Gates come after the sanctuary)
 p2_2,Pools of Khatal,Straight to Sel Khari Sanctuary
-p2_3,Sel Khari Sanctuary,Kill the boss → town
-p2_town,The Khari Bazaar,Talk → The Galai Gates
-p2_5,The Galai Gates,Go to Qimah
-p2_6,Qimah,Pick a Seven Pillars boon → Qimah Reservoir
+p2_3,Sel Khari Sanctuary,Kill 「Elzarah, the Cobra Lord」 (Zado joins you) → The Khari Crossing
+p2_1,The Khari Crossing,Go to The Galai Gates
+p2_5,The Galai Gates,Vornas → Qimah
+p2_6,Qimah,Pick a Seven Pillars boon → summon Zado at the sealed door → Qimah Reservoir
 p2_7,Qimah Reservoir,Kill the boss (all elemental res) → town
 p2_town,The Khari Bazaar,On to Interlude 1 (video 3:31:10)
 p1_town,The Refuge,Talk → Scorched Farmlands
