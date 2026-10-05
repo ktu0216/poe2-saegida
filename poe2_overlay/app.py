@@ -425,11 +425,15 @@ class Controller:
     def _boss_compact(self, snap) -> bool:
         """곧 보스/보스 전투 중이면 패널을 한 줄로. 처리했으면 True."""
         c, f = snap.character, snap.flags
+        here = snap.in_step_zone
+        boss_name = snap.boss
+        if not here and snap.roam_flags:  # 가이드 단계 밖의 보스 지역 (지난 액트 보스 다시 잡기 등)
+            f, here, boss_name = snap.roam_flags, True, snap.roam_boss
         subs = {k: v for k, v in f.get("sub", {}).items() if v == "engaged"}
         boss_state = f.get("boss")
         fighting = bool(subs) or boss_state == "engaged"
         soon = bool(f.get("soon")) and boss_state not in ("engaged", "killed", "died")
-        on = (self.settings.get("boss_compact", True) and c is not None and snap.in_step_zone
+        on = (self.settings.get("boss_compact", True) and c is not None and here
               and (fighting or soon))
         if not on:
             if self.overlay.compact:
@@ -437,7 +441,7 @@ class Controller:
             return False
         if not self.overlay.compact:  # 막 시작됨 → Tab 안내
             self._tab_until = time.monotonic() + 3 if self.settings.get("tab_hint", True) else 0
-        name = html.escape(next(iter(subs)) if subs else (snap.boss or t("보스")))
+        name = html.escape(next(iter(subs)) if subs else (boss_name or t("보스")))
         head = (f'<span style="color:#ff8a65">{t("⚔ {name} 전투 중", name=name)}</span>' if fighting
                 else f'<span style="color:#e8b04a">{t("⚠ 곧 {name}", name=name)}</span>')
         gap = c.area_level - c.level if c.area_level else 0

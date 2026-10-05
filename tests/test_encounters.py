@@ -333,3 +333,18 @@ def test_interlude_kill_line_and_death_taunt():
     feed(t, AreaEntered("t", "1", "P2_7", 56), NpcLine("t", "1", "파리둔 왕자 아즈마디", "나는 군단이다!"),
          NpcLine("t", "1", "파리둔 왕자 아즈마디", "왕위를 거부당한 왕자..."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_boss_outside_guide_step_tracked_for_compact():
+    # 막간 단계 캐릭터가 액트 4 노래하는 암굴에 다시 가서 디아모라와 싸움 → 단계 상태는 그대로, 임시 상태로 전투 표시
+    g = Guide(parse_csv("p3_town,풀숲,대화\np3_1,잿빛 수림,크리아 마을로\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P3_town", 50), LevelUp("t", "1", "me", "머서너리", 52),
+         AreaEntered("t", "1", "G4_3_2", 52),
+         NpcLine("t", "1", "죽음의 노래 디아모라", "내가 사랑하는 이들과 함께하러 왔니? 함께하게 될 거야!"))
+    s = t.snapshot()
+    assert s.step.zone == "p3_town" and not s.in_step_zone
+    assert s.roam_flags.get("boss") == "engaged" and s.roam_boss == "죽음의 노래 디아모라"
+    assert "boss" not in s.flags  # 가이드 단계의 상태는 건드리지 않는다
+    feed(t, AreaEntered("t", "1", "G4_3_1", 52))
+    assert t.snapshot().roam_flags == {}  # 지역을 옮기면 버린다

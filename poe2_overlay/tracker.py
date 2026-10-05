@@ -135,6 +135,8 @@ class Snapshot:
     flags: dict = field(default_factory=dict)  # 현재 단계의 보스/진행 상태
     boss: str = ""  # 현재 단계 지역의 보스 이름
     in_step_zone: bool = False  # 캐릭터가 현재 단계 지역(또는 그 하위 지역)에 있는지
+    roam_flags: dict = field(default_factory=dict)  # 단계 밖 보스 지역(지난 액트 다시 가기 등)의 전투 상태
+    roam_boss: str = ""
 
 
 class Tracker:
@@ -157,6 +159,9 @@ class Tracker:
         self.last_ts: Optional[datetime] = None  # 현재 세션의 마지막 로그 시각
         self.afk = False
         self._dead_here = False  # 이 지역에서 죽음: 지역을 다시 들어올 때까지 보스 대사로 전투를 다시 잡지 않는다
+        # 가이드 단계 밖의 보스 지역 (막간 캐릭터로 액트 4 보스 다시 잡기 등): 지역을 옮기면 버리는 임시 상태
+        self._roam_key: tuple[str, str] = ("", "")
+        self._roam_flags: dict = {}
         self._pending_play = 0.0  # 미확정 동안 쌓인 플레이 시간
         self.new_char_session = False  # 튜토리얼 줄로 '새 캐릭터'가 확정된 세션
         self.relog = False  # 게임을 끄지 않고 캐릭터 선택에 다녀온 세션
@@ -279,14 +284,29 @@ class Tracker:
         return None
 
     def _flags(self, c: Character) -> Optional[dict]:
-        """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때만)."""
+        """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때). 단계 밖 보스 지역이면 임시 상태."""
+        zone = self._step_zone(c)
+        if zone is not None:
+            return c.step_flags.setdefault(str(c.cursor), {})
+        return self._roam(c)
+
+    def _step_zone(self, c: Character) -> Optional[str]:
+        """캐릭터가 현재 단계 지역(또는 하위 지역)에 있으면 그 단계 지역 코드."""
         steps = self.guide.steps
         if not steps or not (0 <= c.cursor < len(steps)):
             return None
         zone = steps[c.cursor].zone
         if zone != c.zone and not self._subzone(zone, c.zone):
             return None
-        return c.step_flags.setdefault(str(c.cursor), {})
+        return zone
+
+    def _roam(self, c: Character) -> Optional[dict]:
+        if not c.zone or not self.encounters.get(c.zone):
+            return None
+        key = (c.name, c.zone)
+        if self._roam_key != key:
+            self._roam_key, self._roam_flags = key, {}
+        return self._roam_flags
 
     def _subzone(self, step_zone: str, zone: str):
         enc = self.encounters.get(step_zone)
@@ -308,7 +328,7 @@ class Tracker:
         f = self._flags(c) if c else None
         if f is None:
             return
-        step_zone = self.guide.steps[c.cursor].zone
+        step_zone = self._step_zone(c) or c.zone
         if sub := self._subzone(step_zone, c.zone):  # 하위 지역 보스 (집정관의 능묘 등)
             if ev.who == sub.boss:
                 f.setdefault("sub", {})[sub.label] = "engaged"
@@ -617,4 +637,6 @@ class Tracker:
             flags=dict(c.step_flags.get(str(i), {})),
             boss=self.encounters.boss_name(step.zone),
             in_step_zone=c.zone == step.zone or bool(self._subzone(step.zone, c.zone)),
+            roam_flags=dict(self._roam_flags) if self._roam_key == (c.name, c.zone) else {},
+            roam_boss=self.encounters.boss_name(c.zone) if self._roam_key == (c.name, c.zone) else "",
         )
