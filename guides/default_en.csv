@@ -101,10 +101,8 @@ p3_town,The Glade,Give the Ice Fang to Hilda → use the Book of Specialisation 
 p3_3,Glacial Tarn,Kill 「Rakkar, the Frozen Talon」 (opens the way to the peaks) → Kriar Peaks
 p3_5,Kriar Peaks,Go to Etched Ravine
 p3_6,Etched Ravine,Go to The Cuachic Vault
-p3_7,The Cuachic Vault,Kill the boss → town
-p3_town,The Glade,Talk → The Cuachic Vault
-p3_7,The Cuachic Vault,Finish → town
-p3_town,The Glade,Next interlude
+p3_7,The Cuachic Vault,Kill 「Zolin」 and 「Zelina」 (Zolin surrenders) → town
+p3_town,The Glade,Talk to Doryani → next interlude
 p2_town,The Khari Bazaar,Talk → The Khari Crossing
 p2_1,The Khari Crossing,Progress → town
 p2_town,The Khari Bazaar,Reward from Risu → The Khari Crossing
