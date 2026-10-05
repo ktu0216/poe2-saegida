@@ -98,7 +98,7 @@ p3_2,Kriar Village,Go to Glacial Tarn
 p3_3,Glacial Tarn,Enter Howling Caves
 p3_4,Howling Caves,Kill 「The Abominable Yeti」 → Ice Fang → town
 p3_town,The Glade,Give the Ice Fang to Hilda → use the Book of Specialisation (+2 passives) → Glacial Tarn
-p3_3,Glacial Tarn,Go to Kriar Peaks
+p3_3,Glacial Tarn,Kill 「Rakkar, the Frozen Talon」 (opens the way to the peaks) → Kriar Peaks
 p3_5,Kriar Peaks,Go to Etched Ravine
 p3_6,Etched Ravine,Go to The Cuachic Vault
 p3_7,The Cuachic Vault,Kill the boss → town
