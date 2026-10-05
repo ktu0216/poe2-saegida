@@ -379,3 +379,17 @@ def test_english_red_vale_obelisk_marker():
     assert f.get("marker") == "Obelisk 3/3" and f.get("soon") and "boss" not in f
     feed(t, parse_line("2026/10/05 19:24:43 1 a [INFO Client 1] The Rust King: Usurper!"))
     assert t.snapshot().flags["boss"] == "engaged"
+
+
+def test_english_diamora_off_guide_engage_and_kill():
+    # 영어 로그의 화자 이름은 "Diamora, the Song of Death" (the 포함), 마지막 대사 = 처치
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv("p3_town,The Glade,talk\np3_1,Ashen Forest,next\n"), "t")
+    t = Tracker(g, encounters=enc)
+    p = "2026/10/05 19:38:16 1 a [INFO Client 1] "
+    feed(t, AreaEntered("t", "1", "P3_town", 50), LevelUp("t", "1", "me", "Mercenary", 52),
+         AreaEntered("t", "1", "G4_3_2", 52),
+         parse_line(p + "Diamora, the Song of Death: Have you come to join my beloved? You will join them!"))
+    assert t.snapshot().roam_flags.get("boss") == "engaged"
+    feed(t, parse_line(p + "Diamora, the Song of Death: We could have been... so much more."))
+    assert t.snapshot().roam_flags.get("boss") == "killed"

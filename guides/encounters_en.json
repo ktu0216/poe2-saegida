@@ -36,7 +36,10 @@
     "g3_17":   {"bosses": ["Doryani, Royal Thaumaturge"], "gate": false},
     "g4_2_2":  {"bosses": ["Captain Hartlin"], "gate": false},
     "g4_3_1":  {"label": "Great White One", "gate": false},
-    "g4_3_2":  {"bosses": ["Diamora, Song of Death"], "gate": false},
+    "g4_3_2":  {"bosses": ["Diamora, the Song of Death"], "gate": false,
+                "markers": [
+                  {"speaker": "Diamora, the Song of Death", "text": "We could have been", "label": "", "kill": true}
+                ]},
     "g4_5_2":  {"bosses": ["The Prisoner"], "gate": false},
     "g4_1_2":  {"bosses": ["Krutog, Lord of Kin"], "gate": false},
     "g4_7":    {"label": "Scourge of the Skies", "gate": false},
