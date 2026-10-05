@@ -23,7 +23,11 @@ You don't press anything to advance the guide.
 
 ![Intro: automatic progress and one-line boss mode](docs/images/intro_en.gif)
 
-▶ [30-second intro video (MP4)](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-en.mp4) — auto progress · boss fights · vendor regex · splits · completion card
+**30-second intro video** — auto progress · boss fights · vendor regex · splits · completion card
+
+https://github.com/user-attachments/assets/2c27bfc5-b0f1-4ccb-b99c-745cacdffff7
+
+[Download in 1080p](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-en.mp4)
 
 ## What it does
 

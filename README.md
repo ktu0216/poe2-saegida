@@ -23,7 +23,11 @@ Path of Exile 2 캠페인을 진행할 때 **지금 해야 할 일**을 게임 �
 
 ![소개: 자동 진행과 보스전 한 줄 모드](docs/images/intro_ko.gif)
 
-▶ [30초 소개 영상 (MP4)](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-ko.mp4) — 자동 진행 · 보스전 · 상점 정규식 · 기록 · 완주 카드
+**30초 소개 영상** — 자동 진행 · 보스전 · 상점 정규식 · 기록 · 완주 카드
+
+https://github.com/user-attachments/assets/602c86dd-506f-4dc7-924c-94535b4e995c
+
+[고화질(1080p)로 받기](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-ko.mp4)
 
 ## 이런 걸 해 줍니다
 
