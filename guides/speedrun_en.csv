@@ -1,42 +1,42 @@
-# poe2-saegida speedrun guide, English (shortest route that still takes every permanent reward)
+# poe2-saegida speedrun guide, English (main quests + permanent rewards on the way)
 # Same format as the default guide: id,area_name,quest — skipped steps are passed automatically when you enter a later area
-# Rule: take passive points, spirit, resistances and permanent stats; skip side content that only gives gems or currency (Mud Burrow, Mysterious Campsite, Singing Caverns, ...)
-# Reference route: GuyThatDies "Mercenary Twisters: Level 1 to Maps in 3:46" (patch 0.5, https://www.youtube.com/watch?v=C31A2pLbefk)
+# Rule: take passive points, spirit and resistances; skip side content that only gives gems or currency (Mud Burrow, Mysterious Campsite, Lightless Passage, Molten Vault, the Whakapanu shark)
+# Reference route: GuyThatDies "Mercenary Twisters: Level 1 to Maps in 3:46" (patch 0.5, https://www.youtube.com/watch?v=C31A2pLbefk), summarised from the commentary
 #   Video cumulative times (minus the 2 min mule): Act 1 35:00 · Act 2 1:25:20 · Act 3 2:07:50 · Act 4 3:01:55 · Interlude 3 3:16:30 · Interlude 2 3:31:10 · Interlude 1 3:44
-#   Interlude order follows the video: 3 → 2 → 1
+#   General: run past most monsters, use "respawn at checkpoint" to go back and to skip dialogue, no ascending during the campaign
 id,area_name,quest
 g1_1,The Riverbank,Kill 「The Bloated Miller」 → Clearfell Encampment (skip Mud Burrow and the Mysterious Campsite)
 g1_town,Clearfell Encampment,Talk to Renly → Clearfell
 g1_2,Clearfell,Kill 「Beira of the Rotten Pack」 (cold res) → The Grelwood
-g1_4,The Grelwood,Waypoint → straight to The Red Vale
-g1_5,The Red Vale,3 obelisks → kill 「The Rust King」 → waypoint to town
+g1_4,The Grelwood,Run past monsters → The Red Vale
+g1_5,The Red Vale,3 obelisks → refill flasks via checkpoint → 「The Rust King」 → town
 g1_town,Clearfell Encampment,Collect the reward → The Grelwood
 g1_4,The Grelwood,Unseal the great tree → town
 g1_town,Clearfell Encampment,Talk to Una → The Grim Tangle
 g1_6,The Grim Tangle,Straight to Cemetery of the Eternals
-g1_7,Cemetery of the Eternals,Consort and Praetor → kill 「Lachlann」 → Hunting Grounds
-g1_11,Hunting Grounds,Kill 「The Crowbell」 → use the Book of Specialisation → Freythorn
-g1_12,Freythorn,3 rituals → kill 「The King in the Mists」 (spirit) → town
+g1_7,Cemetery of the Eternals,Consort and Praetor → 「Lachlann」 (open the gate, respawn at checkpoint to skip his dialogue) → Hunting Grounds
+g1_11,Hunting Grounds,Grab the Ogham Farmlands checkpoint first → 「The Crowbell」 → Book of Specialisation → Freythorn
+g1_12,Freythorn,3 rituals (the boss one last) → 「The King in the Mists」 (spirit) → town
 g1_town,Clearfell Encampment,Talk → Ogham Farmlands
 g1_13_1,Ogham Farmlands,Only find Una's Lute → Ogham Village
-g1_13_2,Ogham Village,Kill 「The Executioner」 → town
+g1_13_2,Ogham Village,「The Executioner」 (easier on the platform up the stairs) → town
 g1_town,Clearfell Encampment,Rewards from Una and Renly → The Manor Ramparts
 g1_14,The Manor Ramparts,Straight to Ogham Manor
-g1_15,Ogham Manor,1st floor 「Candlemass」 (life) → 3rd floor: kill 「Count Geonor」 → town
+g1_15,Ogham Manor,「Candlemass」 (life) → 3rd floor 「Count Geonor」 at level 13-14 (keep him in the middle to skip a phase) → town
 g1_town,Clearfell Encampment,Talk to the Hooded One → Act 2 (video 35:00)
 g2_1,Vastiri Outskirts,Kill 「Rathbreaker」 → caravan
 g2_town,The Ardura Caravan,Talk → Mawdun Quarry
 g2_10_1,Mawdun Quarry,Straight to Mawdun Mine
-g2_10_2,Mawdun Mine,Kill 「Rudja」 → town
+g2_10_2,Mawdun Mine,Kill 「Rudja」 → town (check for level 16 gear)
 g2_town,The Ardura Caravan,Talk → Traitor's Passage
-g2_2,Traitor's Passage,Kill 「Balbala」 → The Halani Gates
+g2_2,Traitor's Passage,Don't wait at bridges: respawn at the checkpoint before them (Asala teleports to you) → 「Balbala」 → The Halani Gates
 g2_3,The Halani Gates,Kill 「Jamanra」 → town
 g2_town,The Ardura Caravan,Talk → Mastodon Badlands
-g2_5_1,Mastodon Badlands,Straight to The Bone Pits
+g2_5_1,Mastodon Badlands,The relic drops from hyenas (get it before the boss) → The Bone Pits
 g2_5_2,The Bone Pits,Kill 「Ekbab」 → town
 g2_town,The Ardura Caravan,Talk → Keth
-g2_4_1,Keth,Kill 「Kabala」 → The Lost City
-g2_4_2,The Lost City,Straight to Buried Shrines
+g2_4_1,Keth,The relic drops from snakes · the boss is usually straight ahead from the entrance → 「Kabala」 → The Lost City
+g2_4_2,The Lost City,Run straight to the wall then one way (turn back at a dead end) → Buried Shrines
 g2_4_3,Buried Shrines,Kill 「Azarian」 → Essence of Water → town
 g2_town,The Ardura Caravan,Talk → Valley of the Titans
 g2_6,Valley of the Titans,Straight to The Titan Grotto
@@ -46,26 +46,26 @@ g2_8,Deshar,Straight to Path of Mourning
 g2_9_1,Path of Mourning,Enter The Spires of Deshar
 g2_9_2,The Spires of Deshar,Kill 「Tor Gul」 (lightning res) → town
 g2_town,The Ardura Caravan,Final Letter reward from Shambrin → Dreadnought
-g2_12,Dreadnought,Kill 「Jamanra」 → Act 3
+g2_12,Dreadnought,Kill 「Jamanra」 (about level 28.5) → Act 3
 g2_town,The Ardura Caravan,Go to Act 3 (video 1:25:20)
-g3_1,Sandswept Marsh,Straight to Ziggurat Encampment
+g3_1,Sandswept Marsh,Skip the side content → Ziggurat Encampment
 g3_town,Ziggurat Encampment,Talk → Jungle Ruins
 g3_3,Jungle Ruins,Kill Mighty Silverfist (Book of Specialisation) → The Venom Crypts
-g3_4,The Venom Crypts,Only grab the 「Venom Draught」 → Jungle Ruins
+g3_4,The Venom Crypts,Grab the 「Venom Draught」 → Jungle Ruins
 g3_3,Jungle Ruins,Head to Infested Barrens
 g3_2_1,Infested Barrens,Straight to Chimeral Wetlands
-g3_5,Chimeral Wetlands,Kill 「Xyclucian」 → town
+g3_5,Chimeral Wetlands,Reach level 31 → 「Xyclucian」 → town
 g3_town,Ziggurat Encampment,Pick a reward → Chimeral Wetlands
 g3_5,Chimeral Wetlands,Go to Jiquani's Machinarium
-g3_6_1,Jiquani's Machinarium,Take the fire res → Jiquani's Sanctum
-g3_6_2,Jiquani's Sanctum,Kill 「Zicoatl」 → Jungle Ruins
+g3_6_1,Jiquani's Machinarium,Follow the main path (leap over blockages) for the quest items · fire res → Jiquani's Sanctum
+g3_6_2,Jiquani's Sanctum,After the second soul core respawn at checkpoint (boss summons at once) → 「Zicoatl」 → Jungle Ruins
 g3_3,Jungle Ruins,Go to The Matlan Waterways
 g3_2_2,The Matlan Waterways,Go to The Azak Bog
-g3_7,The Azak Bog,Azak ritual (spirit) → The Matlan Waterways
+g3_7,The Azak Bog,Head top left · Azak ritual (spirit) → The Matlan Waterways
 g3_2_2,The Matlan Waterways,Open the waterways → town
 g3_town,Ziggurat Encampment,Talk → The Drowned City
-g3_8,The Drowned City,Straight to Apex of Filth
-g3_11,Apex of Filth,Kill the boss → town
+g3_8,The Drowned City,Skip the Molten Vault → Apex of Filth
+g3_11,Apex of Filth,Wait while the boss circles the arena → kill → town
 g3_town,Ziggurat Encampment,Talk to Alva → use the idol on the temple door below camp → Temple of Kopec
 g3_12,Temple of Kopec,Kill 「Ketzuli」 → town
 g3_town,Ziggurat Encampment,Talk → Utzaal
@@ -74,25 +74,27 @@ g3_16,Aggorat,Use the Sacrificial Heart right away → The Black Chambers
 g3_17,The Black Chambers,Kill 「Doryani」 → town
 g3_town,Ziggurat Encampment,Talk → Act 4 (video 2:07:50)
 g4_town,Kingsmarch,Talk → Kedge Bay
-g4_2_1,Kedge Bay,Straight to Journey's End
-g4_2_2,Journey's End,Kill Hartlin → talk to Freya → kill Omniphobia → talk to Tujen in town
-g4_town,Kingsmarch,Talk → Journey's End
-g4_2_2,Journey's End,Sail → Whakapanu Island (optional) or Isle of Kin
-g4_3_1,Whakapanu Island,(Optional) only the Great White Shark fin → Kaimana's 30% defences. Skip Singing Caverns → Isle of Kin
-g4_5_1,Abandoned Prison,(Optional) Solitary Confinement boss = 30% flask recovery choice. Skip it → Isle of Kin
+g4_2_1,Kedge Bay,Follow the ocean to the exit → Journey's End
+g4_2_2,Journey's End,Hartlin (high cold res) → talk to Freya → Omniphobia → talk to Tujen in town
+g4_town,Kingsmarch,Dannig's quest item and the Verisium Spikes → Journey's End
+g4_2_2,Journey's End,Sail → Whakapanu Island
+g4_3_1,Whakapanu Island,Skip the shark → Singing Caverns
+g4_3_2,Singing Caverns,「Diamora」: max rage and kill her while frozen (she escapes otherwise) · +10 res amulet → talk to Matiki → Abandoned Prison
+g4_5_1,Abandoned Prison,The chapel key drops from necromancers · beware the skeleton cages → Solitary Confinement
+g4_5_2,Solitary Confinement,Kill the boss (flask recovery choice) → Isle of Kin
 g4_1_1,Isle of Kin,Enter Volcanic Warrens
 g4_1_2,Volcanic Warrens,Kill the boss → Shrike Island
 g4_7,Shrike Island,Kill the boss → Eye of Hinekora
-g4_4_1,Eye of Hinekora,Take the max mana → Halls of the Dead
-g4_4_2,Halls of the Dead,Pick tattoos (passives) → Trial of the Ancestors
-g4_4_3,Trial of the Ancestors,Finish the trial → Arastas
+g4_4_1,Eye of Hinekora,Take the max mana, respawn at checkpoint to get back → Halls of the Dead
+g4_4_2,Halls of the Dead,Collect the tattoos and hand them in at once → Trial of the Ancestors
+g4_4_3,Trial of the Ancestors,Finish the trial → in town: Tujen's points · the Hooded One → Arastas
 g4_8b,Arastas,Straight to The Excavation
-g4_10,The Excavation,Kill the boss → town
+g4_10,The Excavation,In the arena respawn at checkpoint once the talking starts → shrine first → boss → when "speak to the Hooded One" shows respawn at checkpoint → town
 g4_town,Kingsmarch,Talk → Ngakanu
 g4_11_1b,Ngakanu,Enter Heart of the Tribe
-g4_11_2,Heart of the Tribe,Kill the final boss → town
+g4_11_2,Heart of the Tribe,「Tavakai」 (stand on top of him for his three-swing attack) → town
 g4_town,Kingsmarch,Interlude 3 first (video 3:01:55)
-p3_town,The Glade,Talk → Ashen Forest
+p3_town,The Glade,Talk → Ashen Forest (in the interludes stay ~6 levels under the zone and run past monsters)
 p3_1,Ashen Forest,Straight to Kriar Village
 p3_2,Kriar Village,Lythara (spirit +40) → Glacial Tarn
 p3_3,Glacial Tarn,Enter Howling Caves
@@ -123,9 +125,9 @@ p1_2,Stones of Serle,Progress → Scorched Farmlands
 p1_1,Scorched Farmlands,Go to The Blackwood
 p1_3,The Blackwood,Straight to Holten
 p1_4,Holten,Go to Wolvenhold
-p1_5,Wolvenhold,Kill the boss → Holten
+p1_5,Wolvenhold,Kill the boss → Holten (skip the unique monster)
 p1_4,Holten,Go to Holten Estate
 p1_6,Holten Estate,Kill the boss → town
 p1_town,The Refuge,Return to Kingsmarch
-g4_town,Kingsmarch,Go to the endgame
+g4_town,Kingsmarch,Passive points from the Hooded One → go to the endgame
 g_endgame_town,The Ziggurat Refuge,Campaign complete! (video 3:44)

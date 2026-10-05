@@ -63,7 +63,7 @@ Hover the panel for the top-right icons: `◀ ▶` step, `🏆` rewards & splits
 
 Pick one under Right-click → **Guide**.
 - **Standard (all rewards)**: `guides/default_en.csv` / `default_ko.csv` (matching the screen language)
-- **Speedrun**: `guides/speedrun_en.csv` / `speedrun_ko.csv`. Takes only permanent rewards (passive points, spirit, resistances) and skips side content that only gives gems or currency. Optional steps are marked `(Optional)`; skip them and the guide catches up when you enter the next area. Interludes go 3 → 2 → 1, and each act end shows the cumulative time of the reference run (GuyThatDies, 3:46 on patch 0.5).
+- **Speedrun**: `guides/speedrun_en.csv` / `speedrun_ko.csv`. Main quests plus the permanent rewards on the way (passive points, spirit, resistances); side content that only gives gems or currency (Molten Vault, the Whakapanu shark, ...) is skipped. Tips from the reference run (GuyThatDies, 3:46 on patch 0.5) are in the steps (respawn at checkpoint to skip dialogue, which monsters drop the relics, ...), and each act end shows its cumulative time. Interludes go 3 → 2 → 1. Detours outside the guide are fine; it catches up when you enter the next area.
 - **Choose guide CSV…**: your own file
 
 Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Edits are picked up automatically. Wrap a word in 「 」 to highlight it.
