@@ -192,8 +192,8 @@
     },
     {
       "act": "막간 3",
-      "zone": "p3_4",
-      "match": "",
+      "zone": "p3_town",
+      "match": "힐다",
       "label": "흉물스러운 설인 → 얼음 엄니 → 마을 힐다",
       "observed": true
     }

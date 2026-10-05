@@ -393,3 +393,12 @@ def test_english_diamora_off_guide_engage_and_kill():
     assert t.snapshot().roam_flags.get("boss") == "engaged"
     feed(t, parse_line(p + "Diamora, the Song of Death: We could have been... so much more."))
     assert t.snapshot().roam_flags.get("boss") == "killed"
+
+
+def test_yeti_then_hilda_in_town_advances():
+    # 설인 처치 뒤 포탈로 마을 → 힐다(특화의 서) 단계로 넘어가고, 빙하 호수로 가면 다음 단계
+    g = Guide.load(resource_dir() / "guides" / "default_ko.csv")
+    i = next(s.index for s in g.steps if s.zone == "p3_4")
+    assert g.steps[i + 1].zone == "p3_town" and "힐다" in g.steps[i + 1].text
+    assert g.next_position(i, "P3_Town") == i + 1
+    assert g.next_position(i + 1, "P3_3") == i + 2

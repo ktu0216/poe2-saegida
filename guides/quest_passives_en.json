@@ -12,6 +12,6 @@
     {"act": "액트 4", "zone": "g4_4_3", "match": "", "label": "Navali (Hinekora's Tattoo)"},
     {"act": "막간 1", "zone": "p1_5", "match": "", "label": "Oswin, the Dread Warden"},
     {"act": "막간 2", "zone": "p2_town", "match": "Risu", "label": "Akthi and Anundr → Risu in town"},
-    {"act": "막간 3", "zone": "p3_4", "match": "", "label": "Abominable Yeti → Ice Fang → Hilda in town"}
+    {"act": "막간 3", "zone": "p3_town", "match": "Hilda", "label": "Abominable Yeti → Ice Fang → Hilda in town"}
   ]
 }

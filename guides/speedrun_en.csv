@@ -98,7 +98,8 @@ p3_town,The Glade,Talk → Ashen Forest (in the interludes stay ~6 levels under 
 p3_1,Ashen Forest,Straight to Kriar Village
 p3_2,Kriar Village,Lythara (spirit +40) → Glacial Tarn
 p3_3,Glacial Tarn,Enter Howling Caves
-p3_4,Howling Caves,Kill the boss → Glacial Tarn
+p3_4,Howling Caves,Kill 「The Abominable Yeti」 → Ice Fang → town
+p3_town,The Glade,Give the Ice Fang to Hilda → use the Book of Specialisation (+2 passives) → Glacial Tarn
 p3_3,Glacial Tarn,Go to Kriar Peaks
 p3_5,Kriar Peaks,Straight to Etched Ravine
 p3_6,Etched Ravine,Straight to The Cuachic Vault
