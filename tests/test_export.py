@@ -24,3 +24,10 @@ def test_update_version_compare_and_release_parsing():
         {"name": "poe2-saegida-setup-0.2.0.exe", "browser_download_url": "s", "size": 9, "digest": "sha256:ab"}]})
     assert (rel.version, rel.setup_url, rel.setup_size, rel.sha256) == ("0.2.0", "s", 9, "ab")
     assert updater.parse_release({"tag_name": "v9", "prerelease": True}) is None
+
+
+def test_league_for_mode_strips_wrong_hc():
+    from poe2_overlay.tracker import league_for_mode
+    assert league_for_mode("HC Forbidden Rites", "소프트코어") == "Forbidden Rites"
+    assert league_for_mode("HC Forbidden Rites", "하드코어") == "HC Forbidden Rites"
+    assert league_for_mode("HC Forbidden Rites", "") == "HC Forbidden Rites"  # 모드를 모르면 그대로

@@ -58,6 +58,13 @@ def ascension_stage(nodes: list[str]) -> int:
 
 
 HC_DEATH = {"하드코어": "소프트코어", "HC SSF": "SSF"}
+
+
+def league_for_mode(league: str, mode: str) -> str:
+    """일반 모드 캐릭터에 하드코어 리그가 찍혀 있으면 앞의 HC 를 뗀다 (예전 버전이 캐릭터 선택 화면의 리그를 잘못 옮겨 적은 값)."""
+    if mode in ("소프트코어", "SSF") and league.startswith("HC "):
+        return league[3:]
+    return league
 FIRST_ZONE = "g1_1"
 MAX_GAP = 30 * 60  # 이보다 긴 로그 공백은 플레이 시간에서 뺀다
 
@@ -166,6 +173,7 @@ class Tracker:
         self.new_char_session = False  # 튜토리얼 줄로 '새 캐릭터'가 확정된 세션
         self.relog = False  # 게임을 끄지 않고 캐릭터 선택에 다녀온 세션
         for c in self.chars.values():
+            c.league = league_for_mode(c.league, c.mode)
             self._repair_cursor(c)
 
     # ---------------------------------------------------------------- 이벤트

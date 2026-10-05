@@ -11,6 +11,7 @@ from xml.sax.saxutils import escape
 
 from .i18n import act as tact, cls as tcls, t
 from .timing import CAMPAIGN, ENDGAME, TimerView, fmt, fmt_delta
+from .tracker import league_for_mode
 
 
 def out_dir() -> Path:
@@ -108,15 +109,17 @@ def card_html(c, tv: TimerView, league: str = "") -> str:
     when = (c.last_seen or datetime.now().strftime("%Y/%m/%d"))[:10]
     who = html.escape(c.name)
     sub = " · ".join(x for x in (html.escape(tcls(c.cls)), f"Lv {c.level}",
-                                 html.escape(league or c.league), html.escape(t(c.mode)) if c.mode else "") if x)
+                                 html.escape(league_for_mode(league or c.league, c.mode)), html.escape(t(c.mode)) if c.mode else "") if x)
     rows = []
     for act, dur, done, apb in tv.rows:
         if act == CAMPAIGN or act == ENDGAME:
             continue
-        diff = (f' <span style="color:{"#8fd18b" if dur - apb <= 0 else "#ff8a65"}">{fmt_delta(dur - apb)}</span>'
+        diff = (f'<span style="color:{"#8fd18b" if dur - apb <= 0 else "#ff8a65"}">{fmt_delta(dur - apb)}</span>'
                 if apb else "")
+        # 시간·PB 차이를 따로 칸으로: 차이가 없는 줄(첫 기록)도 시간이 같은 자리에 오게
         rows.append(f'<tr><td style="color:#c8bfae;padding-right:18px">{html.escape(tact(act))}</td>'
-                    f'<td align="right" style="color:#ece6da"><b>{fmt(dur)}</b>{diff}</td></tr>')
+                    f'<td align="right" style="color:#ece6da"><b>{fmt(dur)}</b></td>'
+                    f'<td style="padding-left:10px">{diff}</td></tr>')
     pb_line = (f'<span style="color:{"#8fd18b" if total - pb <= 0 else "#ff8a65"}">PB {fmt_delta(total - pb)}</span> · '
                if pb else "")
     return (f'<div style="color:#e8b04a;font-size:13px;letter-spacing:2px">POE2 SAEGIDA · {html.escape(t("캠페인 완주"))}</div>'

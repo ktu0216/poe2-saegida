@@ -331,9 +331,9 @@ class Controller:
         league = config.read_league(cfg)
         if league == self.tracker.league:
             return True
+        # 캐릭터에는 지역에 들어갈 때 적용한다. 여기서 바로 넣으면 캐릭터 선택 화면에서 다른 리그를 고를 때
+        # 방금까지 하던 캐릭터에 그 리그가 찍힌다 (일반 캐릭터에 HC 리그)
         self.tracker.league = league
-        if league and (c := self.tracker._active()):
-            c.league = league
         self.dirty = True
         return True
 
