@@ -346,5 +346,7 @@ def test_boss_outside_guide_step_tracked_for_compact():
     assert s.step.zone == "p3_town" and not s.in_step_zone
     assert s.roam_flags.get("boss") == "engaged" and s.roam_boss == "죽음의 노래 디아모라"
     assert "boss" not in s.flags  # 가이드 단계의 상태는 건드리지 않는다
+    feed(t, NpcLine("t", "1", "죽음의 노래 디아모라", "이렇게 끝날 우리가... 아니었는데."))
+    assert t.snapshot().roam_flags.get("boss") == "killed"  # 디아모라의 마지막 대사 = 처치 (마티키 대사는 다시 잡을 때 안 나옴)
     feed(t, AreaEntered("t", "1", "G4_3_1", 52))
     assert t.snapshot().roam_flags == {}  # 지역을 옮기면 버린다

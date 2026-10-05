@@ -101,7 +101,8 @@
     "g4_3_2":  {"bosses": ["죽음의 노래 디아모라"],
                 "markers": [
                   {"speaker": "마티키", "text": "유혹하는 마귀", "label": "", "soon": true},
-                  {"speaker": "마티키", "text": "수고했네", "label": "", "kill": true}
+                  {"speaker": "마티키", "text": "수고했네", "label": "", "kill": true},
+                  {"speaker": "죽음의 노래 디아모라", "text": "이렇게 끝날 우리가", "label": "", "kill": true}
                 ]},
     "g4_5_2":  {"bosses": ["포로"],
                 "markers": [
