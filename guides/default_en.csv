@@ -102,7 +102,7 @@ p3_3,Glacial Tarn,Kill 「Rakkar, the Frozen Talon」 (opens the way to the peak
 p3_5,Kriar Peaks,Go to Etched Ravine
 p3_6,Etched Ravine,Go to The Cuachic Vault
 p3_7,The Cuachic Vault,Kill 「Zolin」 and 「Zelina」 (Zolin surrenders) → town
-p3_town,The Glade,Talk to Doryani → next interlude
+p3_town,The Glade,Talk to Doryani → Interlude 2 (The Khari Bazaar)
 p2_town,The Khari Bazaar,Talk → The Khari Crossing
 p2_1,The Khari Crossing,Progress → town
 p2_town,The Khari Bazaar,Reward from Risu → The Khari Crossing
@@ -115,7 +115,7 @@ p2_town,The Khari Bazaar,Talk → The Galai Gates
 p2_5,The Galai Gates,Go to Qimah
 p2_6,Qimah,Go to Qimah Reservoir
 p2_7,Qimah Reservoir,Kill the boss (all elemental res) → town
-p2_town,The Khari Bazaar,Next interlude
+p2_town,The Khari Bazaar,On to Interlude 1 (The Refuge)
 p1_town,The Refuge,Talk → Scorched Farmlands
 p1_1,Scorched Farmlands,Go to Stones of Serle
 p1_2,Stones of Serle,Progress → Scorched Farmlands
