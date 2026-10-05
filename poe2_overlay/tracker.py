@@ -114,6 +114,7 @@ class Character:
     eg_bosses: dict[str, dict] = field(default_factory=dict)
     eg_cur: str = ""
     eg_since: str = ""
+    campaign_done: str = ""  # 캠페인을 끝낸(엔드게임에 처음 들어간) 로그 시각
 
     @property
     def ascension(self) -> int:
@@ -416,6 +417,8 @@ class Tracker:
         # 구간은 그 액트의 사냥터에 처음 들어갈 때 시작 (막간 마을은 서로 오갈 수 있어 들르기만 해도 시작되면 안 된다)
         if act and act not in c.splits and not is_town(code):
             c.splits[act] = c.play_seconds
+            if act == "엔드게임" and not c.campaign_done:
+                c.campaign_done = ts
         if self.league:
             c.league = self.league
         if code.lower().startswith("map") and self.guide.steps:

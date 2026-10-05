@@ -38,6 +38,13 @@ def open_out_dir() -> Path:
     return d
 
 
+def finished_on(c) -> str:
+    """캠페인을 끝낸 날짜 (YYYY/MM/DD): 기록된 완주 시각 → 첫 엔드게임 지도 → 마지막 플레이 날짜."""
+    starts = [m.get("start", "") for m in getattr(c, "eg_maps", []) if m.get("start")]
+    ts = getattr(c, "campaign_done", "") or (min(starts) if starts else "") or c.last_seen
+    return (ts or datetime.now().strftime("%Y/%m/%d"))[:10]
+
+
 def safe_name(text: str) -> str:
     return re.sub(r'[\\/:*?"<>|]+', "_", text).strip() or "character"
 
@@ -106,7 +113,7 @@ def card_html(c, tv: TimerView, league: str = "") -> str:
     camp = next((r for r in tv.rows if r[0] == CAMPAIGN), None)
     total = camp[1] if camp else sum(r[1] for r in tv.rows if r[0] != CAMPAIGN)
     pb = camp[3] if camp else None
-    when = (c.last_seen or datetime.now().strftime("%Y/%m/%d"))[:10]
+    when = finished_on(c)
     who = html.escape(c.name)
     sub = " · ".join(x for x in (html.escape(tcls(c.cls)), f"Lv {c.level}",
                                  html.escape(league_for_mode(league or c.league, c.mode)), html.escape(t(c.mode)) if c.mode else "") if x)
@@ -164,7 +171,7 @@ def render_card(c, tv: TimerView, league: str = ""):
 def save_card(c, tv: TimerView, league: str = "") -> Path:
     d = out_dir()
     d.mkdir(parents=True, exist_ok=True)
-    stamp = (c.last_seen or "")[:10].replace("/", "-") or datetime.now().strftime("%Y-%m-%d")
+    stamp = finished_on(c).replace("/", "-")
     p = d / f"{safe_name(c.name)}_{stamp}.png"
     render_card(c, tv, league).save(str(p))
     return p

@@ -31,3 +31,26 @@ def test_league_for_mode_strips_wrong_hc():
     assert league_for_mode("HC Forbidden Rites", "소프트코어") == "Forbidden Rites"
     assert league_for_mode("HC Forbidden Rites", "하드코어") == "HC Forbidden Rites"
     assert league_for_mode("HC Forbidden Rites", "") == "HC Forbidden Rites"  # 모드를 모르면 그대로
+
+
+def test_card_date_is_campaign_finish_not_last_played():
+    from poe2_overlay.export import finished_on
+    from poe2_overlay.tracker import Character
+    c = Character("me", last_seen="2026/10/05 19:30:02",
+                  eg_maps=[{"start": "2026/09/07 10:00:00"}, {"start": "2026/09/06 20:32:22"}])
+    assert finished_on(c) == "2026/09/06"  # 첫 엔드게임 지도
+    c.campaign_done = "2026/09/06 20:30:00"
+    assert finished_on(c) == "2026/09/06"
+    assert finished_on(Character("x", last_seen="2026/10/01 01:00:00")) == "2026/10/01"  # 기록이 없으면 마지막 플레이
+
+
+def test_tracker_records_campaign_done_time():
+    from poe2_overlay.guide import Guide, parse_csv
+    from poe2_overlay.logparse import AreaEntered, LevelUp
+    from poe2_overlay.tracker import Tracker
+    t = Tracker(Guide(parse_csv("p1_6,홀튼 영지,보스\ng_endgame_town,지구라트 피난처,끝\n"), "t"))
+    for e in (AreaEntered("2026/09/06 20:00:00", "1", "P1_6", 60), LevelUp("2026/09/06 20:00:01", "1", "me", "머서너리", 60),
+              AreaEntered("2026/09/06 20:32:22", "1", "MapFortress", 65),
+              AreaEntered("2026/10/05 19:30:02", "1", "MapOasis", 66)):
+        t.feed(e)
+    assert t.chars["me"].campaign_done == "2026/09/06 20:32:22"

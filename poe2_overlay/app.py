@@ -765,7 +765,7 @@ class Controller:
         if c is None or tv is None:
             return
         path = export.save_card(c, tv, self.tracker.snapshot().league)
-        self.flash = t("완주 카드 저장: {p}", p=str(path))
+        self.flash = t("완주 카드 저장: {p}", p=path.name)  # 전체 경로는 사용자 이름이 보여서 파일 이름만
         os.startfile(path.parent)
         self.refresh()
 
@@ -775,7 +775,7 @@ class Controller:
             return
         best = personal_bests(self.tracker.chars.values())  # 모든 캐릭터 중 구간별 최고 (골드)
         path = export.save_lss(c.name, tv, best)
-        self.flash = t("LiveSplit 파일 저장: {p}", p=str(path))
+        self.flash = t("LiveSplit 파일 저장: {p}", p=path.name)
         os.startfile(path.parent)
         self.refresh()
 
