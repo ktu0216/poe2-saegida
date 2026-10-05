@@ -350,3 +350,18 @@ def test_boss_outside_guide_step_tracked_for_compact():
     assert t.snapshot().roam_flags.get("boss") == "killed"  # 디아모라의 마지막 대사 = 처치 (마티키 대사는 다시 잡을 때 안 나옴)
     feed(t, AreaEntered("t", "1", "G4_3_1", 52))
     assert t.snapshot().roam_flags == {}  # 지역을 옮기면 버린다
+
+
+def test_english_boss_lines_parse_and_engage():
+    # 영어 클라이언트: 화자 이름이 ASCII → 제목처럼 쓴 이름만 대사로 (기술 로그는 제외)
+    p = "2026/10/05 19:13:47 1 a [INFO Client 1] "
+    assert parse_line(p + "Beira of the Rotten Pack: Invader!") == NpcLine(
+        "2026/10/05 19:13:47", "1", "Beira of the Rotten Pack", "Invader!")
+    for tech in ("Tile hash: 1", "Queue file to download: x", "Abnormal disconnect: x", "Backup Web root: x"):
+        assert parse_line(p + tech) is None
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv("g1_2,Clearfell,Kill Beira\ng1_4,The Grelwood,next\n"), "t")
+    t = Tracker(g, encounters=enc)
+    feed(t, AreaEntered("t", "1", "G1_2", 2), LevelUp("t", "1", "me", "Mercenary", 2),
+         parse_line(p + "Beira of the Rotten Pack: Invader!"))
+    assert t.snapshot().flags["boss"] == "engaged"

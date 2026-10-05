@@ -147,12 +147,25 @@ _HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]",
           "passive skill id: Ascendancy")
 
 
+# 영어 화자 이름은 제목처럼 대문자로 시작하는 단어들 ("Beira of the Rotten Pack", "Diamora, Song of Death").
+# 기술 로그("Tile hash", "Queue file to download", "Abnormal disconnect")는 소문자 일반 단어가 섞여 있다.
+_NAME_LINKS = {"of", "the", "and", "a", "an", "in", "on", "at", "from", "to", "de"}
+
+
+def _title_name(who: str) -> bool:
+    words = [w for w in re.split(r"[\s,]+", who) if w]
+    return bool(words) and words[0][0].isupper() and all(
+        w[0].isupper() or w in _NAME_LINKS or not w[0].isalpha() for w in words)
+
+
 def _parse_npc(line: str) -> Optional[NpcLine]:
     m = _PREFIX.match(line.rstrip("\r\n"))
     if not m or m["lvl"] != "INFO":
         return None
     n = _NPC.match(m["body"])
-    if not n or n["who"].isascii() or any(ch.isdigit() for ch in n["who"]):
+    if not n or any(ch.isdigit() for ch in n["who"]):
+        return None
+    if n["who"].isascii() and not _title_name(n["who"]):
         return None
     return NpcLine(f"{m['date']} {m['time']}", m["pid"], n["who"], n["text"])
 
