@@ -30,6 +30,8 @@ from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
 from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
+
+RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어 변경 등)
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -204,7 +206,8 @@ class Controller:
         if self.settings.get("click_through"):
             self.toggle_click_through()
         self.refresh()
-        QTimer.singleShot(500, self.on_clipboard)  # 켜기 전에 복사해 둔 아이템도 처리
+        if RESTARTED not in sys.argv:  # 켜기 전에 복사해 둔 아이템도 처리 (언어 변경 등 스스로 재시작할 때는 같은 아이템이 또 뜨지 않게)
+            QTimer.singleShot(500, self.on_clipboard)
         if not self.auto_pos:
             QTimer.singleShot(300, self._clamp_saved)  # 저장된 위치가 화면 밖이면 안으로
 
@@ -870,7 +873,7 @@ class Controller:
     def restart(self) -> None:
         self.save()
         args = sys.argv[1:] if getattr(sys, "frozen", False) else sys.argv
-        QProcess.startDetached(sys.executable, args)
+        QProcess.startDetached(sys.executable, [a for a in args if a != RESTARTED] + [RESTARTED])
         self.app.quit()
 
     def toggle_pb(self) -> None:
