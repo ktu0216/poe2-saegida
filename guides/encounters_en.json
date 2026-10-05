@@ -5,7 +5,8 @@
     "g1_2":    {"bosses": ["Beira of the Rotten Pack"], "gate": false},
     "g1_5":    {"bosses": ["The Rust King"], "gate": false,
                 "markers": [
-                  {"speaker": "Ghostly Voice", "text": "Our will persists", "label": "Obelisk 2/3"}
+                  {"speaker": "Ghostly Voice", "text": "Our will persists", "label": "Obelisk 2/3"},
+                  {"speaker": "Ghostly Voice", "text": "This is our land", "label": "Obelisk 3/3", "soon": true}
                 ]},
     "g1_7":    {"bosses": ["Lachlann of Endless Lament"], "gate": false,
                 "subzones": {"g1_8": {"boss": "Draven, the Eternal Praetor", "label": "Praetor"},

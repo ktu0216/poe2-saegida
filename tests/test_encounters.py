@@ -374,3 +374,8 @@ def test_english_red_vale_obelisk_marker():
     feed(t, AreaEntered("t", "1", "G1_5", 5), LevelUp("t", "1", "me", "Mercenary", 5),
          parse_line("2026/10/05 19:23:17 1 a [INFO Client 1] Ghostly Voice: Our will persists..."))
     assert t.snapshot().flags.get("marker") == "Obelisk 2/3" and "boss" not in t.snapshot().flags
+    feed(t, parse_line("2026/10/05 19:24:16 1 a [INFO Client 1] Ghostly Voice: This is our land. We stand united!"))
+    f = t.snapshot().flags
+    assert f.get("marker") == "Obelisk 3/3" and f.get("soon") and "boss" not in f
+    feed(t, parse_line("2026/10/05 19:24:43 1 a [INFO Client 1] The Rust King: Usurper!"))
+    assert t.snapshot().flags["boss"] == "engaged"
