@@ -21,7 +21,9 @@ An overlay that shows **what to do next** in the Path of Exile 2 campaign, in a 
 It only reads the log file the game writes, so it follows the character you log in with and the areas you enter.
 You don't press anything to advance the guide.
 
-![Progress flow](docs/images/flow_en.gif)
+![Intro: automatic progress and one-line boss mode](docs/images/intro_en.gif)
+
+▶ [30-second intro video (MP4)](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-en.mp4) — auto progress · boss fights · vendor regex · splits · completion card
 
 ## What it does
 

@@ -21,7 +21,9 @@ Path of Exile 2 캠페인을 진행할 때 **지금 해야 할 일**을 게임 �
 게임이 남기는 로그 파일만 읽어서, 접속한 캐릭터와 들어간 지역을 알아서 따라갑니다.
 단계를 넘기려고 버튼을 누를 필요가 없습니다.
 
-![진행 흐름](docs/images/flow_ko.gif)
+![소개: 자동 진행과 보스전 한 줄 모드](docs/images/intro_ko.gif)
+
+▶ [30초 소개 영상 (MP4)](https://github.com/ktu0216/poe2-saegida/releases/download/v0.2.0/saegida-intro-ko.mp4) — 자동 진행 · 보스전 · 상점 정규식 · 기록 · 완주 카드
 
 ## 이런 걸 해 줍니다
 
