@@ -365,3 +365,12 @@ def test_english_boss_lines_parse_and_engage():
     feed(t, AreaEntered("t", "1", "G1_2", 2), LevelUp("t", "1", "me", "Mercenary", 2),
          parse_line(p + "Beira of the Rotten Pack: Invader!"))
     assert t.snapshot().flags["boss"] == "engaged"
+
+
+def test_english_red_vale_obelisk_marker():
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv("g1_5,The Red Vale,obelisks\ng1_town,Clearfell Encampment,town\n"), "t")
+    t = Tracker(g, encounters=enc)
+    feed(t, AreaEntered("t", "1", "G1_5", 5), LevelUp("t", "1", "me", "Mercenary", 5),
+         parse_line("2026/10/05 19:23:17 1 a [INFO Client 1] Ghostly Voice: Our will persists..."))
+    assert t.snapshot().flags.get("marker") == "Obelisk 2/3" and "boss" not in t.snapshot().flags

@@ -3,7 +3,10 @@
   "zones": {
     "g1_1":    {"bosses": ["The Bloated Miller"], "gate": false},
     "g1_2":    {"bosses": ["Beira of the Rotten Pack"], "gate": false},
-    "g1_5":    {"bosses": ["The Rust King"], "gate": false},
+    "g1_5":    {"bosses": ["The Rust King"], "gate": false,
+                "markers": [
+                  {"speaker": "Ghostly Voice", "text": "Our will persists", "label": "Obelisk 2/3"}
+                ]},
     "g1_7":    {"bosses": ["Lachlann of Endless Lament"], "gate": false,
                 "subzones": {"g1_8": {"boss": "Draven, the Eternal Praetor", "label": "Praetor"},
                              "g1_9": {"boss": "Asinia, the Praetor's Consort", "label": "Consort"}}},
