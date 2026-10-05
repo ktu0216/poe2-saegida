@@ -1,0 +1,60 @@
+{
+  "_comment": "Vendor search regex for the English client. The first matching rule is used. build: regex on the build planner name (or file name) linked to the character, classes: fallback by class when no build is linked, acts: empty = every act. Same rules as regex_ko.json.",
+  "rules": [
+    {
+      "name": "Navira",
+      "build": "Navira|Vara|바라시타",
+      "classes": [
+        "Sorceress",
+        "Stormweaver"
+      ],
+      "acts": [],
+      "_note": "Korean rule: spell skill levels, minion/ally increases, spirit, movement speed",
+      "regex": "spell sk|minion|allies|spirit|movement"
+    },
+    {
+      "name": "Gemling Twister",
+      "build": "트위스터|TWISTER|Twister",
+      "classes": [],
+      "acts": [],
+      "_note": "Original from the guide (English client): movement speed, projectile skill levels, spirit, amulets, rings, spears",
+      "regex": "([21]0|[21]5)% i.+mov|^\\+.*ile skills$|o sp|s: (am|ri|spe)"
+    },
+    {
+      "name": "Grenade starter",
+      "build": "유탄|Grenade",
+      "classes": [
+        "Mercenary",
+        "Gemling Legionnaire",
+        "Witchhunter"
+      ],
+      "acts": [],
+      "_note": "Korean rule: not a quiver, and crossbow / movement speed / added damage to attacks",
+      "regex": "\"!quiver\" \"crossbow|movement sp|to att\""
+    },
+    {
+      "name": "Shield Smith",
+      "build": "쉴드 스미스|Shield Wall|Smith",
+      "classes": [
+        "Warrior",
+        "Smith of Kitava",
+        "Titan",
+        "Warbringer"
+      ],
+      "acts": [],
+      "_note": "Original from the guide (English client): added damage to attacks, speed, melee, leech, tower shields",
+      "regex": "to.att|speed|melee|leech|tower"
+    }
+  ],
+  "_vendors_comment": "When one of these NPCs speaks in town (shop greeting), the regex is copied to the clipboard. English names of the vendors in regex_ko.json.",
+  "vendors": [
+    "Renly",
+    "Una",
+    "Shambrin",
+    "Servi",
+    "Zarka",
+    "Rog",
+    "Finn",
+    "Dannig"
+  ]
+}
