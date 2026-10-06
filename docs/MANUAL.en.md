@@ -75,7 +75,8 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 - When the boss speaks: `⚔ fighting`; phase lines show `Phase 2` etc.; a kill line or **leaving the area alive** gives `✓ killed`; dying gives `☠ died`.
 - During a fight the panel shrinks to **one line**, and a `Tab→minimap` hint shows for 3 seconds when it starts (it never presses keys for you). Both can be turned off in the menu.
 - Taunts right after you die ("What a sweet scream…") do not restart the fight.
-- **English client**: kill and phase lines are only known for the Korean client so far, so on English a fight starts on the boss's first line and ends when you leave the area alive.
+- Bosses without a kill line go back to the full panel **30 seconds after their last line** (the kill itself is still recorded when you leave the area). To see it right away, **click the one-line panel** or press `Ctrl+Alt+X` — it stays expanded in that area.
+- **English client**: fewer progress and kill lines are known than for Korean so far (they are being added from real logs), so most fights start on the boss's first line and end when you leave the area alive.
 
 ## 5. Permanent rewards and quest passives
 
@@ -89,7 +90,7 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 ## 6. Split timer
 
 - Play time = time between log lines, minus AFK, logouts/restarts and gaps over 30 minutes.
-- A split starts the **first time you enter a non-town area** of that act or interlude. The first map ends the campaign.
+- A split starts the **first time you enter a non-town area** of that act or interlude. Entering **the Ziggurat Refuge** ends the campaign.
 - PB = the fastest time for that split among **other characters** in the same log. Splits under 10 minutes and campaigns under 3 hours (test characters) are ignored.
 - The panel shows only the difference, like `(PB +2:03)`; PB times are in `Ctrl+Alt+R`. PB comparison is off by default (menu).
 
@@ -131,7 +132,7 @@ For characters that finished the campaign, the last guide step is replaced by:
 
 ## 11. Exports and updates
 
-**Campaign complete card**: the moment you finish the campaign (enter your first map), a card (PNG) with act times, PB differences and deaths is saved to `Pictures\POE2 Saegida`. For characters that finished earlier: Right-click → **Export records → Campaign complete card**.
+**Campaign complete card**: the moment you finish the campaign (enter the Ziggurat Refuge), a card (PNG) with act times, PB differences and deaths is saved to `Pictures\POE2 Saegida`. For characters that finished earlier: Right-click → **Export records → Campaign complete card**.
 
 **LiveSplit**: Right-click → Export records → **LiveSplit splits file (.lss)**. This character's splits become the PB and the best split across all characters becomes the gold. Open it in LiveSplit as a target for your next run.
 
@@ -153,6 +154,7 @@ For characters that finished the campaign, the last guide step is replaced by:
 | `Ctrl+Alt+→` / `Ctrl+Alt+←` | Next / previous step |
 | `Ctrl+Alt+R` | Rewards, splits and pinnacle bosses |
 | `Ctrl+Alt+G` | Gem card |
+| `Ctrl+Alt+X` | Expand the one-line boss panel (`Ctrl+Alt+F8` if another program uses it) |
 | `Ctrl+Alt+C` | Copy vendor regex |
 | `Ctrl+Alt+E` | Save the last copied item as equipped |
 | `Ctrl+Alt+T` | Click-through on/off |
