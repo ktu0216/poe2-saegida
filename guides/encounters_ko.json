@@ -155,7 +155,7 @@
                 ]},
     "p1_5":    {"bosses": ["죽음의 간수 오스윈"],
                 "markers": [
-                  {"speaker": "죽음의 간수 오스윈", "text": "테인이 네 목을 취할", "label": "", "kill": true}
+                  {"speaker": "죽음의 간수 오스윈", "text": "테인이 네 목을 취할", "label": "", "kill": true}, {"speaker": "죽음의 간수 오스윈", "text": "가죽을 천천히 벗기실", "label": "", "kill": true}
                 ]},
     "p1_6":    {"bosses": ["테인 울프릭", "여인 엘스위트"],
                 "_note": "처치 대사 없음 → 지역을 떠나면 처치",

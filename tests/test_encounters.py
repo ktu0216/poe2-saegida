@@ -458,3 +458,13 @@ def test_quiet_fight_after_last_boss_line():
     assert not fight_quiet(f, datetime(2026, 10, 7, 1, 9, 10))   # 23초: 아직 전투
     assert fight_quiet(f, datetime(2026, 10, 7, 1, 9, 20))       # 33초: 조용 → 일반 패널
     assert f["boss"] == "engaged"  # 기록상 처치는 지역을 떠날 때
+
+
+def test_oswin_second_death_line():
+    # 오스윈 마지막 대사도 판마다 다르다: '테인이 네 목을 취할 것이다...' / '그분이 네 가죽을 천천히 벗기실 거다...' (2026-10-07)
+    g = Guide(parse_csv("p1_5,울븐홀드,오스윈 처치\np1_4,홀튼,다음\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P1_5", 64), LevelUp("t", "1", "me", "머서너리", 58),
+         NpcLine("t", "1", "죽음의 간수 오스윈", "죄수들에게 먹일 신선한 고기군!"),
+         NpcLine("t", "1", "죽음의 간수 오스윈", "그분이 네 가죽을 천천히 벗기실 거다..."))
+    assert t.snapshot().flags["boss"] == "killed"
