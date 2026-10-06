@@ -478,11 +478,35 @@ class Tracker:
             enc = self.encounters.get(cur.zone)
             if enc and enc.bosses and enc.gate and flags.get("boss") != "killed":
                 new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
+        if new is None and (back := self._interlude_back(c, code)) is not None:
+            # 막간 안에서 순서를 바꿔 갔다가(갈라이 문·키마 먼저) 건너뛴 지역으로 돌아옴 → 건너뛴 단계로
+            c.jump_from = -1
+            c.cursor, c.cursor_zone = back, steps[back].zone
+            return
         if new is not None:
             skipped = any(not steps[k].is_town for k in range(c.cursor + 1, new))
-            c.jump_from = c.cursor if skipped else -1
+            keep = c.jump_from >= 0 and self._same_interlude(steps[c.jump_from].zone, steps[new].zone)
+            if skipped:
+                c.jump_from = min(c.jump_from, c.cursor) if keep else c.cursor
+            elif not keep:
+                c.jump_from = -1  # 막간 안에서는 막간이 끝날 때까지 건너뛴 위치를 기억한다
             c.cursor = new
             c.cursor_zone = self.guide.steps[new].zone
+
+    @staticmethod
+    def _same_interlude(a: str, b: str) -> bool:
+        la = act_label(a)
+        return la.startswith("막간") and la == act_label(b)
+
+    def _interlude_back(self, c: Character, code: str) -> Optional[int]:
+        """막간에서 건너뛴 단계 중 지금 들어간 사냥터의 첫 단계 (이미 잡은 보스 단계는 빼고)."""
+        steps, z, jf = self.guide.steps, code.lower(), c.jump_from
+        if is_town(z) or not 0 <= jf < c.cursor or not self._same_interlude(steps[jf].zone, z):
+            return None
+        for k in range(jf, c.cursor):
+            if steps[k].zone == z and c.step_flags.get(str(k), {}).get("boss") != "killed":
+                return k
+        return None
 
     # ------------------------------------------------------- 캐릭터 식별
     def _identify(self, name: str, ts: str) -> Optional[Character]:

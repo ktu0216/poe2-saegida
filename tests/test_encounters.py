@@ -511,3 +511,35 @@ def test_step_flags_follow_guide_edits():
     assert c.cursor == 3 and c.step_flags == {"0": {"passive": True}, "2": {"boss": "killed"}}
     t.set_guide(old)  # 되돌려도 다시 맞는다
     assert c.step_flags == {"0": {"passive": True}, "1": {"boss": "killed"}}
+
+
+def test_interlude_order_swap_returns_to_skipped_steps():
+    # 막간 2를 갈라이 문·키마부터 갔다가 카리 교차로로 돌아오면, 건너뛴 카탈의 웅덩이·성역 단계로 되돌아간다
+    g = Guide.load(resource_dir() / "guides" / "default_ko.csv")
+    z = [s.zone for s in g.steps]
+    i0 = z.index("p2_town")
+    from poe2_overlay.tracker import Character
+    me = Character("me", cursor=i0, cursor_zone="p2_town")  # 막간 3을 끝내고 카리 장터에 온 캐릭터
+    t = Tracker(g, {"me": me}, "me", ENC)
+    feed(t, AreaEntered("t", "1", "P2_Town", 64), LevelUp("t", "1", "me", "머서너리", 54))
+    pos = lambda: t.chars["me"].cursor
+    assert pos() == i0
+    feed(t, AreaEntered("t", "1", "P2_1", 58), AreaEntered("t", "1", "P2_Town", 64), AreaEntered("t", "1", "P2_1", 58))
+    crossing = pos()
+    assert z[crossing] == "p2_1" and z[crossing + 1] == "p2_2"          # '카탈의 웅덩이로' 단계
+    feed(t, AreaEntered("t", "1", "P2_5", 60), AreaEntered("t", "1", "P2_6", 60))
+    assert z[pos()] == "p2_6"                                           # 순서를 바꿔 키마까지
+    feed(t, AreaEntered("t", "1", "P2_1", 58))
+    assert pos() == crossing                                            # 건너뛴 단계로 돌아온다
+    for code in ("P2_2", "P2_3", "P2_1", "P2_5", "P2_6", "P2_7"):
+        feed(t, AreaEntered("t", "1", code, 60))
+    assert z[pos()] == "p2_7"
+
+
+def test_act_revisit_does_not_jump_back():
+    # 액트에서는 예전처럼: 건너뛰고 한 칸 더 간 뒤 지난 지역에 들러도 되돌리지 않는다
+    g = Guide(parse_csv("g1_town,야영지,렌리\ng1_2,클리어펠,베이라\ng1_4,그렐우드,붉은 계곡\ng1_5,붉은 계곡,녹왕\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G1_town", 15), LevelUp("t", "1", "me", "머서너리", 3),
+         AreaEntered("t", "1", "G1_4", 4), AreaEntered("t", "1", "G1_5", 5), AreaEntered("t", "1", "G1_2", 2))
+    assert t.chars["me"].cursor == 3
