@@ -218,6 +218,7 @@ class Overlay(QWidget):
         self.opacity = float(settings.get("opacity", 0.88))
         self.click_through = False
         self._drag: Optional[QPoint] = None
+        self._press_at: Optional[QPoint] = None  # 끌지 않고 누른 것(클릭)인지 가리기
         self.waiting = False  # 게임이 꺼져 있음 (실행 대기 화면)
         self.passive_sources: list = []  # rewards.PassiveSource: 🎁 퀘스트 패시브 표시
         self.zone_tips: dict[str, str] = {}  # 지역 코드 → 🧭 길 찾기 메모 (비우면 표시 안 함)
@@ -606,6 +607,7 @@ class Overlay(QWidget):
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:
             self._drag = e.globalPosition().toPoint() - self.frameGeometry().topLeft()
+            self._press_at = e.globalPosition().toPoint()
 
     def mouseMoveEvent(self, e):
         if self._drag is not None and e.buttons() & Qt.LeftButton:
@@ -615,10 +617,15 @@ class Overlay(QWidget):
                 self.move(p)
 
     def mouseReleaseEvent(self, e):
+        clicked = (self._press_at is not None
+                   and (e.globalPosition().toPoint() - self._press_at).manhattanLength() < 5)
+        self._press_at = None
         if self._drag is not None:
             self._drag = None
             self.clamp_to_screen()
             self.moved.emit(self.x(), self.y())
+        if clicked and self.compact:  # 보스전 한 줄을 클릭 = 일반 패널로 펼치기 (끌어서 옮긴 건 제외)
+            self.action.emit("expand")
 
     # ------------------------------------------------------------ 오른쪽 위 아이콘 (마우스를 올렸을 때만)
     TOOLS = (("◀", "prev", "이전 단계 (Ctrl+Alt+←)"), ("▶", "next", "다음 단계 (Ctrl+Alt+→)"),

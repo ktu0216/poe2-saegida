@@ -47,6 +47,7 @@ HOTKEYS = {
     "auto_hide": "Ctrl+Alt+A",
     "equip": "Ctrl+Alt+E",
     "gems": "Ctrl+Alt+G",
+    "expand": "Ctrl+Alt+X",
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 TOP_RATIO = 0.08  # 기본 위치: 게임 창 왼쪽, 위에서 8% (왼쪽 위 버프·스킬 아이콘 아래)
@@ -133,6 +134,10 @@ class Controller:
         self.hotkeys.register(HOTKEYS["toggle"], self.toggle_visible)
         self.hotkeys.register(HOTKEYS["auto_hide"], self.toggle_auto_hide)
         self.hotkeys.register(HOTKEYS["equip"], self.set_equipped)
+        for key in (HOTKEYS["expand"], "Ctrl+Alt+F8"):  # 다른 프로그램이 쓰면 다음 후보
+            if self.hotkeys.register(key, self.expand_compact):
+                HOTKEYS["expand"] = key
+                break
         for key in (HOTKEYS["gems"], "Ctrl+Alt+J", "Ctrl+Alt+F11"):  # 다른 프로그램이 쓰면 다음 후보
             if self.hotkeys.register(key, self.toggle_gem_card):
                 HOTKEYS["gems"] = key
@@ -147,6 +152,7 @@ class Controller:
         self.prev_copied: dict[str, str] = {}  # 부위 -> 직전에 복사한 아이템 (장착 기준이 없을 때 비교용)
         self._last_copy_at = 0.0
         self._tab_until = 0.0
+        self._expanded_at: tuple[str, str] = ("", "")  # 보스전 한 줄을 펼친 (캐릭터, 지역): 그 지역에서는 다시 줄이지 않는다
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
@@ -440,7 +446,7 @@ class Controller:
             subs, fighting, boss_state = {}, False, "quiet"
         soon = bool(f.get("soon")) and boss_state not in ("engaged", "killed", "died", "quiet")
         on = (self.settings.get("boss_compact", True) and c is not None and here
-              and (fighting or soon))
+              and (fighting or soon) and self._expanded_at != (c.name, c.zone))
         if not on:
             if self.overlay.compact:
                 self.overlay.leave_compact()
@@ -453,6 +459,7 @@ class Controller:
         gap = c.area_level - c.level if c.area_level else 0
         lv = f'<span style="color:{"#ff8a65" if gap >= 3 else "#9a9284"}">{t(" · Lv {lv} · 지역 {area}", lv=c.level, area=c.area_level)}</span>'
         tab = (' <b style="color:#e8b04a">' + t("· Tab→미니맵") + '</b>' if time.monotonic() < self._tab_until else "")
+        tab += f' <span style="color:#6f685c">{t("· 클릭: 펼치기 ({key})", key=HOTKEYS["expand"])}</span>'
         self.overlay.render_compact(head + lv + tab)
         return True
 
@@ -974,6 +981,16 @@ class Controller:
             self.toggle_rewards()
         elif key == "gems":
             self.toggle_gem_card()
+        elif key == "expand":
+            self.expand_compact()
+
+    def expand_compact(self) -> None:
+        """보스전 한 줄 → 일반 패널. 지역을 옮기면 다시 한 줄 모드가 동작한다."""
+        c = self.tracker.snapshot().character
+        if c is None:
+            return
+        self._expanded_at = (c.name, c.zone)
+        self.refresh()
 
     def build_menu(self, m: QMenu, clear: bool = False) -> None:
         if clear:

@@ -251,6 +251,7 @@ EN: dict[str, str] = {
     "언어 / Language": "Language / 언어",
     "🆕 {v} 내려받는 중…": "🆕 Downloading {v}…",
     "업데이트 확인 중…": "Checking for updates…",
+    "· 클릭: 펼치기 ({key})": "· click: expand ({key})",
     "✓ 최신 버전입니다 ({v})": "You are on the latest version ({v})",
     "업데이트 확인 실패: {e}": "Update check failed: {e}",
     "🆕 새 버전 {v} — 우클릭 → 업데이트": "🆕 Version {v} is out — right-click → update",
