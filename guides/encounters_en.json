@@ -49,7 +49,7 @@
     "g4_11_2": {"bosses": ["Tavakai, the Chieftain"], "gate": false},
     "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "gate": false},
     "p1_2":    {"bosses": ["Siora, Blade of the Mists"], "gate": false},
-    "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "gate": false},
+    "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "book_kill": "engaged", "gate": false},
     "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "gate": false},
     "p2_1":    {"bosses": ["Akthi, the Final Sting", "Anundr, the Sandworm"], "gate": false},
     "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"], "gate": false},

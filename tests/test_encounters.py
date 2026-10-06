@@ -468,3 +468,13 @@ def test_oswin_second_death_line():
          NpcLine("t", "1", "죽음의 간수 오스윈", "죄수들에게 먹일 신선한 고기군!"),
          NpcLine("t", "1", "죽음의 간수 오스윈", "그분이 네 가죽을 천천히 벗기실 거다..."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_oswin_ledger_counts_as_kill():
+    # 오스윈이 떨군 간수의 장부(패시브 +2)를 전투 중에 쓰면 처치 (처치 대사가 새로 바뀌어도)
+    g = Guide(parse_csv("p1_5,울븐홀드,오스윈 처치\np1_4,홀튼,다음\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "P1_5", 64), LevelUp("t", "1", "me", "머서너리", 58),
+         NpcLine("t", "1", "죽음의 간수 오스윈", "죄수들에게 먹일 신선한 고기군!"),
+         parse_line("2026/10/07 01:27:00 1 a [INFO Client 1] : 패시브 스킬 포인트 2포인트를 획득했습니다."))
+    assert t.snapshot().flags["boss"] == "killed"

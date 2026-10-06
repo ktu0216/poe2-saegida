@@ -153,7 +153,7 @@
                   {"speaker": "연무의 칼날 시오라", "text": "변하는 건 없다", "label": "2페이즈", "phase": true},
                   {"speaker": "연무의 칼날 시오라", "text": "연무는 사라지지 않는다", "label": "", "kill": true}
                 ]},
-    "p1_5":    {"bosses": ["죽음의 간수 오스윈"],
+    "p1_5":    {"bosses": ["죽음의 간수 오스윈"], "book_kill": "engaged",
                 "markers": [
                   {"speaker": "죽음의 간수 오스윈", "text": "테인이 네 목을 취할", "label": "", "kill": true}, {"speaker": "죽음의 간수 오스윈", "text": "가죽을 천천히 벗기실", "label": "", "kill": true}
                 ]},
