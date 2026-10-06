@@ -428,8 +428,10 @@ class Tracker:
         c.area_level = level
         c.last_seen = ts
         act = zone_act(code)
-        # 구간은 그 액트의 사냥터에 처음 들어갈 때 시작 (막간 마을은 서로 오갈 수 있어 들르기만 해도 시작되면 안 된다)
-        if act and act not in c.splits and not is_town(code):
+        # 구간은 그 액트의 사냥터에 처음 들어갈 때 시작 (막간 마을은 서로 오갈 수 있어 들르기만 해도 시작되면 안 된다).
+        # 단, 지구라트 피난처는 캠페인을 끝내야 갈 수 있으니 들어가면 바로 캠페인 끝 (가이드의 '캠페인 완료!'와 맞춘다)
+        endgame_town = code.lower() == "g_endgame_town"
+        if act and act not in c.splits and (not is_town(code) or endgame_town):
             c.splits[act] = c.play_seconds
             if act == "엔드게임" and not c.campaign_done:
                 c.campaign_done = ts

@@ -478,3 +478,21 @@ def test_oswin_ledger_counts_as_kill():
          NpcLine("t", "1", "죽음의 간수 오스윈", "죄수들에게 먹일 신선한 고기군!"),
          parse_line("2026/10/07 01:27:00 1 a [INFO Client 1] : 패시브 스킬 포인트 2포인트를 획득했습니다."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_hooded_one_passive_after_interludes():
+    # 12번째 퀘스트 패시브: 막간을 끝내고 킹스마치 두건 쓴 자 → 특화의 서 (죽음의 전당 하얀 야마가 아님)
+    from poe2_overlay import config
+    from poe2_overlay.logparse import PassivePoints
+    from poe2_overlay.rewards import load_passive_sources
+    g = Guide.load(resource_dir() / "guides" / "default_ko.csv")
+    t = Tracker(g, encounters=ENC)
+    t.passive_sources = load_passive_sources(config.data_file("quest_passives", "ko"))
+    assert not any(s.zone == "g4_4_2" for s in t.passive_sources)
+    feed(t, AreaEntered("t", "1", "P1_6", 64), LevelUp("t", "1", "me", "머서너리", 59),
+         NpcLine("t", "1", "테인 울프릭", "곧 너도 우리의 주인을 섬기게 될 거다..."),
+         AreaEntered("t", "1", "P1_Town", 64), AreaEntered("t", "1", "G4_town", 53))
+    t.feed(PassivePoints("t", "1", 2, False))
+    c = t.chars["me"]
+    step = g.steps[c.cursor]
+    assert step.zone == "g4_town" and "두건 쓴 자" in step.text and c.step_flags[str(c.cursor)]["passive"]

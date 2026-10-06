@@ -54,3 +54,17 @@ def test_tracker_records_campaign_done_time():
               AreaEntered("2026/10/05 19:30:02", "1", "MapOasis", 66)):
         t.feed(e)
     assert t.chars["me"].campaign_done == "2026/09/06 20:32:22"
+
+
+def test_campaign_ends_at_ziggurat_refuge():
+    # 막간을 끝내고 지구라트 피난처에 들어가면 캠페인 시간이 멈춘다 (첫 지도까지 기다리지 않음)
+    from poe2_overlay.guide import Guide, parse_csv
+    from poe2_overlay.logparse import AreaEntered, LevelUp
+    from poe2_overlay.tracker import Tracker
+    t = Tracker(Guide(parse_csv("p1_town,피난처,복귀\ng4_town,킹스마치,두건 쓴 자\ng_endgame_town,지구라트 피난처,끝\n"), "t"))
+    for e in (AreaEntered("2026/10/07 01:33:08", "1", "P1_Town", 64), LevelUp("2026/10/07 01:33:09", "1", "me", "머서너리", 59),
+              AreaEntered("2026/10/07 01:33:48", "1", "G4_town", 53),
+              AreaEntered("2026/10/07 01:34:42", "1", "G_Endgame_Town", 65)):
+        t.feed(e)
+    c = t.chars["me"]
+    assert "엔드게임" in c.splits and c.campaign_done == "2026/10/07 01:34:42"

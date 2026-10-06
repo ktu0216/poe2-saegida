@@ -124,5 +124,5 @@ p1_5,Wolvenhold,Kill 「Oswin, the Dread Warden」 (+2 passives) → Holten
 p1_4,Holten,Go to Holten Estate
 p1_6,Holten Estate,Kill 「Wulfric」 and 「Elswyth」 → town
 p1_town,The Refuge,Return to Kingsmarch
-g4_town,Kingsmarch,Go to the endgame
+g4_town,Kingsmarch,Talk to the Hooded One → use the Book of Specialisation (+2 passives) → travel to Oriath (The Ziggurat Refuge)
 g_endgame_town,The Ziggurat Refuge,Campaign complete!
