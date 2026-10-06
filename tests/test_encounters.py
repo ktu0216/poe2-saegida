@@ -496,3 +496,18 @@ def test_hooded_one_passive_after_interludes():
     c = t.chars["me"]
     step = g.steps[c.cursor]
     assert step.zone == "g4_town" and "두건 쓴 자" in step.text and c.step_flags[str(c.cursor)]["passive"]
+
+
+def test_step_flags_follow_guide_edits():
+    # 가이드에 단계를 넣으면(힐다 단계) 뒤 단계의 처치·패시브 기록도 같이 밀려야 한다
+    from poe2_overlay.tracker import Character
+    old = Guide(parse_csv("p3_4,울부짖는 동굴,설인\np3_3,빙하 호수,라카르\np3_5,크리아 봉우리,매덕스\n"), "t")
+    new = Guide(parse_csv("p3_4,울부짖는 동굴,설인\np3_town,풀숲,힐다\np3_3,빙하 호수,라카르\np3_5,크리아 봉우리,매덕스\n"), "t")
+    c = Character("me", cursor=2, cursor_zone="p3_5",
+                  step_flags={"0": {"passive": True}, "1": {"boss": "killed"}})  # 예전 저장본 (flag_zones 없음)
+    t = Tracker(old, {"me": c}, "me", ENC)
+    assert c.flag_zones == {"0": "p3_4", "1": "p3_3"}
+    t.set_guide(new)
+    assert c.cursor == 3 and c.step_flags == {"0": {"passive": True}, "2": {"boss": "killed"}}
+    t.set_guide(old)  # 되돌려도 다시 맞는다
+    assert c.step_flags == {"0": {"passive": True}, "1": {"boss": "killed"}}

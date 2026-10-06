@@ -116,6 +116,8 @@ class Character:
     splits: dict[str, float] = field(default_factory=dict)  # 액트 -> 처음 들어갔을 때의 play_seconds
     # 가이드 단계 번호 -> {"boss": engaged|killed|died, "marker": 진행 표시}  (보스/진행 대사로 채움)
     step_flags: dict[str, dict] = field(default_factory=dict)
+    # 단계 번호 -> 그 단계의 지역 (가이드에 단계를 넣거나 빼서 번호가 밀리면 같은 지역으로 step_flags 를 옮기는 데 쓴다)
+    flag_zones: dict[str, str] = field(default_factory=dict)
     gear: dict[str, str] = field(default_factory=dict)  # 부위 -> 장착 기준 아이템 텍스트 (Ctrl+C)
     last_field_zone: str = ""  # 마지막으로 있던 마을 밖 지역
     jump_from: int = -1  # 단계를 건너뛰며 전진하기 직전 단계 (원래 지역으로 돌아오면 되돌린다)
@@ -187,6 +189,7 @@ class Tracker:
         for c in self.chars.values():
             c.league = league_for_mode(c.league, c.mode)
             self._repair_cursor(c)
+            self._repair_flags(c)
 
     # ---------------------------------------------------------------- 이벤트
     def feed(self, ev: Event) -> None:
@@ -254,7 +257,7 @@ class Tracker:
                 else:
                     c.passive_points += ev.points
                     if (i := self._passive_step(c)) is not None:  # 🎁 퀘스트 패시브 → ✓ 받음
-                        c.step_flags.setdefault(str(i), {})["passive"] = True
+                        self._step_flag(c, i)["passive"] = True
                     self._book_kill(c)
 
     def _account_time(self, ev: Event, reset: bool) -> None:
@@ -307,8 +310,13 @@ class Tracker:
         """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때). 단계 밖 보스 지역이면 임시 상태."""
         zone = self._step_zone(c)
         if zone is not None:
-            return c.step_flags.setdefault(str(c.cursor), {})
+            return self._step_flag(c, c.cursor)
         return self._roam(c)
+
+    def _step_flag(self, c: Character, i: int) -> dict:
+        """i 번째 단계의 상태 (그 단계의 지역도 함께 적어 둔다)."""
+        c.flag_zones[str(i)] = self.guide.steps[i].zone
+        return c.step_flags.setdefault(str(i), {})
 
     def _step_zone(self, c: Character) -> Optional[str]:
         """캐릭터가 현재 단계 지역(또는 하위 지역)에 있으면 그 단계 지역 코드."""
@@ -628,6 +636,35 @@ class Tracker:
         self.guide = guide
         for c in self.chars.values():
             self._repair_cursor(c)
+            self._repair_flags(c)
+
+    def _repair_flags(self, c: Character) -> None:
+        """가이드가 바뀌어 단계 번호가 밀렸으면 단계 상태(처치·패시브 등)를 같은 지역의 가장 가까운 단계로 옮긴다."""
+        steps = self.guide.steps
+        if not steps or not c.step_flags:
+            return
+        flags: dict[str, dict] = {}
+        zones: dict[str, str] = {}
+        for key in sorted(c.step_flags, key=lambda k: int(k) if k.lstrip("-").isdigit() else 0):
+            if not key.lstrip("-").isdigit():
+                continue
+            i, v = int(key), c.step_flags[key]
+            z = c.flag_zones.get(key)
+            if z is None:  # 예전 저장본: 저장할 때의 가이드와 같다고 본다
+                if not 0 <= i < len(steps):
+                    continue
+                z = steps[i].zone
+            if 0 <= i < len(steps) and steps[i].zone == z:
+                j = i
+            else:
+                cands = [s.index for s in steps if s.zone == z]
+                if not cands:
+                    continue  # 그 지역이 가이드에서 빠졌다
+                j = min(cands, key=lambda x: (abs(x - i), x < i))  # 같으면 뒤쪽 (단계를 넣으면 뒤로 밀린다)
+            k = str(j)
+            flags[k] = {**flags.get(k, {}), **v}
+            zones[k] = z
+        c.step_flags, c.flag_zones = flags, zones
 
     def _repair_cursor(self, c: Character) -> None:
         steps = self.guide.steps
