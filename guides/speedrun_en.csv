@@ -118,13 +118,13 @@ p2_7,Qimah Reservoir,Kill 「Azmadi」 top right (elemental damage → check you
 p2_town,The Khari Bazaar,On to Interlude 1 (video 3:31:10)
 p1_town,The Refuge,No need to talk → Scorched Farmlands
 p1_1,Scorched Farmlands,Go to Stones of Serle
-p1_2,Stones of Serle,Progress → Scorched Farmlands
+p1_2,Stones of Serle,6 runed megaliths → 「Siora」 → talk to Una → Scorched Farmlands
 p1_1,Scorched Farmlands,Go to The Blackwood
 p1_3,The Blackwood,Straight to Holten
 p1_4,Holten,Go to Wolvenhold
-p1_5,Wolvenhold,Kill the boss → Holten (skip the unique monster)
+p1_5,Wolvenhold,Kill 「Oswin, the Dread Warden」 (+2 passives) → Holten (skip the unique monster)
 p1_4,Holten,Go to Holten Estate
-p1_6,Holten Estate,Kill the boss → town
+p1_6,Holten Estate,Kill 「Wulfric」 and 「Elswyth」 → town
 p1_town,The Refuge,Return to Kingsmarch
 g4_town,Kingsmarch,Passive points from the Hooded One → go to the endgame
 g_endgame_town,The Ziggurat Refuge,Campaign complete! (video 3:44)
