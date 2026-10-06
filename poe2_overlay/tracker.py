@@ -60,6 +60,17 @@ def ascension_stage(nodes: list[str]) -> int:
 HC_DEATH = {"하드코어": "소프트코어", "HC SSF": "SSF"}
 
 
+# 전투 중 보스 대사가 이만큼 없으면 화면은 일반 패널로 (처치 대사가 없는 보스: 잡고 나서 다음 단계를 볼 수 있게).
+# 기록상 처치는 그대로 지역을 떠날 때. 보스가 다시 말하면 다시 한 줄.
+BOSS_QUIET_SEC = 30
+
+
+def fight_quiet(flags: dict, now: datetime) -> bool:
+    """마지막 보스 대사 뒤 BOSS_QUIET_SEC 초가 지났는지."""
+    ts = parse_ts(flags.get("last_line", "") or "")
+    return ts is not None and (now - ts).total_seconds() > BOSS_QUIET_SEC
+
+
 def league_for_mode(league: str, mode: str) -> str:
     """일반 모드 캐릭터에 하드코어 리그가 찍혀 있으면 앞의 HC 를 뗀다 (예전 버전이 캐릭터 선택 화면의 리그를 잘못 옮겨 적은 값)."""
     if mode in ("소프트코어", "SSF") and league.startswith("HC "):
@@ -341,12 +352,15 @@ class Tracker:
         if sub := self._subzone(step_zone, c.zone):  # 하위 지역 보스 (집정관의 능묘 등)
             if ev.who == sub.boss:
                 f.setdefault("sub", {})[sub.label] = "engaged"
+                f["last_line"] = ev.ts
             return
         enc = self.encounters.get(c.zone)
         if not enc:
             return
         if self._dead_here:
             return
+        if ev.who in enc.bosses:
+            f["last_line"] = ev.ts  # 마지막 보스 대사 시각 (조용해지면 일반 패널로)
         engaged = f.get("boss") == "engaged"
         killed = f.get("boss") == "killed"
         for m in enc.markers:

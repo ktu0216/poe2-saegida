@@ -27,7 +27,7 @@ from .builds import (GemNames, families, family_for_class, family_of, parse_uncu
 from .encounters import Encounters
 from .items import compare, defense_score, is_gear, is_item_text, parse_item, slot_keys
 from .rewards import RewardTable, load_passive_sources
-from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, parse_ts
+from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, fight_quiet, parse_ts
 from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
 
@@ -435,7 +435,10 @@ class Controller:
         subs = {k: v for k, v in f.get("sub", {}).items() if v == "engaged"}
         boss_state = f.get("boss")
         fighting = bool(subs) or boss_state == "engaged"
-        soon = bool(f.get("soon")) and boss_state not in ("engaged", "killed", "died")
+        if fighting and fight_quiet(f, datetime.now()):
+            # 처치 대사가 없는 보스: 한참 조용하면 끝난 것으로 보고 일반 패널 (다음 단계 보이게)
+            subs, fighting, boss_state = {}, False, "quiet"
+        soon = bool(f.get("soon")) and boss_state not in ("engaged", "killed", "died", "quiet")
         on = (self.settings.get("boss_compact", True) and c is not None and here
               and (fighting or soon))
         if not on:

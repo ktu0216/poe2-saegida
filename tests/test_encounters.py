@@ -18,6 +18,11 @@ def feed(t, *events):
         t.feed(e)
 
 
+def _shown(flags):
+    """표시 상태만 (마지막 보스 대사 시각 last_line 은 뺀다)."""
+    return {k: v for k, v in flags.items() if k != "last_line"}
+
+
 def start():
     t = Tracker(GUIDE, encounters=ENC)
     feed(t, AreaEntered("t", "1", "G1_4", 4), LevelUp("t", "1", "me", "머서너리", 4),
@@ -91,13 +96,13 @@ def test_ritual_lines_are_progress_not_fight():
          AreaEntered("t", "1", "G1_12", 11),
          NpcLine("t", "1", "연무 속의 왕", "<i>{코 로르}... 나그네여."))
     s = t.snapshot()
-    assert s.flags == {"marker": "의식 1/3"}
+    assert _shown(s.flags) == {"marker": "의식 1/3"}
     feed(t, AreaEntered("t", "1", "G1_town", 15))  # 의식 중 정비 → 단계 유지
     assert t.snapshot().step.zone == "g1_12"
     feed(t, AreaEntered("t", "1", "G1_12", 11), NpcLine("t", "1", "연무 속의 왕", "사라져라!"),
          NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
          NpcLine("t", "1", "연무 속의 왕", "사라져라!"))
-    assert t.snapshot().flags == {"marker": "의식 3/3", "boss": "engaged"}
+    assert _shown(t.snapshot().flags) == {"marker": "의식 3/3", "boss": "engaged"}
 
 
 def test_kill_line_marks_killed_immediately():
@@ -106,7 +111,7 @@ def test_kill_line_marks_killed_immediately():
          AreaEntered("t", "1", "G1_12", 11),
          NpcLine("t", "1", "연무 속의 왕", "들어줄 테니 말해 봐라, 나그네여!"),
          NpcLine("t", "1", "연무 속의 왕", "야생림의 힘은... 내 것이다!"))
-    assert t.snapshot().flags == {"marker": "2페이즈", "boss": "engaged"}
+    assert _shown(t.snapshot().flags) == {"marker": "2페이즈", "boss": "engaged"}
     feed(t, NpcLine("t", "1", "연무 속의 왕", "우리는 다시 만나게 될 것이다..."))
     assert t.snapshot().flags["boss"] == "killed"
 
@@ -437,3 +442,19 @@ def test_azmadi_second_death_line():
          NpcLine("t", "1", "파리둔 왕자 아즈마디", "지금은 우리의 시간이다!"),
          NpcLine("t", "1", "파리둔 왕자 아즈마디", "오늘은... 내 대관식이어야 했는데..."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_quiet_fight_after_last_boss_line():
+    # 처치 대사가 없는 보스(헬드라·이졸데): 마지막 대사 뒤 30초 넘게 조용하면 화면은 일반 패널로
+    from datetime import datetime
+    from poe2_overlay.tracker import fight_quiet
+    g = Guide(parse_csv("p1_1,그을린 농지,헬드라·이졸데\np1_2,세를의 두름돌,다음\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("2026/10/07 01:05:44", "1", "P1_1", 62), LevelUp("2026/10/07 01:05:45", "1", "me", "머서너리", 57),
+         NpcLine("2026/10/07 01:08:08", "1", "검은 화염의 헬드라", "좋다. 이놈이 먼저 죽는다!"),
+         NpcLine("2026/10/07 01:08:47", "1", "검은 화염의 헬드라", "쪼개져라!"))
+    f = t.snapshot().flags
+    assert f["boss"] == "engaged" and f["last_line"] == "2026/10/07 01:08:47"
+    assert not fight_quiet(f, datetime(2026, 10, 7, 1, 9, 10))   # 23초: 아직 전투
+    assert fight_quiet(f, datetime(2026, 10, 7, 1, 9, 20))       # 33초: 조용 → 일반 패널
+    assert f["boss"] == "engaged"  # 기록상 처치는 지역을 떠날 때
