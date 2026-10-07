@@ -101,6 +101,15 @@ def test_numbered_act_split_by_level(tmp_path):
     assert pick_stage(files, "막간 1", 55).name.endswith("막간")
 
 
+def test_numbered_full_and_low_life_endgame(tmp_path):
+    stages = ["액트 1", "액트 2", "액트 3", "액트 4 이후", "엔드 풀라이프", "엔드 로우라이프"]
+    for i, stage in enumerate(stages, 1):
+        (tmp_path / f"{i}.build").write_text(json.dumps(
+            {"name": f"전염 리치 {i}. {stage}", "ascendancy": "Witch3", "skills": []}), encoding="utf-8")
+    files = families(scan(tmp_path))["전염 리치"]
+    assert pick_stage(files, "막간 2", 50).name.endswith("액트 4 이후")
+    assert pick_stage(files, "엔드게임", 70).name.endswith("엔드 풀라이프")  # 입문용(풀라이프)부터
+
 def test_gem_names_pob_ids_and_spirit():
     from pathlib import Path
     from poe2_overlay.config import resource_dir

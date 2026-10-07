@@ -5,9 +5,11 @@
   "Primal Armament": "Elemental Armament",
   "Expedite": "Short Fuse",
   "Overpower": "Stun",
-  "Wolf Pounce": "Pounce"
+  "Wolf Pounce": "Pounce",
+  "Chaosbolt": "Chaos Bolt",
+  "Sigil Of Power": "Sigil of Power"
  },
- "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정. Wolf Pounce → Pounce(급습)는 모발리틱스 가이드의 '급습 Pounce' 표기로 확인.",
+ "_ids_note": "Scattershot, Primal Armament 는 게임에서 확인(다중 사격, 원소 병기). Expedite, Overpower 는 poe2db 대응 기준 추정. Wolf Pounce → Pounce(급습)는 모발리틱스 가이드의 '급습 Pounce' 표기로 확인. Chaosbolt → Chaos Bolt(카오스 화살), Sigil of Power(힘의 부적)는 poe2db kr 기준 (거래소 데이터에 없음).",
  "names": {
   "malice": "적의",
   "parry": "흘려보내기",
@@ -15,6 +17,8 @@
   "purity of fire": "불의 순수함",
   "purity of ice": "얼음의 순수함",
   "purity of lightning": "번개의 순수함",
-  "righteous descent": "정의로운 강하"
+  "righteous descent": "정의로운 강하",
+  "chaos bolt": "카오스 화살",
+  "sigil of power": "힘의 부적"
  }
 }
