@@ -1,3 +1,4 @@
+import pytest
 from poe2_overlay.config import resource_dir
 from poe2_overlay.encounters import Encounters
 from poe2_overlay.guide import Guide, parse_csv
@@ -399,6 +400,25 @@ def test_english_diamora_off_guide_engage_and_kill():
     feed(t, parse_line(p + "Diamora, the Song of Death: We could have been... so much more."))
     assert t.snapshot().roam_flags.get("boss") == "killed"
 
+
+# 영어 클라이언트 실제 로그 (2026-10-08 위치 캐릭터): 지역, [(화자, 대사, 기대 상태)]
+EN_LOG = {
+    "g1_1": [("Mortimer", "Dark one! Assist us!", "soon"),
+             ("The Bloated Miller", "Saw you in half!", "engaged"),
+             ("Mortimer", "Well done! Please come inside.", "killed")],
+}
+
+
+@pytest.mark.parametrize("zone", sorted(EN_LOG))
+def test_english_real_log_signals(zone):
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv(f"{zone},here,step\ng1_town,town,next\n"), "t")
+    t = Tracker(g, encounters=enc)
+    feed(t, AreaEntered("t", "1", zone.upper(), 2), LevelUp("t", "1", "me", "Witch", 2))
+    for who, text, want in EN_LOG[zone]:
+        feed(t, parse_line(f"2026/10/08 01:56:38 1 a [INFO Client 1] {who}: {text}"))
+        f = t.snapshot().flags
+        assert (f.get("boss") or ("soon" if f.get("soon") else None)) == want, (who, text, f)
 
 def test_yeti_then_hilda_in_town_advances():
     # 설인 처치 뒤 포탈로 마을 → 힐다(특화의 서) 단계로 넘어가고, 빙하 호수로 가면 다음 단계

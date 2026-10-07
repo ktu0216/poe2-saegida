@@ -1,7 +1,11 @@
 {
   "_comment": "English client: boss names per area (poe2db.tw/us Act 1-4 and Interlude pages, 2026-10-05). Fight starts when a line from one of these speakers appears; leaving the area alive counts as a kill. Kill/phase lines are not known for the English client yet (no English log sample), so there are no markers and gate=false everywhere (a town visit always advances the step). Speaker names in the log may differ from monster names — fix them here when you see the real log.",
   "zones": {
-    "g1_1":    {"bosses": ["The Bloated Miller"], "gate": false},
+    "g1_1":    {"bosses": ["The Bloated Miller"],
+                "markers": [
+                  {"speaker": "Mortimer", "text": "Assist us", "label": "", "soon": true},
+                  {"speaker": "Mortimer", "text": "Well done", "label": "", "kill": true}
+                ]},
     "g1_2":    {"bosses": ["Beira of the Rotten Pack"], "gate": false},
     "g1_5":    {"bosses": ["The Rust King"], "gate": false,
                 "markers": [
