@@ -6,7 +6,11 @@
                   {"speaker": "Mortimer", "text": "Assist us", "label": "", "soon": true},
                   {"speaker": "Mortimer", "text": "Well done", "label": "", "kill": true}
                 ]},
-    "g1_2":    {"bosses": ["Beira of the Rotten Pack"], "gate": false},
+    "g1_2":    {"bosses": ["Beira of the Rotten Pack"],
+                "_note": "Lullaby when you get close = soon. No death line: the cold resistance reward during the fight = kill",
+                "markers": [
+                  {"speaker": "Beira of the Rotten Pack", "text": "Sleep in ice", "label": "", "soon": true}
+                ]},
     "g1_5":    {"bosses": ["The Rust King"], "gate": false,
                 "markers": [
                   {"speaker": "Ghostly Voice", "text": "Our will persists", "label": "Obelisk 2/3"},
