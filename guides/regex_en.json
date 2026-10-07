@@ -21,6 +21,17 @@
       "regex": "([21]0|[21]5)% i.+mov|^\\+.*ile skills$|o sp|s: (am|ri|spe)"
     },
     {
+      "name": "Contagion Lich",
+      "build": "전염 리치|Contagion|Lich",
+      "classes": [
+        "Witch",
+        "Lich"
+      ],
+      "acts": [],
+      "_note": "From the build guide (DEADRABB1T, 0.5.5): life, movement speed, spell damage, chaos damage, spell skill levels, maximum energy shield",
+      "regex": "\\d.+life|\\d+% i.+mov|d Spell D|os D|ell s|m En"
+    },
+    {
       "name": "Grenade starter",
       "build": "유탄|Grenade",
       "classes": [
