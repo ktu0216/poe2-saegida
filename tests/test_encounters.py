@@ -428,6 +428,9 @@ EN_LOG = {
               ("Geonor, the Putrid Wolf: I smell your blood... And I am ravenous.", "engaged"),
               ("The Hooded One: Allow me to clear your mind, if only for a moment.", "killed"),
               ("Geonor, the Putrid Wolf: The madness... It consumed my being.", "killed")],
+    "g2_10_2": [("Rudja, Dread Engineer: Insane? Perhaps that is true!", "engaged"),  # 로그 화자는 "the" 없음
+                ("Risu, Faridun Defector: Run!", "engaged"),
+                ("Risu, Faridun Defector: Quickly, break the lock!", "killed")],
 }
 
 

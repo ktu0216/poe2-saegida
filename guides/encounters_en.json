@@ -50,7 +50,11 @@
                   {"speaker": "The Hooded One", "text": "", "label": "", "kill": true}
                 ]},
     "g2_1":    {"bosses": ["Rathbreaker"], "gate": false},
-    "g2_10_2": {"bosses": ["Rudja, the Dread Engineer"], "gate": false},
+    "g2_10_2": {"bosses": ["Rudja, Dread Engineer"],
+                "markers": [
+                  {"speaker": "Risu, Faridun Defector", "text": "break the lock", "label": "", "kill": true},
+                  {"speaker": "Risu, Faridun Defector", "text": "Winds praise you", "label": "Risu rescued", "kill": true}
+                ]},
     "g2_2":    {"bosses": ["Balbala, the Traitor"], "gate": false},
     "g2_3":    {"bosses": ["Jamanra, the Risen King"], "gate": false},
     "g2_5_2":  {"bosses": ["Ekbab, Ancient Steed"], "gate": false},
