@@ -431,6 +431,7 @@ EN_LOG = {
     "g2_10_2": [("Rudja, Dread Engineer: Insane? Perhaps that is true!", "engaged"),  # 로그 화자는 "the" 없음
                 ("Risu, Faridun Defector: Run!", "engaged"),
                 ("Risu, Faridun Defector: Quickly, break the lock!", "killed")],
+    "g2_2": [("Balbala: Now <i>{jingakh}, I prove myself!", "engaged")],  # 로그 화자는 그냥 "Balbala"
 }
 
 

@@ -55,7 +55,7 @@
                   {"speaker": "Risu, Faridun Defector", "text": "break the lock", "label": "", "kill": true},
                   {"speaker": "Risu, Faridun Defector", "text": "Winds praise you", "label": "Risu rescued", "kill": true}
                 ]},
-    "g2_2":    {"bosses": ["Balbala, the Traitor"], "gate": false},
+    "g2_2":    {"bosses": ["Balbala", "Balbala, the Traitor"], "_note": "Log speaker is just \"Balbala\". No death line (leaving the area = kill)"},
     "g2_3":    {"bosses": ["Jamanra, the Risen King"], "gate": false},
     "g2_5_2":  {"bosses": ["Ekbab, Ancient Steed"], "gate": false},
     "g2_4_1":  {"bosses": ["Kabala, Constrictor Queen"], "gate": false},
