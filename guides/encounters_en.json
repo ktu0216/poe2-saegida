@@ -37,7 +37,11 @@
                   {"speaker": "The King in the Mists", "text": "The Wildwood's power", "label": "Phase 2", "phase": true},
                   {"speaker": "The King in the Mists", "text": "We will meet again", "label": "", "kill": true}
                 ]},
-    "g1_13_2": {"bosses": ["The Executioner"], "gate": false},
+    "g1_13_2": {"bosses": ["The Executioner"], "gate": false,
+                "_note": "No death line (leaving the area = kill)",
+                "markers": [
+                  {"speaker": "Leitis", "text": "", "label": "", "soon": true}
+                ]},
     "g1_15":   {"bosses": ["Count Geonor"], "gate": false},
     "g2_1":    {"bosses": ["Rathbreaker"], "gate": false},
     "g2_10_2": {"bosses": ["Rudja, the Dread Engineer"], "gate": false},

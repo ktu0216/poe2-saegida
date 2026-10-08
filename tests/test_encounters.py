@@ -420,6 +420,8 @@ EN_LOG = {
               ("The King in the Mists: You have your audience, traveller!", "engaged"),
               ("The King in the Mists: The Wildwood's power... is mine!", "engaged"),
               ("The King in the Mists: We will meet again...", "killed")],
+    "g1_13_2": [("Leitis: Help us!", "soon"),
+                ("The Executioner: You should've been burned at the stake, witch.", "engaged")],
 }
 
 
