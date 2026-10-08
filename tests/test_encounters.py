@@ -413,6 +413,8 @@ EN_LOG = {
              ("Lachlann the Lost: At last! It's open! Praise the First Ones!", "soon"),
              ("Lachlann of Endless Lament: My rage burns!", "engaged"),
              ("Lachlann of Endless Lament: Together... at last...", "killed")],
+    "g1_11": [("Delwyn: Ready? Go on, then.", "soon"),
+              (": You have received 2 Passive Skill Points.", "killed")],
 }
 
 

@@ -24,7 +24,11 @@
                 ],
                 "subzones": {"g1_8": {"boss": "Draven, the Eternal Praetor", "label": "Praetor"},
                              "g1_9": {"boss": "Asinia, the Praetor's Consort", "label": "Consort"}}},
-    "g1_11":   {"label": "The Crowbell", "gate": false},
+    "g1_11":   {"label": "The Crowbell", "book_kill": "any",
+                "_note": "The Crowbell does not speak: Delwyn starting the hunt = soon, using the Book of Specialisation it drops = kill",
+                "markers": [
+                  {"speaker": "Delwyn", "text": "Go on, then", "label": "", "soon": true}
+                ]},
     "g1_12":   {"bosses": ["The King in the Mists"], "gate": false},
     "g1_13_2": {"bosses": ["The Executioner"], "gate": false},
     "g1_15":   {"bosses": ["Count Geonor"], "gate": false},
