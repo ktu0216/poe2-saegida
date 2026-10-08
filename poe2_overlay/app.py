@@ -527,7 +527,7 @@ class Controller:
             if now - self._regex_copied_at < 20:
                 return
         self._regex_copied_at = now
-        QApplication.clipboard().setText(rule.regex)
+        QApplication.clipboard().setText(rule.search_text)
         self.flash = t("📋 {name} 정규식 복사됨 — 검색창에 Ctrl+V", name=rule.name)
         QTimer.singleShot(4000, self._clear_flash)
         self.refresh()

@@ -16,6 +16,13 @@ class RegexRule:
     acts: tuple[str, ...]
     regex: str
 
+    @property
+    def search_text(self) -> str:
+        """검색칸에 넣을 문자열. 게임은 띄어쓰기로 나뉜 조각을 모두 만족(AND)해야 표시하므로,
+        띄어쓰기가 있는 식("d Spell D")은 따옴표로 감싸 하나의 식으로 만든다. 이미 따옴표가 있으면 그대로."""
+        r = self.regex
+        return f'"{r}"' if " " in r and '"' not in r else r
+
 
 class RegexBook:
     def __init__(self, rules: list[RegexRule], vendors: set[str]):

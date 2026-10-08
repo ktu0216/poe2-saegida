@@ -36,6 +36,11 @@ _SPIRIT_MOD = re.compile(r"^정신력 \+(\d+)$|^\+(\d+) to Spirit$")  # 목걸�
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
 _ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
 _ADDED_EN = re.compile(r"Adds (\d+) to (\d+) (Physical|Fire|Cold|Lightning|Chaos) Damage to Attacks")
+# 주문 무기·장신구: "주문 피해 42% 증가" / "42% increased Spell Damage" (치명타 주문 피해 보너스는 제외)
+_INC = re.compile(r"^(주문|카오스|혼돈|화염|냉기|번개|원소) 피해 (\d+)% 증가$|^(\d+)% increased (Spell|Chaos|Fire|Cold|Lightning|Elemental) Damage$")
+_INC_KIND = {"Spell": "주문", "Chaos": "카오스", "혼돈": "카오스", "Fire": "화염", "Cold": "냉기", "Lightning": "번개",
+             "Elemental": "원소"}
+_CAST = re.compile(r"^시전 속도 (\d+)% 증가$|^(\d+)% increased Cast Speed$")
 # 옵션 수치 뒤의 등급 범위 표기 제거: "화염 저항 +7(6-10)%" -> "화염 저항 +7%"
 _ROLL = re.compile(r"\(\d+(?:\.\d+)?-\d+(?:\.\d+)?\)")
 
@@ -58,6 +63,8 @@ class Item:
     item_level: int = 0
     spirit: int = 0  # 셉터 등의 정신력 (속성 줄 "정신력: 132")
     skill_levels: dict[str, int] = field(default_factory=dict)  # 소환수/투사체/주문 … → +N
+    inc_damage: dict[str, int] = field(default_factory=dict)  # 주문/카오스/화염 … 피해 N% 증가
+    cast_speed: int = 0
 
     @property
     def is_weapon(self) -> bool:
@@ -164,6 +171,12 @@ def parse_item(text: str) -> Optional[Item]:
             item.move_speed += int(m[1] or m[2])
         if item.item_class not in ("셉터", "Sceptres", "Sceptre") and (m := _SPIRIT_MOD.match(ln)):
             item.spirit += int(m[1] or m[2])
+        if m := _INC.match(ln):
+            kind = m[1] or m[4]
+            kind = _INC_KIND.get(kind, kind)
+            item.inc_damage[kind] = item.inc_damage.get(kind, 0) + int(m[2] or m[3])
+        if m := _CAST.match(ln):
+            item.cast_speed += int(m[1] or m[2])
         for m in _SKILL_LV.finditer(ln):
             kind = (m[1] or m[4]).strip()
             item.skill_levels[kind] = item.skill_levels.get(kind, 0) + int(m[2] or m[3])
@@ -183,7 +196,13 @@ def defense_score(it: Item) -> float:
     """방어구·장신구 비교 점수 (compare 의 판정과 같은 가중치)."""
     return (it.life + it.res_total * 3 + it.move_speed * 3 + it.added_avg * 2
             + (it.armour + it.evasion + it.energy_shield) / 10 + it.spirit / 2
-            + sum(it.skill_levels.values()) * 30)
+            + sum(it.skill_levels.values()) * 30 + caster_score(it))
+
+
+def caster_score(it: Item) -> float:
+    """주문 피해·시전 속도: 주문 피해 증가 1% = 1점, 피해 종류별 증가는 빌드에 따라 달라 절반, 시전 속도 1% = 2점."""
+    return (it.inc_damage.get("주문", 0) + sum(v for k, v in it.inc_damage.items() if k != "주문") / 2
+            + it.cast_speed * 2)
 
 
 def _pct(new: float, old: float) -> str:
@@ -196,6 +215,10 @@ def _label(key: str) -> str:
     """비교 줄 이름 (내부 키는 한국어) → 화면 언어."""
     if key.endswith(" 스킬 레벨"):
         return t("{kind} 스킬 레벨", kind=key[:-len(" 스킬 레벨")])
+    if key.endswith(" 피해 증가"):
+        kind = key[:-len(" 피해 증가")]
+        en = {v: k for k, v in _INC_KIND.items() if k.isascii()}.get(kind, kind)
+        return t("{kind} 피해 증가", kind=kind if t("시전 속도") == "시전 속도" else en)
     return t(key)
 
 
@@ -222,6 +245,9 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
              "공격 추가 피해": round(it.added_avg, 1), "정신력": it.spirit}
         for kind in set(new.skill_levels) | set(old.skill_levels if old else {}):
             r[f"{kind} 스킬 레벨"] = it.skill_levels.get(kind, 0)
+        for kind in set(new.inc_damage) | set(old.inc_damage if old else {}):
+            r[f"{kind} 피해 증가"] = it.inc_damage.get(kind, 0)
+        r["시전 속도"] = it.cast_speed
         return r
 
     cur = rows(new)
@@ -237,6 +263,7 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
              + (cur["공격 추가 피해"] - prev["공격 추가 피해"]) * 2
              + sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
              + (cur["정신력"] - prev["정신력"]) / 2
-             + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30)  # 스킬 레벨 +1 은 매우 큼
+             + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30  # 스킬 레벨 +1 은 매우 큼
+             + caster_score(new) - caster_score(old))
     verdict = 1 if score > 2 else (-1 if score < -2 else 0)
     return new.item_class, diffs, verdict

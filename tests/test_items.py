@@ -104,3 +104,56 @@ def test_amulet_resist_vs_life_and_spirit_mod():
     assert old.spirit == 14 and new.spirit == 15
     _, diffs, verdict = compare(new, old)
     assert verdict == 1 and "저항 합 +30" in diffs and "정신력 +1" in diffs
+
+
+BONE_WAND = """Item Class: Wands
+Rarity: Rare
+Oblivion Barb
+Bone Wand
+--------
+Requires: Level 6
+--------
+Item Level: 9
+--------
+Grants Skill: Level 3 Bone Blast
+--------
+{ Prefix Modifier "Adept's" (Tier: 7) — Damage, Caster }
+42(35-44)% increased Spell Damage
+{ Prefix Modifier "Cobalt" (Tier: 10) — Mana }
++18(15-24) to maximum Mana
+{ Suffix Modifier "of Ire" (Tier: 6) — Caster, Critical }
+11(10-14)% increased Critical Spell Damage Bonus
+{ Suffix Modifier "of Warmth" (Tier: 3) — Mana }
+9(8-12)% increased Mana Regeneration Rate
+5% increased Light Radius
+"""
+
+FIRE_WAND = """Item Class: Wands
+Rarity: Magic
+Fervent Withered Wand
+--------
+Requires: Level 4
+--------
+Item Level: 6
+--------
+Grants Skill: Level 3 Chaos Bolt
+--------
+{ Prefix Modifier "Fervent" (Tier: 6) — Damage, Elemental, Fire }
+Gain 14(13-15)% of Damage as Extra Fire Damage
+"""
+
+
+def test_caster_wand_compares_spell_damage():
+    # 지팡이는 공격 속도가 없어 방어구처럼 비교됨 → 주문 피해 증가가 없으면 '비슷'으로 나오던 문제 (2026-10-09)
+    new, old = parse_item(BONE_WAND), parse_item(FIRE_WAND)
+    assert new.inc_damage == {"주문": 42} and new.cast_speed == 0  # 치명타 주문 피해 보너스는 제외
+    _, diffs, verdict = compare(new, old)
+    assert verdict == 1 and "주문 피해 증가 +42" in diffs
+    _, _, back = compare(old, new)
+    assert back == -1
+
+
+def test_cast_speed_and_chaos_damage_parse():
+    it = parse_item("Item Class: Wands\nRarity: Rare\nX\nWithered Wand\n--------\n"
+                    "25% increased Chaos Damage\n35% increased Spell Damage\n9% increased Cast Speed\n")
+    assert it.inc_damage == {"카오스": 25, "주문": 35} and it.cast_speed == 9

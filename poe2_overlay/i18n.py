@@ -215,6 +215,8 @@ EN: dict[str, str] = {
     "공격 추가 피해": "Added attack dmg",
     "정신력": "Spirit",
     "{kind} 스킬 레벨": "{kind} skill levels",
+    "{kind} 피해 증가": "{kind} damage",
+    "시전 속도": "Cast speed",
     "반지 2": "Ring 2",
     # 메뉴
     "다음 단계  ({key})": "Next step  ({key})",

@@ -32,3 +32,14 @@ def test_english_regex_rules_and_vendors():
     assert book.vendor_spoke("2026/10/05 19:12:13 1 a [INFO Client 26348] Renly: Take a look.")
     ko = RegexBook.load(data_file("regex", "ko"))
     assert [r.build for r in book.rules] == [r.build for r in ko.rules]  # 한·영 같은 규칙
+
+
+def test_search_text_quotes_regex_with_spaces():
+    # 띄어쓰기가 있으면 게임이 조각마다 AND 로 찾으므로 따옴표로 감싼다 (2026-10-09 신발 이동 속도가 안 잡힘)
+    from poe2_overlay.config import data_file
+    book = RegexBook.load(data_file("regex", "en"))
+    lich = book.select("전염 리치 1. 액트 1", "Witch", "Act 1")
+    assert lich.search_text == r'"\d.+life|\d+% i.+mov|d Spell D|os D|ell s|m En"'
+    assert book.select("", "Mercenary", "Act 1").search_text.startswith('"!quiver" ')  # 이미 따옴표
+    assert book.select("Navira", "", "Act 1").search_text == '"spell sk|minion|allies|spirit|movement"'
+    assert book.select("Shield Wall", "", "Act 1").search_text == "to.att|speed|melee|leech|tower"  # 띄어쓰기 없음
