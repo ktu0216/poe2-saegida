@@ -409,6 +409,7 @@ EN_LOG = {
     "g1_2": [("Beira of the Rotten Pack: Sleep in ice, wake in snow. Sleep my pretties as you grow...", "soon"),
              ("Beira of the Rotten Pack: Invader!", "engaged"),
              (": tu_fr_xxxiii has received +10% to [Resistances|Cold Resistance].", "killed")],
+    "g1_7": [("Lachlann the Lost: Quickly! My family has been abducted!", "soon")],
 }
 
 

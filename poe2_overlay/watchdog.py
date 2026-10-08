@@ -1,9 +1,9 @@
-"""멈춤 진단: 화면 스레드가 5초 넘게 응답하지 않으면 모든 스레드의 호출 위치를 로그 파일에 남긴다.
+"""멈춤 진단: 화면 스레드가 3초 넘게 응답하지 않으면 모든 스레드의 호출 위치를 로그 파일에 남긴다.
 
 오버레이가 '응답 없음'으로 닫혀도 다음에 원인을 찾을 수 있게 한다.
 화면 스레드가 Qt·Windows 함수 안에서 멈추면 파이썬 스레드는 돌지 못하므로(GIL),
 기록은 faulthandler 의 C 수준 타이머(dump_traceback_later)로 한다. 1초마다 다시 걸어 두고,
-5초 안에 다시 걸지 못하면(= 멈춤) 그때의 호출 위치가 기록된다.
+3초 안에 다시 걸지 못하면(= 멈춤) 그때의 호출 위치가 기록된다.
 로그: %APPDATA%\\poe2-saegida\\overlay.log (1MB 넘으면 새로 시작)
 """
 from __future__ import annotations
@@ -15,7 +15,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-STALL_SEC = 5.0
+STALL_SEC = 3.0  # Windows 가 5초 응답 없음으로 닫기 전에 기록되게 (2026-10-09 기록 없이 닫힘)
 
 
 class Watchdog:

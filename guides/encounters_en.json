@@ -17,6 +17,9 @@
                   {"speaker": "Ghostly Voice", "text": "This is our land", "label": "Obelisk 3/3", "soon": true}
                 ]},
     "g1_7":    {"bosses": ["Lachlann of Endless Lament"], "gate": false,
+                "markers": [
+                  {"speaker": "Lachlann the Lost", "text": "My family", "label": "", "soon": true}
+                ],
                 "subzones": {"g1_8": {"boss": "Draven, the Eternal Praetor", "label": "Praetor"},
                              "g1_9": {"boss": "Asinia, the Praetor's Consort", "label": "Consort"}}},
     "g1_11":   {"label": "The Crowbell", "gate": false},
