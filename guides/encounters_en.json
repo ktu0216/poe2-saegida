@@ -29,7 +29,14 @@
                 "markers": [
                   {"speaker": "Delwyn", "text": "Go on, then", "label": "", "soon": true}
                 ]},
-    "g1_12":   {"bosses": ["The King in the Mists"], "gate": false},
+    "g1_12":   {"bosses": ["The King in the Mists"],
+                "markers": [
+                  {"speaker": "The King in the Mists", "text": "Ko leor", "label": "Ritual 1/3"},
+                  {"speaker": "The King in the Mists", "text": "Begone", "label": "Ritual 2/3"},
+                  {"speaker": "The King in the Mists", "text": "You have your audience", "label": "Ritual 3/3", "engage": true},
+                  {"speaker": "The King in the Mists", "text": "The Wildwood's power", "label": "Phase 2", "phase": true},
+                  {"speaker": "The King in the Mists", "text": "We will meet again", "label": "", "kill": true}
+                ]},
     "g1_13_2": {"bosses": ["The Executioner"], "gate": false},
     "g1_15":   {"bosses": ["Count Geonor"], "gate": false},
     "g2_1":    {"bosses": ["Rathbreaker"], "gate": false},

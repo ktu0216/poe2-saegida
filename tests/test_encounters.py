@@ -415,6 +415,11 @@ EN_LOG = {
              ("Lachlann of Endless Lament: Together... at last...", "killed")],
     "g1_11": [("Delwyn: Ready? Go on, then.", "soon"),
               (": You have received 2 Passive Skill Points.", "killed")],
+    "g1_12": [("The King in the Mists: <i>{Ko leor}... traveler.", None),  # 의식은 전투가 아님
+              ("The King in the Mists: Begone!", None),
+              ("The King in the Mists: You have your audience, traveller!", "engaged"),
+              ("The King in the Mists: The Wildwood's power... is mine!", "engaged"),
+              ("The King in the Mists: We will meet again...", "killed")],
 }
 
 
