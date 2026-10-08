@@ -42,7 +42,13 @@
                 "markers": [
                   {"speaker": "Leitis", "text": "", "label": "", "soon": true}
                 ]},
-    "g1_15":   {"bosses": ["Count Geonor"], "gate": false},
+    "g1_15":   {"bosses": ["Geonor, the Putrid Wolf"], "engage_after_soon": ["Count Geonor"],
+                "_note": "Count Geonor talks to the diggers before the fight: only his lines after the Countess count as the fight",
+                "markers": [
+                  {"speaker": "The Countess", "text": "", "label": "", "soon": true},
+                  {"speaker": "Geonor, the Putrid Wolf", "text": "", "label": "Phase 2 (Wolf)", "phase": true},
+                  {"speaker": "The Hooded One", "text": "", "label": "", "kill": true}
+                ]},
     "g2_1":    {"bosses": ["Rathbreaker"], "gate": false},
     "g2_10_2": {"bosses": ["Rudja, the Dread Engineer"], "gate": false},
     "g2_2":    {"bosses": ["Balbala, the Traitor"], "gate": false},

@@ -422,6 +422,12 @@ EN_LOG = {
               ("The King in the Mists: We will meet again...", "killed")],
     "g1_13_2": [("Leitis: Help us!", "soon"),
                 ("The Executioner: You should've been burned at the stake, witch.", "engaged")],
+    "g1_15": [("Count Geonor: Yes, another one. He's under there.", None),  # 일꾼에게 하는 말 = 전투 아님
+              ("The Countess: Husband, this interloper has the power we need!", "soon"),
+              ("Count Geonor: No noose this time. I'll remove your head myself!", "engaged"),
+              ("Geonor, the Putrid Wolf: I smell your blood... And I am ravenous.", "engaged"),
+              ("The Hooded One: Allow me to clear your mind, if only for a moment.", "killed"),
+              ("Geonor, the Putrid Wolf: The madness... It consumed my being.", "killed")],
 }
 
 
