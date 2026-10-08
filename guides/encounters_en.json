@@ -64,7 +64,7 @@
                   {"speaker": "Jamanra, the Risen King", "text": "but not today", "label": "", "kill": true}
                 ]},
     "g2_5_2":  {"bosses": ["Iktab, the Deathlord", "Ekbab, Ancient Steed"], "_note": "Only the rider Iktab speaks (Korean data: 죽음군주 이크탑). No death line"},
-    "g2_4_1":  {"bosses": ["Kabala, Constrictor Queen"], "gate": false},
+    "g2_4_1":  {"bosses": ["Kabala, Constrictor Queen"], "book_kill": "engaged", "_note": "No death line: using the Book of Specialisation she drops during the fight = kill"},
     "g2_4_3":  {"bosses": ["Azarian, the Forsaken Son"], "gate": false},
     "g2_7":    {"bosses": ["Zalmarath, the Colossus"], "gate": false},
     "g2_9_2":  {"bosses": ["Jamanra, the Risen King"], "label": "Tor Gul, the Defiler", "gate": false},

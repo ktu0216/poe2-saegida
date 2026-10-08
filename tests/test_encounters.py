@@ -437,6 +437,8 @@ EN_LOG = {
              ("Jamanra, the Risen King: Noxious <i>{Sekhema}... ", "engaged"),
              ("Jamanra, the Risen King: We will finish this, but not today.", "killed")],
     "g2_5_2": [("Iktab, the Deathlord: <i>{Dagok}!", "engaged")],  # 말하는 건 기수 이크탑
+    "g2_4_1": [("Kabala, Constrictor Queen: Kabala...", "engaged"),
+               (": You have received 2 Passive Skill Points.", "killed")],  # 전투 중 특화의 서 = 처치
 }
 
 
