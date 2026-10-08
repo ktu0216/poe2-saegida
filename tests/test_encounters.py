@@ -436,6 +436,7 @@ EN_LOG = {
              ("Sekhema Asala: The final gate is broken! We must continue our advance!", "soon"),
              ("Jamanra, the Risen King: Noxious <i>{Sekhema}... ", "engaged"),
              ("Jamanra, the Risen King: We will finish this, but not today.", "killed")],
+    "g2_5_2": [("Iktab, the Deathlord: <i>{Dagok}!", "engaged")],  # 말하는 건 기수 이크탑
 }
 
 

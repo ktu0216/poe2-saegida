@@ -63,7 +63,7 @@
                   {"speaker": "Sekhema Asala", "text": "final gate is broken", "label": "Gate 3/3", "soon": true},
                   {"speaker": "Jamanra, the Risen King", "text": "but not today", "label": "", "kill": true}
                 ]},
-    "g2_5_2":  {"bosses": ["Ekbab, Ancient Steed"], "gate": false},
+    "g2_5_2":  {"bosses": ["Iktab, the Deathlord", "Ekbab, Ancient Steed"], "_note": "Only the rider Iktab speaks (Korean data: 죽음군주 이크탑). No death line"},
     "g2_4_1":  {"bosses": ["Kabala, Constrictor Queen"], "gate": false},
     "g2_4_3":  {"bosses": ["Azarian, the Forsaken Son"], "gate": false},
     "g2_7":    {"bosses": ["Zalmarath, the Colossus"], "gate": false},
