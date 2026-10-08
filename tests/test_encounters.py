@@ -432,6 +432,10 @@ EN_LOG = {
                 ("Risu, Faridun Defector: Run!", "engaged"),
                 ("Risu, Faridun Defector: Quickly, break the lock!", "killed")],
     "g2_2": [("Balbala: Now <i>{jingakh}, I prove myself!", "engaged")],  # 로그 화자는 그냥 "Balbala"
+    "g2_3": [("Sekhema Asala: Advance with me! There are two more gates we must open!", None),
+             ("Sekhema Asala: The final gate is broken! We must continue our advance!", "soon"),
+             ("Jamanra, the Risen King: Noxious <i>{Sekhema}... ", "engaged"),
+             ("Jamanra, the Risen King: We will finish this, but not today.", "killed")],
 }
 
 

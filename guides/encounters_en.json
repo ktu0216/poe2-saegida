@@ -56,7 +56,13 @@
                   {"speaker": "Risu, Faridun Defector", "text": "Winds praise you", "label": "Risu rescued", "kill": true}
                 ]},
     "g2_2":    {"bosses": ["Balbala", "Balbala, the Traitor"], "_note": "Log speaker is just \"Balbala\". No death line (leaving the area = kill)"},
-    "g2_3":    {"bosses": ["Jamanra, the Risen King"], "gate": false},
+    "g2_3":    {"bosses": ["Jamanra, the Risen King"],
+                "_note": "Gate 2/3 line not confirmed yet (after a death the gates kept their progress and Asala said 'If we can allow the caravan through all three gates')",
+                "markers": [
+                  {"speaker": "Sekhema Asala", "text": "two more gates", "label": "Gate 1/3"},
+                  {"speaker": "Sekhema Asala", "text": "final gate is broken", "label": "Gate 3/3", "soon": true},
+                  {"speaker": "Jamanra, the Risen King", "text": "but not today", "label": "", "kill": true}
+                ]},
     "g2_5_2":  {"bosses": ["Ekbab, Ancient Steed"], "gate": false},
     "g2_4_1":  {"bosses": ["Kabala, Constrictor Queen"], "gate": false},
     "g2_4_3":  {"bosses": ["Azarian, the Forsaken Son"], "gate": false},
