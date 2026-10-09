@@ -443,6 +443,11 @@ EN_LOG = {
                ("The Water Goddess: I was mortal then... I was weak...", "engaged"),
                ("Azarian, the Forsaken Son: She didn't... want me...", "killed"),
                ("The Water Goddess: At last... death... Thank you...", "killed")],
+    "g2_12": [("The Countess: You again! The fool under the Hooded One's sway.", "soon"),
+              ("Jamanra, the Abomination: Ahh... the <i>{Sekhema} of the Ardura. Bow before your King!", "engaged"),
+              ("Jamanra, the Abomination: I don't have time for this. Sands, bend to my will! Impede my enemies!", "engaged"),
+              ("Jamanra, the Abomination: Die... foolish <i>{Sekhema}!", "engaged"),
+              ("Jamanra, the Abomination: You have accomplished... nothing. Oriana will prevail...", "killed")],
 }
 
 

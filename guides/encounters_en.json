@@ -73,7 +73,13 @@
                 ]},
     "g2_7":    {"bosses": ["Zalmarath, the Colossus"], "gate": false},
     "g2_9_2":  {"bosses": ["Jamanra, the Risen King"], "label": "Tor Gul, the Defiler", "gate": false},
-    "g2_12":   {"bosses": ["Jamanra, the Abomination"], "gate": false},
+    "g2_12":   {"bosses": ["Jamanra, the Abomination"],
+                "_note": "'Die... foolish Sekhema!' comes before the death line, so it is not a kill signal",
+                "markers": [
+                  {"speaker": "The Countess", "text": "You again", "label": "", "soon": true},
+                  {"speaker": "Jamanra, the Abomination", "text": "Sands, bend to my will", "label": "Phase 2", "phase": true},
+                  {"speaker": "Jamanra, the Abomination", "text": "accomplished... nothing", "label": "", "kill": true}
+                ]},
     "g3_5":    {"bosses": ["Xyclucian, the Chimera"], "gate": false},
     "g3_6_1":  {"bosses": ["Blackjaw, the Remnant"], "gate": false},
     "g3_6_2":  {"label": "Zicoatl, Warden of the Core", "gate": false},
