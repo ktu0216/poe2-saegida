@@ -448,6 +448,7 @@ EN_LOG = {
               ("Jamanra, the Abomination: I don't have time for this. Sands, bend to my will! Impede my enemies!", "engaged"),
               ("Jamanra, the Abomination: Die... foolish <i>{Sekhema}!", "engaged"),
               ("Jamanra, the Abomination: You have accomplished... nothing. Oriana will prevail...", "killed")],
+    "g3_3": [(": You have received 2 Passive Skill Points.", "killed")],  # 은빛 주먹은 말하지 않음: 책 사용 = 처치
 }
 
 

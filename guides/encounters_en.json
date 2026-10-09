@@ -80,6 +80,8 @@
                   {"speaker": "Jamanra, the Abomination", "text": "Sands, bend to my will", "label": "Phase 2", "phase": true},
                   {"speaker": "Jamanra, the Abomination", "text": "accomplished... nothing", "label": "", "kill": true}
                 ]},
+    "g3_3":    {"label": "Mighty Silverfist", "book_kill": "any",
+                "_note": "Silverfist does not speak: using the Book of Specialisation it drops = kill (like The Crowbell)"},
     "g3_5":    {"bosses": ["Xyclucian, the Chimera"], "gate": false},
     "g3_6_1":  {"bosses": ["Blackjaw, the Remnant"], "gate": false},
     "g3_6_2":  {"label": "Zicoatl, Warden of the Core", "gate": false},
