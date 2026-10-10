@@ -237,3 +237,17 @@ def test_normalize_old_gear():
     g = normalize_gear({"무기": MACE_1H, "방패": SHIELD.replace("Item Class: Shields", "아이템 종류: 방패")})
     assert g[MAIN] == MACE_1H and OFF in g
     assert normalize_gear(g) == g  # 두 번 해도 같음
+
+
+SCEPTRE = _it("Sceptres", "Spirit: 100\n")
+
+
+def test_wand_and_sceptre_go_to_different_hands():
+    # 지팡이 + 셉터: 주 손과 종류가 다른 한 손 무기는 보조 손으로, 비교는 같은 종류와 먼저
+    from poe2_overlay.items import MAIN, OFF, equip_key, hand_plan
+    assert equip_key(parse_item(SCEPTRE), {MAIN: BONE_WAND, OFF: FOCUS}) == OFF
+    assert equip_key(parse_item(FIRE_WAND), {MAIN: BONE_WAND, OFF: SCEPTRE}) == MAIN
+    cands, _ = hand_plan(parse_item(FIRE_WAND), {MAIN: BONE_WAND, OFF: SCEPTRE})
+    assert cands[0] == MAIN
+    cands, _ = hand_plan(parse_item(SCEPTRE), {MAIN: BONE_WAND, OFF: SCEPTRE})
+    assert cands[0] == OFF

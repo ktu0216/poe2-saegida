@@ -258,13 +258,14 @@ def hand_plan(new: Item, gear: dict[str, str]) -> tuple[list[str], list[tuple[st
             notes.append(("양손 무기: 보조 손이 빠짐 ({name} · {stats})", {"name": off.item_class, "stats": title}))
         elif new.hand == "one" and main is not None and main.hand == "two" and not giant:
             notes.append(("한 손 무기: 보조 손에 방패·집중구를 함께 들 수 있음", {}))
-    cands.sort(key=lambda k: weapon_score(parse_item(gear[k])))
+    # 같은 종류(지팡이는 지팡이와)를 먼저, 그 안에서 약한 쪽 먼저
+    cands.sort(key=lambda k: (parse_item(gear[k]).item_class != new.item_class, weapon_score(parse_item(gear[k]))))
     return cands, notes
 
 
 def equip_key(item: Item, gear: dict[str, str], target: str = "") -> str:
-    """장착 기준으로 등록할 칸. 손: 보조 손 전용 → 보조 손, 양손 → 주 손, 한 손 → 주 손
-    (두 손에 무기를 들고 있으면 마지막으로 비교한 약한 쪽). 다른 칸에 꼈다면 한 번 더 등록해 옮긴다."""
+    """장착 기준으로 등록할 칸. 손: 보조 손 전용 → 보조 손, 양손 → 주 손, 한 손 → 주 손 (주 손과 종류가 다르면 보조 손,
+    같은 종류를 두 손에 들고 있으면 마지막으로 비교한 약한 쪽). 다른 칸에 꼈다면 한 번 더 등록해 옮긴다."""
     if not item.hand:
         keys = slot_keys(item.slot)
         empty = [k for k in keys if k not in gear]
@@ -272,8 +273,13 @@ def equip_key(item: Item, gear: dict[str, str], target: str = "") -> str:
     keys = hand_keys(item, gear)
     if len(keys) == 1:
         return keys[0]
+    if MAIN not in gear:
+        return MAIN
+    main = parse_item(gear[MAIN])
     off = parse_item(gear[OFF]) if OFF in gear else None
-    if MAIN in gear and off is not None and off.hand != "off":  # 두 손에 무기
+    if main.item_class != item.item_class:  # 주 손과 종류가 다른 한 손 무기(지팡이 + 셉터) = 다른 손에 든 것
+        return OFF
+    if off is not None and off.item_class == item.item_class:  # 같은 종류를 두 손에 (철퇴 두 개)
         return target if target in keys else MAIN
     return MAIN
 
