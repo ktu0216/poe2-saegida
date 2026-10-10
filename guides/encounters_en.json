@@ -93,7 +93,7 @@
                 ]},
     "g3_7":    {"bosses": ["Ignagduk, the Bog Witch"], "gate": false},
     "g3_8":    {"subzones": {"g3_9": {"boss": "Mektul, the Forgemaster", "label": "Mektul (The Molten Vault)"}}},
-    "g3_11":   {"bosses": ["The Queen of Filth"], "gate": false},
+    "g3_11":   {"bosses": ["Queen of Filth", "The Queen of Filth"], "_note": "Log speaker has no \"The\". No death line (leaving the area = kill)"},
     "g3_12":   {"bosses": ["Ketzuli, High Priest of the Sun"], "gate": false},
     "g3_14":   {"bosses": ["Viper Napuatzi"], "gate": false},
     "g3_17":   {"bosses": ["Doryani, Royal Thaumaturge"], "gate": false},

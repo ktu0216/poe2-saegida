@@ -454,6 +454,7 @@ EN_LOG = {
     "g3_6_2": [("Alva: This is the largest Soul Core I've ever seen!", None),
                ("Alva: The Soul Core is charged! Why don't you do the honours?", None),
                ("Alva: Oh dear. Now we just have to remove it from the giant construct... Good luck!", "soon")],
+    "g3_11": [("Queen of Filth: Cleanskin wench! Does my family disgust you?", "engaged")],  # 로그 화자에 The 없음
 }
 
 
