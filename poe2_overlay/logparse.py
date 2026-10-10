@@ -28,6 +28,9 @@ _REWARD_EN = re.compile(r"^: (?P<name>\S+) ha(?:s|ve) received (?P<text>.+?)\.$"
 _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포인트(?:를)? ?(?P<n>\d+)(?:포인트를)? ?획득했습니다\.)")
 # NPC 대사: 화자 이름은 한글 등 비ASCII 포함, 숫자 없음 ("Tile hash: 123" 같은 기술 로그 제외)
 _NPC = re.compile(r"^(?P<who>[^:#@%$&\[\]\s][^:]{0,40}?): (?P<text>.+)$")
+# "You have played for 8 hours, 31 minutes, and 47 seconds." (한국어 문구는 아직 로그로 확인 못 함)
+_PLAYED = re.compile(r"^: You have played for ")
+_PLAYED_UNIT = re.compile(r"(\d+) (days?|hours?|minutes?|seconds?)")
 _AFK_ON = re.compile(r"^: (?:자리 비움 모드를 설정했습니다|AFK mode is now ON)")
 _AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mode is now OFF)")
 # 전직 패시브: "Successfully allocated passive skill id: AscendancyMercenary3Small1, name: 스킬 젬 퀄리티"
@@ -122,6 +125,14 @@ class Afk:
 
 
 @dataclass(frozen=True)
+class Played:
+    """/played (/플레이시간) 결과: 게임이 센 캐릭터 총 접속 시간 (자리 비움·마을 대기 포함)."""
+    ts: str
+    pid: str
+    seconds: int
+
+
+@dataclass(frozen=True)
 class AscendancyNode:
     """전직 패시브 찍기/빼기. asc 는 "Mercenary3" 같은 전직 ID."""
     ts: str
@@ -140,7 +151,7 @@ class Activity:
 
 
 Event = Union[AreaEntered, SceneName, LevelUp, Death, Reward, PassivePoints, LoginConnect, NewCharacter,
-              NpcLine, Afk, AscendancyNode, Activity]
+              NpcLine, Afk, AscendancyNode, Activity, Played]
 
 # 빠른 사전 필터: 이 문자열이 하나도 없으면 정규식을 돌리지 않는다.
 _HINTS = ("Generating level", "[SCENE]", "] : ", "Async connecting", "[WINDOW]", "complete all tutorials",
@@ -197,6 +208,10 @@ def parse_line(line: str) -> Optional[Event]:
         return AscendancyNode(ts, pid, a["node"], a["asc"], a["name"].strip(), not a["un"])
     if not body.startswith(": "):
         return Activity(ts, pid)
+    if _PLAYED.match(body):
+        units = dict((u.rstrip("s"), int(n)) for n, u in _PLAYED_UNIT.findall(body))
+        return Played(ts, pid, units.get("day", 0) * 86400 + units.get("hour", 0) * 3600
+                      + units.get("minute", 0) * 60 + units.get("second", 0))
     if _AFK_ON.match(body):
         return Afk(ts, pid, True)
     if _AFK_OFF.match(body):

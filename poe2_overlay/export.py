@@ -127,13 +127,19 @@ def card_html(c, tv: TimerView, league: str = "") -> str:
         rows.append(f'<tr><td style="color:#c8bfae;padding-right:18px">{html.escape(tact(act))}</td>'
                     f'<td align="right" style="color:#ece6da"><b>{fmt(dur)}</b></td>'
                     f'<td style="padding-left:10px">{diff}</td></tr>')
+    note = ""
+    if c.partial_from:  # 중간부터 잡힌 기록: 위 시간은 그 뒤만, 게임 기준 총 시간이 있으면 함께
+        note = t("기록: {act} 중간부터", act=tact(c.partial_from))
+        if c.played_seconds:
+            note += " · " + t("게임 기준 총 {time} (/played)", time=fmt(c.played_seconds))
+        note = f'<div style="color:#e0b862;font-size:12px;margin-top:4px">{html.escape(note)}</div>'
     pb_line = (f'<span style="color:{"#8fd18b" if total - pb <= 0 else "#ff8a65"}">PB {fmt_delta(total - pb)}</span> · '
                if pb else "")
     return (f'<div style="color:#e8b04a;font-size:13px;letter-spacing:2px">POE2 SAEGIDA · {html.escape(t("캠페인 완주"))}</div>'
             f'<div style="color:#ece6da;font-size:26px;font-weight:bold;margin-top:6px">{who}</div>'
             f'<div style="color:#9a9284;font-size:13px">{sub}</div>'
             f'<div style="color:#e8b04a;font-size:40px;font-weight:bold;margin-top:12px">{fmt(total)}</div>'
-            f'<div style="color:#9a9284;font-size:13px">{pb_line}☠ {c.deaths} · {when}</div>'
+            f'<div style="color:#9a9284;font-size:13px">{pb_line}☠ {c.deaths} · {when}</div>{note}'
             f'<table style="margin-top:14px;font-size:15px" cellspacing="0" cellpadding="3">{"".join(rows)}</table>'
             f'<div style="color:#6f685c;font-size:11px;margin-top:14px">github.com/ktu0216/poe2-saegida</div>')
 

@@ -45,9 +45,11 @@ def personal_bests(chars: Iterable[Character], exclude: Optional[str] = None) ->
         if c.name == exclude or c.name in PLACEHOLDERS:
             continue
         for act, dur, done in act_durations(c):
+            if act == c.partial_from:  # 중간부터 잡힌 액트는 구간이 잘렸다
+                continue
             if done and dur >= MIN_SPLIT and (act not in best or dur < best[act]):
                 best[act] = dur
-        if ENDGAME in c.splits:  # 캠페인 완주 시간
+        if ENDGAME in c.splits and not c.partial_from:  # 캠페인 완주 시간 (처음부터 잰 기록만)
             total = c.splits[ENDGAME] - min(c.splits.values())
             if total >= MIN_CAMPAIGN and (CAMPAIGN not in best or total < best[CAMPAIGN]):
                 best[CAMPAIGN] = total
@@ -72,7 +74,7 @@ def timer_view(c: Character, pbs: dict[str, float], live_extra: float = 0.0) -> 
         rows.append((act, dur if done else dur + live_extra, done, pbs.get(act)))
     if not rows:
         return None
-    if ENDGAME in c.splits:
+    if ENDGAME in c.splits and not c.partial_from:
         rows.append((CAMPAIGN, c.splits[ENDGAME] - min(c.splits.values()), True, pbs.get(CAMPAIGN)))
     cur_act, cur_time, _, cur_pb = next(r for r in reversed(rows) if r[0] != CAMPAIGN)
     return TimerView(cur_act, cur_time, c.play_seconds + live_extra, cur_pb, rows)

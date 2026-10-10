@@ -218,6 +218,23 @@ EN: dict[str, str] = {
     "{kind} 피해 증가": "{kind} damage",
     "시전 속도": "Cast speed",
     "반지 2": "Ring 2",
+    # PC 옮기기
+    "진행 코드 (PC 옮기기)": "Progress code (switching PCs)",
+    "진행 코드 복사": "Copy progress code",
+    "진행 코드 붙여넣기 (클립보드)": "Paste progress code (clipboard)",
+    "이전 보상 받음으로 채우기 (지나온 단계)": "Mark earlier rewards as received (steps behind you)",
+    "안내 닫기": "Dismiss notice",
+    "진행 코드 복사됨 ({n}자) — 카톡 나에게 보내기 등에 붙여 두세요": "Progress code copied ({n} chars) — keep it in a note or a message to yourself",
+    "클립보드에 진행 코드가 없습니다 — 코드 전체를 복사한 뒤 다시": "No progress code in the clipboard — copy the whole code and try again",
+    "{name}: 이 PC 의 기록(Lv {a}, {at})이 코드(Lv {b}, {bt})보다 최근입니다. 코드로 바꿀까요? 이 PC 기록은 '(이전)' 이름으로 남겨 둡니다.":
+        "{name}: the record on this PC (Lv {a}, {at}) is newer than the code (Lv {b}, {bt}). Replace it with the code? The record on this PC is kept under an '(이전)' name.",
+    "✓ {name} 진행을 가져왔습니다 (Lv {lv}, {step}단계)": "✓ Imported {name} (Lv {lv}, step {step})",
+    "지나온 단계: 영구 보상 {n}칸 · 퀘스트 패시브 +{p} 받음으로 표시": "Steps behind you: {n} permanent rewards · +{p} quest passives marked as received",
+    "📋 {act} 중간부터 잡힌 캐릭터 — 다른 PC 의 기록이 있으면 우클릭 → 진행 코드 → 붙여넣기, 없으면 → 이전 보상 받음으로 채우기":
+        "📋 Character picked up mid-{act} — if you have a record from another PC: Right-click → Progress code → Paste; otherwise → Mark earlier rewards as received",
+    "이전 기록": "earlier record",
+    "기록: {act} 중간부터": "Recorded from mid-{act}",
+    "게임 기준 총 {time} (/played)": "game total {time} (/played)",
     # 장비 부위 (저장 키는 언어 무관한 한국어)
     "갑옷": "Body Armour",
     "투구": "Helmet",

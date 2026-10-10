@@ -14,9 +14,9 @@ from typing import Optional
 
 from PySide6.QtCore import QProcess, QTimer
 from PySide6.QtGui import QAction, QActionGroup
-from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QSystemTrayIcon
+from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QMessageBox, QSystemTrayIcon
 
-from . import __version__, config, endgame, export, i18n, updater
+from . import __version__, config, endgame, export, i18n, progress_code, updater
 from .i18n import t
 from .guide import Guide, is_town
 from .logparse import parse_line
@@ -391,6 +391,9 @@ class Controller:
         self.overlay.waiting = False
         c = snap.character
         states = self.rewards.evaluate(c.rewards) if c else []
+        for i in (c.assumed_slots if c else []):  # '이전 보상 채우기'로 받았다고 표시한 칸
+            if i < len(states) and not states[i].got:
+                states[i].got = [t("이전 기록")]
         timer = None
         if c and c.name not in PLACEHOLDERS[1:]:
             if self._pbs_for != c.name:  # PB 는 캐릭터가 바뀔 때만 다시 계산
@@ -466,6 +469,66 @@ class Controller:
     def toggle_gem_card(self) -> None:
         self.show_gem_card = not self.show_gem_card
         self.refresh()
+
+    # ---------------------------------------------------------- PC 옮기기
+    def copy_progress_code(self) -> None:
+        c = self.tracker.snapshot().character
+        if c is None or c.name in PLACEHOLDERS:
+            return
+        code = progress_code.encode(c, self.settings.get("char_builds", {}).get(c.name, ""))
+        QApplication.clipboard().setText(code)
+        self.flash = t("진행 코드 복사됨 ({n}자) — 카톡 나에게 보내기 등에 붙여 두세요", n=len(code))
+        QTimer.singleShot(8000, self._clear_flash)
+        self.refresh()
+
+    def paste_progress_code(self) -> None:
+        try:
+            imp, build = progress_code.decode(QApplication.clipboard().text())
+        except ValueError:
+            self.flash = t("클립보드에 진행 코드가 없습니다 — 코드 전체를 복사한 뒤 다시")
+            QTimer.singleShot(6000, self._clear_flash)
+            self.refresh()
+            return
+        local = self.tracker.chars.get(imp.name)
+        if local is not None and not local.partial_from and local.last_seen > imp.last_seen:
+            ask = t("{name}: 이 PC 의 기록(Lv {a}, {at})이 코드(Lv {b}, {bt})보다 최근입니다. 코드로 바꿀까요? 이 PC 기록은 '(이전)' 이름으로 남겨 둡니다.",
+                    name=imp.name, a=local.level, at=local.last_seen[:16], b=imp.level, bt=imp.last_seen[:16])
+            if QMessageBox.question(None, "POE2 Saegida", ask) != QMessageBox.StandardButton.Yes:
+                return
+        if local is not None and not local.partial_from:  # 온전한 기록은 버리지 않고 이름을 바꿔 보관
+            archived = f"{local.name} (이전 {local.last_seen[:10]})"
+            local.name = archived
+            self.tracker.chars[archived] = local
+            local = None
+        c = progress_code.merge(imp, local)
+        self.tracker.chars[c.name] = c
+        if build:
+            self.settings.setdefault("char_builds", {})[c.name] = build
+            config.save_settings(self.settings)
+        self._pbs_for = None
+        self.dirty = True
+        self.flash = t("✓ {name} 진행을 가져왔습니다 (Lv {lv}, {step}단계)", name=c.name, lv=c.level, step=c.cursor + 1)
+        QTimer.singleShot(8000, self._clear_flash)
+        self.refresh()
+
+    def fill_previous_rewards(self) -> None:
+        c = self.tracker.snapshot().character
+        if c is None or c.name in PLACEHOLDERS:
+            return
+        states = self.rewards.evaluate(c.rewards)
+        done = frozenset(i for i, st in enumerate(states) if st.got)
+        n, pts = progress_code.fill_previous(c, self.guide.steps, self.rewards.slots, self.passive_sources, done)
+        self.dirty = True
+        self.flash = t("지나온 단계: 영구 보상 {n}칸 · 퀘스트 패시브 +{p} 받음으로 표시", n=n, p=pts)
+        QTimer.singleShot(8000, self._clear_flash)
+        self.refresh()
+
+    def dismiss_partial(self) -> None:
+        c = self.tracker.snapshot().character
+        if c is not None:
+            c.partial_ack = True
+            self.dirty = True
+            self.refresh()
 
     def toggle_setting(self, key: str) -> None:
         self.settings[key] = not self.settings.get(key, True)
@@ -813,6 +876,9 @@ class Controller:
 
     def _notice_text(self) -> str:
         parts = [self.notice] if self.notice else []
+        c = self.tracker.snapshot().character if self.tracker else None
+        if c and c.partial_from and not c.partial_ack and c.name not in PLACEHOLDERS:
+            parts.append('<span style="color:#e0b862">' + t("📋 {act} 중간부터 잡힌 캐릭터 — 다른 PC 의 기록이 있으면 우클릭 → 진행 코드 → 붙여넣기, 없으면 → 이전 보상 받음으로 채우기", act=i18n.act(c.partial_from)) + '</span>')
         if self._update_msg and time.monotonic() < self._update_msg_until:
             parts.append(f'<span style="color:#9a9284">{html.escape(self._update_msg)}</span>')
         if self.update is not None:
@@ -1134,6 +1200,16 @@ class Controller:
             a.triggered.connect(lambda _=False, k=key: self.set_language(k))
             lgrp.addAction(a)
             lm.addAction(a)
+        pm = m.addMenu(t("진행 코드 (PC 옮기기)"))
+        pc = self.tracker.snapshot().character
+        a = pm.addAction(t("진행 코드 복사"), self.copy_progress_code)
+        a.setEnabled(bool(pc and pc.name not in PLACEHOLDERS))
+        pm.addAction(t("진행 코드 붙여넣기 (클립보드)"), self.paste_progress_code)
+        pm.addSeparator()
+        a = pm.addAction(t("이전 보상 받음으로 채우기 (지나온 단계)"), self.fill_previous_rewards)
+        a.setEnabled(bool(pc and pc.name not in PLACEHOLDERS))
+        if pc and pc.partial_from and not pc.partial_ack:
+            pm.addAction(t("안내 닫기"), self.dismiss_partial)
         rm = m.addMenu(t("기록 내보내기"))
         cur_c = self.tracker.snapshot().character
         has_splits = bool(cur_c and cur_c.splits)

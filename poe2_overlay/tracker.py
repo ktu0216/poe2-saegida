@@ -26,6 +26,7 @@ from .logparse import (
     NewCharacter,
     NpcLine,
     PassivePoints,
+    Played,
     Reward,
     SceneName,
 )
@@ -128,6 +129,12 @@ class Character:
     eg_cur: str = ""
     eg_since: str = ""
     campaign_done: str = ""  # 캠페인을 끝낸(엔드게임에 처음 들어간) 로그 시각
+    # 기록 없이 중간부터 잡힌 캐릭터 (다른 PC 에서 하던 캐릭터 등): 기록이 시작된 액트. 그 액트 구간·캠페인 전체는 PB 에서 뺀다
+    partial_from: str = ""
+    partial_ack: bool = False  # 안내(진행 코드 붙여넣기 / 이전 보상 채우기)를 처리했거나 닫음
+    assumed_slots: list[int] = field(default_factory=list)  # '이전 보상 채우기'로 받았다고 표시한 보상 칸 번호
+    played_seconds: int = 0  # 마지막 /played 결과 (게임 기준 총 접속 시간)
+    played_at: str = ""  # 그 로그 시각
 
     @property
     def ascension(self) -> int:
@@ -240,6 +247,9 @@ class Tracker:
             self._on_new_character()
         elif isinstance(ev, Afk):
             self.afk = ev.on
+        elif isinstance(ev, Played):
+            if c := self._active():
+                c.played_seconds, c.played_at = ev.seconds, ev.ts
         elif isinstance(ev, AscendancyNode):
             if c := self._active():
                 if ev.allocated and ev.node not in c.ascendancy:
@@ -534,6 +544,9 @@ class Tracker:
             c = Character(name=name, mode_prompt=self.new_char_session)
             self.chars[name] = c
             replay = self.pending
+            # 새 캐릭터 줄도 없고 강둑에서 시작하지도 않음 = 다른 PC 에서 하던 캐릭터를 중간부터 잡음
+            if not self.new_char_session and replay and replay[0].code.lower() != FIRST_ZONE:
+                c.partial_from = zone_act(replay[0].code)
         elif self.provisional is not None and self.provisional.name == name:
             c = self.chars[name] = self.provisional  # 추정이 맞았으므로 추정본을 그대로 채택
             replay = []

@@ -142,6 +142,12 @@ For characters that finished the campaign, the last guide step is replaced by:
 
 **LiveSplit**: Right-click → Export records → **LiveSplit splits file (.lss)**. This character's splits become the PB and the best split across all characters becomes the gold. Open it in LiveSplit as a target for your next run.
 
+**Switching PCs (PC cafés etc.)**: records are saved only on that PC. To continue elsewhere:
+- On the PC you played on: Right-click → **Progress code (switching PCs) → Copy progress code**. A one-line code (about 4,000 characters mid-campaign) goes to the clipboard. Keep it in a note or a message to yourself; nothing is sent to a server.
+- On the other PC, copy the code and Right-click → Progress code → **Paste progress code**. Step, splits, reward ✓, saved items and the linked build carry over, and anything you already played on that PC before pasting is appended.
+- Without a code: a character picked up mid-campaign shows a 📋 notice. Right-click → Progress code → **Mark earlier rewards as received** marks the permanent rewards and quest passives of the steps behind you (choose-one rewards show as "earlier record").
+- Time for a record that starts mid-campaign: that act's split and the whole-campaign time are cut short, so they are not used as PBs (later acts are normal). Type `/played` in game chat to record the game's own total time; the complete card shows it as "game total". The game counts town idling and AFK time too, so it is longer than the overlay's time.
+
 **Updates**: at start and every 6 hours it asks GitHub for the latest version (no game data is sent). When there is one, a `🆕 Version … is out` line appears under the panel.
 - Installed with the installer: Right-click → **🆕 Install update** downloads it, checks size and SHA-256, installs over the old version and restarts (settings and records are kept).
 - Portable zip: opens the release page.
