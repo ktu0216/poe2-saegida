@@ -83,7 +83,7 @@
     "g3_3":    {"label": "Mighty Silverfist", "book_kill": "any",
                 "_note": "Silverfist does not speak: using the Book of Specialisation it drops = kill (like The Crowbell)"},
     "g3_5":    {"bosses": ["Xyclucian, the Chimera"], "gate": false},
-    "g3_6_1":  {"bosses": ["Blackjaw, the Remnant"], "gate": false},
+    "g3_6_1":  {"bosses": ["BlackJaw", "Blackjaw, the Remnant"], "_note": "Log speaker is \"BlackJaw\". No death line: the fire resistance reward during the fight = kill"},
     "g3_6_2":  {"label": "Zicoatl, Warden of the Core", "gate": false},
     "g3_7":    {"bosses": ["Ignagduk, the Bog Witch"], "gate": false},
     "g3_8":    {"subzones": {"g3_9": {"boss": "Mektul, the Forgemaster", "label": "Mektul (The Molten Vault)"}}},

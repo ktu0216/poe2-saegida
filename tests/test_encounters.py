@@ -449,6 +449,8 @@ EN_LOG = {
               ("Jamanra, the Abomination: Die... foolish <i>{Sekhema}!", "engaged"),
               ("Jamanra, the Abomination: You have accomplished... nothing. Oriana will prevail...", "killed")],
     "g3_3": [(": You have received 2 Passive Skill Points.", "killed")],  # 은빛 주먹은 말하지 않음: 책 사용 = 처치
+    "g3_6_1": [("BlackJaw: You dare disturb me?", "engaged"),  # 로그 화자는 "BlackJaw"
+               (": tu_fr_xxxiii has received +10% to [Resistances|Fire Resistance].", "killed")],
 }
 
 
