@@ -65,7 +65,7 @@ g3_7,The Azak Bog,Head top left · Azak ritual (spirit) → The Matlan Waterways
 g3_2_2,The Matlan Waterways,Open the waterways → town
 g3_town,Ziggurat Encampment,Talk → The Drowned City
 g3_8,The Drowned City,Skip the Molten Vault → Apex of Filth
-g3_11,Apex of Filth,Wait while the boss circles the arena → kill → town
+g3_11,Apex of Filth,Wait while 「The Queen of Filth」 circles the arena → kill → town
 g3_town,Ziggurat Encampment,Talk to Alva → use the idol on the temple door below camp → Temple of Kopec
 g3_12,Temple of Kopec,Kill 「Ketzuli」 → town
 g3_town,Ziggurat Encampment,Talk → Utzaal
@@ -81,10 +81,10 @@ g4_2_2,Journey's End,Sail → Whakapanu Island
 g4_3_1,Whakapanu Island,Skip the shark → Singing Caverns
 g4_3_2,Singing Caverns,「Diamora」: max rage and kill her while frozen (she escapes otherwise) · +10 res amulet → talk to Matiki → Abandoned Prison
 g4_5_1,Abandoned Prison,The chapel key drops from necromancers · beware the skeleton cages → Solitary Confinement
-g4_5_2,Solitary Confinement,Kill the boss (flask recovery choice) → Isle of Kin
+g4_5_2,Solitary Confinement,Kill 「The Prisoner」 (flask recovery choice) → Isle of Kin
 g4_1_1,Isle of Kin,Enter Volcanic Warrens
-g4_1_2,Volcanic Warrens,Kill the boss → Shrike Island
-g4_7,Shrike Island,Kill the boss → Eye of Hinekora
+g4_1_2,Volcanic Warrens,Kill 「Krutog」 → Shrike Island
+g4_7,Shrike Island,Kill 「Scourge of the Skies」 → Eye of Hinekora
 g4_4_1,Eye of Hinekora,Take the max mana, respawn at checkpoint to get back → Halls of the Dead
 g4_4_2,Halls of the Dead,Collect the tattoos and hand them in at once → Trial of the Ancestors
 g4_4_3,Trial of the Ancestors,Finish the trial → in town: Tujen's points · the Hooded One → Arastas

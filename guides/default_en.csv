@@ -63,7 +63,7 @@ g3_7,The Azak Bog,Azak ritual → The Matlan Waterways
 g3_2_2,The Matlan Waterways,Open the waterways → town
 g3_town,Ziggurat Encampment,Talk → The Drowned City
 g3_8,The Drowned City,Find Apex of Filth
-g3_11,Apex of Filth,Kill the boss → town
+g3_11,Apex of Filth,Kill 「The Queen of Filth」 → town
 g3_town,Ziggurat Encampment,Talk to Alva → use the idol on the temple door below camp → Temple of Kopec
 g3_12,Temple of Kopec,Kill 「Ketzuli」 → town
 g3_town,Ziggurat Encampment,Talk → Utzaal
@@ -77,20 +77,20 @@ g4_2_2,Journey's End,Kill Hartlin → talk to Freya → kill Omniphobia → talk
 g4_town,Kingsmarch,Talk → Journey's End
 g4_2_2,Journey's End,Sail → Whakapanu Island
 g4_3_1,Whakapanu Island,Enter Singing Caverns
-g4_3_2,Singing Caverns,Kill the boss → Abandoned Prison
+g4_3_2,Singing Caverns,Kill 「Diamora」 → Abandoned Prison
 g4_5_1,Abandoned Prison,Enter Solitary Confinement
-g4_5_2,Solitary Confinement,Kill the boss → Isle of Kin
+g4_5_2,Solitary Confinement,Kill 「The Prisoner」 → Isle of Kin
 g4_1_1,Isle of Kin,Enter Volcanic Warrens
-g4_1_2,Volcanic Warrens,Kill the boss → Shrike Island
-g4_7,Shrike Island,Kill the boss → Eye of Hinekora
+g4_1_2,Volcanic Warrens,Kill 「Krutog」 → Shrike Island
+g4_7,Shrike Island,Kill 「Scourge of the Skies」 → Eye of Hinekora
 g4_4_1,Eye of Hinekora,Enter Halls of the Dead
 g4_4_2,Halls of the Dead,Go to Trial of the Ancestors
 g4_4_3,Trial of the Ancestors,Finish the trial → Arastas
 g4_8b,Arastas,Go to The Excavation
-g4_10,The Excavation,Kill the boss → town
+g4_10,The Excavation,Kill 「Benedictus」 → town
 g4_town,Kingsmarch,Talk → Ngakanu
 g4_11_1b,Ngakanu,Enter Heart of the Tribe
-g4_11_2,Heart of the Tribe,Kill the final boss → town
+g4_11_2,Heart of the Tribe,Kill the final boss 「Tavakai」 → town
 g4_town,Kingsmarch,Start the interludes
 p3_town,The Glade,Talk → Ashen Forest
 p3_1,Ashen Forest,Go to Kriar Village
