@@ -455,6 +455,8 @@ EN_LOG = {
                ("Alva: The Soul Core is charged! Why don't you do the honours?", None),
                ("Alva: Oh dear. Now we just have to remove it from the giant construct... Good luck!", "soon")],
     "g3_11": [("Queen of Filth: Cleanskin wench! Does my family disgust you?", "engaged")],  # 로그 화자에 The 없음
+    "g3_12": [("Ketzuli, High Priest of the Sun: Welcome, honoured guest!", "engaged"),
+              ("Alva: The apex - it's opening! Goodness me!", "engaged")],  # 단상 조사 완료 표시 (처치 대사는 없음)
 }
 
 
