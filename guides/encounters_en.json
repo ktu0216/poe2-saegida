@@ -98,7 +98,14 @@
                 "markers": [
                   {"speaker": "Alva", "text": "The apex - it's opening", "label": "Dais investigated"}
                 ]},
-    "g3_14":   {"bosses": ["Viper Napuatzi"], "gate": false},
+    "g3_14":   {"bosses": ["Viper Napuatzi"], "gate": false,
+                "_note": "She talks with Alva before the fight (soon); the fight starts after 'every drop of Vaal blood'. No death line",
+                "markers": [
+                  {"speaker": "Viper Napuatzi", "text": "Your rampage ends here", "label": "", "soon": true},
+                  {"speaker": "Viper Napuatzi", "text": "Which one of you", "label": "", "soon": true},
+                  {"speaker": "Viper Napuatzi", "text": "Take her", "label": "", "soon": true},
+                  {"speaker": "Viper Napuatzi", "text": "Bring her to Doryani", "label": "", "soon": true}
+                ]},
     "g3_17":   {"bosses": ["Doryani, Royal Thaumaturge"], "gate": false},
     "g4_2_2":  {"bosses": ["Captain Hartlin"], "gate": false},
     "g4_3_1":  {"label": "Great White One", "gate": false},

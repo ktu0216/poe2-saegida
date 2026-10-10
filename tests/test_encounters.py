@@ -457,6 +457,9 @@ EN_LOG = {
     "g3_11": [("Queen of Filth: Cleanskin wench! Does my family disgust you?", "engaged")],  # 로그 화자에 The 없음
     "g3_12": [("Ketzuli, High Priest of the Sun: Welcome, honoured guest!", "engaged"),
               ("Alva: The apex - it's opening! Goodness me!", "engaged")],  # 단상 조사 완료 표시 (처치 대사는 없음)
+    "g3_14": [("Viper Napuatzi: Halt! Your rampage ends here!", "soon"),  # 알바와의 대화는 전투 전
+              ("Viper Napuatzi: Bring her to Doryani!", "soon"),
+              ("Viper Napuatzi: As for you, I will pay back every drop of Vaal blood you have spilled.", "engaged")],
 }
 
 
