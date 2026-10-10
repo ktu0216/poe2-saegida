@@ -476,7 +476,9 @@ class Tracker:
                 new = None  # 보스를 이미 잡은 단계로는 되돌리지 않는다 (마을 갔다가 다시 들른 경우)
         if new is not None and cur and new == c.cursor + 1 and steps[new].is_town:
             enc = self.encounters.get(cur.zone)
-            if enc and enc.bosses and enc.gate and flags.get("boss") != "killed":
+            # 보스 이름이 있거나, 이름 대신 전투·처치 대사로 잡는 곳(도리아니·옴니포비아)
+            fight = enc and (enc.bosses or any(m.engage or m.kill for m in enc.markers))
+            if fight and enc.gate and flags.get("boss") != "killed":
                 new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is None and (back := self._interlude_back(c, code)) is not None:
             # 막간 안에서 순서를 바꿔 갔다가(갈라이 문·키마 먼저) 건너뛴 지역으로 돌아옴 → 건너뛴 단계로

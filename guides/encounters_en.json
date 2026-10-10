@@ -1,5 +1,5 @@
 {
-  "_comment": "English client: boss names per area (poe2db.tw/us Act 1-4 and Interlude pages, 2026-10-05). Fight starts when a line from one of these speakers appears; leaving the area alive counts as a kill. Kill/phase lines are not known for the English client yet (no English log sample), so there are no markers and gate=false everywhere (a town visit always advances the step). Speaker names in the log may differ from monster names — fix them here when you see the real log.",
+  "_comment": "English client: boss names per area (poe2db.tw/us Act 1-4 and Interlude pages, 2026-10-05). Fight starts when a line from one of these speakers appears; leaving the area alive counts as a kill. Markers come from real English logs (2026-10-05..11, acts 1-4 in progress). gate=false only where the boss name or a kill signal is not confirmed yet (then a town visit always advances the step). Speaker names in the log often differ from poe2db names (Rudja, Balbala, BlackJaw, Queen of Filth...) — fix them here when you see the real log.",
   "zones": {
     "g1_1":    {"bosses": ["The Bloated Miller"],
                 "markers": [
@@ -11,7 +11,7 @@
                 "markers": [
                   {"speaker": "Beira of the Rotten Pack", "text": "Sleep in ice", "label": "", "soon": true}
                 ]},
-    "g1_5":    {"bosses": ["The Rust King"], "gate": false,
+    "g1_5":    {"bosses": ["The Rust King"],
                 "markers": [
                   {"speaker": "Ghostly Voice", "text": "Our will persists", "label": "Obelisk 2/3"},
                   {"speaker": "Ghostly Voice", "text": "This is our land", "label": "Obelisk 3/3", "soon": true}
@@ -37,7 +37,7 @@
                   {"speaker": "The King in the Mists", "text": "The Wildwood's power", "label": "Phase 2", "phase": true},
                   {"speaker": "The King in the Mists", "text": "We will meet again", "label": "", "kill": true}
                 ]},
-    "g1_13_2": {"bosses": ["The Executioner"], "gate": false,
+    "g1_13_2": {"bosses": ["The Executioner"],
                 "_note": "No death line (leaving the area = kill)",
                 "markers": [
                   {"speaker": "Leitis", "text": "", "label": "", "soon": true}
@@ -72,7 +72,7 @@
                   {"speaker": "The Water Goddess", "text": "At last... death", "label": "Goddess set alight (done)"}
                 ]},
     "g2_7":    {"bosses": ["Zalmarath, the Colossus"], "gate": false},
-    "g2_9_2":  {"bosses": ["Jamanra, the Risen King"], "label": "Tor Gul, the Defiler", "gate": false},
+    "g2_9_2":  {"bosses": ["Jamanra, the Risen King"], "label": "Tor Gul, the Defiler"},
     "g2_12":   {"bosses": ["Jamanra, the Abomination"],
                 "_note": "'Die... foolish Sekhema!' comes before the death line, so it is not a kill signal",
                 "markers": [
@@ -91,14 +91,14 @@
                   {"speaker": "Alva", "text": "Soul Core is charged", "label": "Generator done"},
                   {"speaker": "Alva", "text": "remove it from the giant construct", "label": "", "soon": true}
                 ]},
-    "g3_7":    {"bosses": ["Ignagduk, the Bog Witch"], "gate": false},
+    "g3_7":    {"bosses": ["Ignagduk, the Bog Witch"]},
     "g3_8":    {"subzones": {"g3_9": {"boss": "Mektul, the Forgemaster", "label": "Mektul (The Molten Vault)"}}},
     "g3_11":   {"bosses": ["Queen of Filth", "The Queen of Filth"], "_note": "Log speaker has no \"The\". No death line (leaving the area = kill)"},
-    "g3_12":   {"bosses": ["Ketzuli, High Priest of the Sun"], "gate": false,
+    "g3_12":   {"bosses": ["Ketzuli, High Priest of the Sun"],
                 "markers": [
                   {"speaker": "Alva", "text": "The apex - it's opening", "label": "Dais investigated"}
                 ]},
-    "g3_14":   {"bosses": ["Viper Napuatzi"], "gate": false,
+    "g3_14":   {"bosses": ["Viper Napuatzi"],
                 "_note": "She talks with Alva before the fight (soon); the fight starts after 'every drop of Vaal blood'. No death line",
                 "markers": [
                   {"speaker": "Viper Napuatzi", "text": "Your rampage ends here", "label": "", "soon": true},

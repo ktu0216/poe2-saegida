@@ -625,3 +625,19 @@ def test_act_revisit_does_not_jump_back():
     feed(t, AreaEntered("t", "1", "G1_town", 15), LevelUp("t", "1", "me", "머서너리", 3),
          AreaEntered("t", "1", "G1_4", 4), AreaEntered("t", "1", "G1_5", 5), AreaEntered("t", "1", "G1_2", 2))
     assert t.chars["me"].cursor == 3
+
+
+def test_marker_only_zone_gates_town_visit():
+    # 도리아니처럼 이름 대신 전투·처치 대사로 잡는 곳도, 잡기 전 마을 방문은 단계를 넘기지 않는다 (2026-10-11 Talk → Act 4 로 넘어감)
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv("g3_16,Aggorat,sacrifice\ng3_17,The Black Chambers,Kill Doryani\ng3_town,Ziggurat Encampment,Act 4\n"), "t")
+    t = Tracker(g, encounters=enc)
+    feed(t, AreaEntered("t", "1", "G3_16", 44), LevelUp("t", "1", "me", "Lich", 44), AreaEntered("t", "1", "G3_17", 45),
+         parse_line("2026/10/11 02:11:36 1 a [INFO Client 1] Doryani: The intruder is here? No mercy then!"),
+         AreaEntered("t", "1", "G3_town", 44))
+    assert t.snapshot().step.zone == "g3_17"  # 마을에 다녀와도 도리아니 단계
+    feed(t, AreaEntered("t", "1", "G3_17", 45),
+         parse_line("2026/10/11 02:33:18 1 a [INFO Client 1] Doryani: So... at the eve of the end, the demon of Atzoatl has finally come for me!"),
+         parse_line("2026/10/11 02:36:21 1 a [INFO Client 1] Doryani: Ugh... All I have done. All that I sacrificed..."),
+         AreaEntered("t", "1", "G3_town", 44))
+    assert t.snapshot().step.zone == "g3_town"
