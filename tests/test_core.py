@@ -283,5 +283,5 @@ def test_parse_english_item():
     it = parse_item("Item Class: Rings\nRarity: Rare\nGrim Band\nTopaz Ring\n--------\nItem Level: 50\n--------\n"
                     "+26% to Lightning Resistance (implicit)\n--------\nAdds 1 to 28 Lightning Damage to Attacks\n"
                     "+25(21-25)% to Lightning Resistance\n+29 to maximum Life\n10% increased Movement Speed\n")
-    assert it.slot == "Rings" and it.res == {"번개": 51} and it.life == 29 and it.move_speed == 10
+    assert it.slot == "반지" and it.res == {"번개": 51} and it.life == 29 and it.move_speed == 10
     assert it.added == {"번개": (1, 28)} and it.item_level == 50

@@ -45,6 +45,23 @@ _CAST = re.compile(r"^시전 속도 (\d+)% 증가$|^(\d+)% increased Cast Speed$
 _ROLL = re.compile(r"\(\d+(?:\.\d+)?-\d+(?:\.\d+)?\)")
 
 
+# 손에 드는 아이템: 아이템 종류(한/영) → 한 손 / 양손 / 보조 손 전용 (poe2db 아이템 분류)
+ONE_HAND = {"클로", "단검", "마법봉", "한손 검", "한손 도끼", "한손 철퇴", "셉터", "창", "도리깨",
+            "Claws", "Daggers", "Wands", "One Hand Swords", "One Hand Axes", "One Hand Maces", "Sceptres", "Spears",
+            "Flails"}
+TWO_HAND = {"활", "지팡이", "양손 검", "양손 도끼", "양손 철퇴", "육척봉", "쇠뇌", "덫", "부적",
+            "Bows", "Staves", "Two Hand Swords", "Two Hand Axes", "Two Hand Maces", "Quarterstaves", "Crossbows",
+            "Traps", "Talismans"}
+OFF_HAND = {"화살통", "방패", "버클러", "집중구", "Quivers", "Shields", "Bucklers", "Foci"}
+MAIN, OFF = "주 손", "보조 손"  # 손 칸 (저장 키)
+# 방어구·장신구 부위: 게임 언어와 상관없는 저장 키 (예전에는 종류 이름 그대로라 언어를 바꾸면 기준이 사라졌다)
+_SLOT = {"갑옷": "갑옷", "Body Armours": "갑옷", "투구": "투구", "Helmets": "투구", "장갑": "장갑", "Gloves": "장갑",
+         "장화": "장화", "Boots": "장화", "허리띠": "허리띠", "Belts": "허리띠", "목걸이": "목걸이", "Amulets": "목걸이",
+         "반지": "반지", "Rings": "반지"}
+# 장착 기준으로 쓰지 않는 종류: 퀘스트 아이템·플라스크·호신부·주얼
+_NOT_GEAR = ("퀘스트", "Quest", "플라스크", "Flask", "호신부", "Charm", "주얼", "Jewel")
+
+
 @dataclass
 class Item:
     item_class: str
@@ -71,9 +88,21 @@ class Item:
         return self.aps > 0
 
     @property
+    def hand(self) -> str:
+        """"one" 한 손 / "two" 양손 / "off" 보조 손 전용 / "" 손에 들지 않음."""
+        c = self.item_class
+        if c in ONE_HAND:
+            return "one"
+        if c in TWO_HAND:
+            return "two"
+        if c in OFF_HAND:
+            return "off"
+        return "two" if self.is_weapon else ""  # 모르는 공격 무기: 양손으로 본다
+
+    @property
     def slot(self) -> str:
-        """비교 기준 부위. 무기는 종류가 달라도 서로 비교한다."""
-        return "무기" if self.is_weapon else self.item_class
+        """비교 기준 부위: 손에 드는 건 모두 "손" (무기·방패·집중구를 서로 비교), 나머지는 언어와 상관없는 부위 이름."""
+        return "손" if self.hand else _SLOT.get(self.item_class, self.item_class)
 
     def avg(self, kind: str) -> float:
         lo, hi = self.damage.get(kind, (0, 0))
@@ -106,6 +135,8 @@ class Item:
 def is_gear(item: "Item") -> bool:
     """장착 장비인지: 젬(미가공 포함)·화폐·지도 등은 장비 비교·장착 기준에서 뺀다."""
     if "젬" in item.item_class or "gem" in item.item_class.lower():
+        return False
+    if any(w in item.item_class for w in _NOT_GEAR):
         return False
     return item.rarity not in ("화폐", "Currency")
 
@@ -184,6 +215,109 @@ def parse_item(text: str) -> Optional[Item]:
 
 
 SLOT_COUNT = {"반지": 2, "Rings": 2, "Ring": 2}  # 같은 종류를 두 개 끼는 부위
+
+
+def hand_keys(item: Item, gear: dict[str, str]) -> list[str]:
+    """손 아이템을 놓을 수 있는 칸: 보조 손 전용 → 보조 손, 양손 → 주 손 (양손을 한 손에 드는 캐릭터면 두 칸), 한 손 → 두 칸."""
+    if item.hand == "off":
+        return [OFF]
+    if item.hand == "two" and not giant_grip(gear):
+        return [MAIN]
+    return [MAIN, OFF]
+
+
+def giant_grip(gear: dict[str, str]) -> bool:
+    """양손 무기를 한 손에 드는 캐릭터인지 (거인의 피 등): 등록된 장비로 판단한다.
+    양손 무기를 주 손에 등록하면 보조 손 기준을 비우므로, 양손 무기 + 보조 손이 함께 있거나 보조 손에 양손 무기가 있으면 그런 캐릭터다."""
+    main, off = (parse_item(gear[k]) if k in gear else None for k in (MAIN, OFF))
+    return off is not None and (off.hand == "two" or (main is not None and main.hand == "two"))
+
+
+def weapon_score(it: Item) -> float:
+    """손 칸 두 개 중 약한 쪽을 고를 때: 공격 무기는 DPS, 주문 무기는 주문 피해·스킬 레벨, 방패·집중구는 방어 점수."""
+    if it.is_weapon:
+        return it.dps
+    return defense_score(it)
+
+
+def hand_plan(new: Item, gear: dict[str, str]) -> tuple[list[str], list[tuple[str, dict]]]:
+    """손 아이템 비교: (비교할 칸 목록 — 약한 쪽이 앞, 안내 [(문구, 값)]).
+    무기는 무기끼리(방패·집중구와는 비교하지 않음), 보조 손 전용은 보조 손과. 양손 ↔ 한 손 + 보조 손 바뀜은 안내로 알린다."""
+    keys = hand_keys(new, gear)
+    main, off = (parse_item(gear[k]) if k in gear else None for k in (MAIN, OFF))
+    giant = giant_grip(gear)
+    notes: list[tuple[str, dict]] = []
+    if new.hand == "off":
+        cands = [OFF] if off is not None else []
+        if main is not None and main.hand == "two" and not giant:
+            notes.append(("양손 무기를 들고 있음 — 한 손 무기로 바꿔야 함께 들 수 있음", {}))
+    else:
+        cands = [k for k, it in ((MAIN, main), (OFF, off)) if k in keys and it is not None and it.hand != "off"]
+        if new.hand == "two" and not giant and off is not None:
+            title, _, _ = compare(off, None)
+            notes.append(("양손 무기: 보조 손이 빠짐 ({name} · {stats})", {"name": off.item_class, "stats": title}))
+        elif new.hand == "one" and main is not None and main.hand == "two" and not giant:
+            notes.append(("한 손 무기: 보조 손에 방패·집중구를 함께 들 수 있음", {}))
+    cands.sort(key=lambda k: weapon_score(parse_item(gear[k])))
+    return cands, notes
+
+
+def equip_key(item: Item, gear: dict[str, str], target: str = "") -> str:
+    """장착 기준으로 등록할 칸. 손: 보조 손 전용 → 보조 손, 양손 → 주 손, 한 손 → 주 손
+    (두 손에 무기를 들고 있으면 마지막으로 비교한 약한 쪽). 다른 칸에 꼈다면 한 번 더 등록해 옮긴다."""
+    if not item.hand:
+        keys = slot_keys(item.slot)
+        empty = [k for k in keys if k not in gear]
+        return empty[0] if empty else (target if target in keys else keys[0])
+    keys = hand_keys(item, gear)
+    if len(keys) == 1:
+        return keys[0]
+    off = parse_item(gear[OFF]) if OFF in gear else None
+    if MAIN in gear and off is not None and off.hand != "off":  # 두 손에 무기
+        return target if target in keys else MAIN
+    return MAIN
+
+
+def normalize_gear(gear: dict[str, str]) -> dict[str, str]:
+    """예전 저장본(종류 이름 키, 무기 한 칸, 지팡이·스태프·셉터가 따로)을 손 칸 두 개·언어 무관 키로 옮긴다.
+    무기(또는 보조 손 아이템)가 여럿 저장돼 있으면 어느 것을 들고 있는지 알 수 없으니 버린다 — 잘못된 기준보다
+    다시 등록(두 번 복사)하는 편이 낫다. 하나뿐이면 그대로 옮긴다."""
+    out: dict[str, str] = {}
+    hands: list[Item] = []
+    texts: dict[int, str] = {}
+    for key, text in gear.items():
+        it = parse_item(text)
+        if it is None or not is_gear(it):
+            continue
+        if key in (MAIN, OFF):
+            out[key] = text
+            continue
+        if it.hand:
+            hands.append(it)
+            texts[id(it)] = text
+            continue
+        slot = it.slot
+        if slot == "반지" and (key.endswith("#2") or "반지" in out):
+            slot = "반지#2"
+        out.setdefault(slot, text)
+    if hands and MAIN not in out and OFF not in out:
+        weapons = [h for h in hands if h.hand != "off"]
+        offs = [h for h in hands if h.hand == "off"]
+        main = weapons[0] if len(weapons) == 1 else None
+        if main is not None:
+            out[MAIN] = texts[id(main)]
+        if len(offs) == 1 and not (main is not None and main.hand == "two"):
+            out[OFF] = texts[id(offs[0])]
+    return out
+
+
+def slot_label(key: str, keys: list[str]) -> str:
+    """칸 이름 표시: 반지#2 → "반지 2", 칸이 둘인 반지 → "반지 1", 손 칸은 그대로."""
+    if key in (MAIN, OFF):
+        return key
+    if "#" in key:
+        return key.replace("#", " ")
+    return f"{key} 1" if len(keys) > 1 else key
 
 
 def slot_keys(slot: str) -> list[str]:

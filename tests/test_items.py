@@ -29,7 +29,7 @@ def test_parse_crossbow():
     assert is_item_text(CROSSBOW) and it.item_class == "쇠뇌" and it.rarity == "마법"
     assert it.damage == {"물리": (8, 15), "냉기": (3, 5)}
     assert it.aps == 1.68 and it.crit == 5.0 and it.item_level == 6
-    assert round(it.dps, 2) == round((11.5 + 4) * 1.68, 2) and it.slot == "무기"
+    assert round(it.dps, 2) == round((11.5 + 4) * 1.68, 2) and it.slot == "손" and it.hand == "two"
 
 
 def test_compare_weapons():
@@ -157,3 +157,83 @@ def test_cast_speed_and_chaos_damage_parse():
     it = parse_item("Item Class: Wands\nRarity: Rare\nX\nWithered Wand\n--------\n"
                     "25% increased Chaos Damage\n35% increased Spell Damage\n9% increased Cast Speed\n")
     assert it.inc_damage == {"카오스": 25, "주문": 35} and it.cast_speed == 9
+
+
+def _it(cls, extra=""):
+    return f"Item Class: {cls}\nRarity: Rare\nX\nBase\n--------\n{extra}"
+
+
+MACE_1H = _it("One Hand Maces", "Physical Damage: 10-20\nAttacks per Second: 1.50\n")
+MACE_1H_B = _it("One Hand Maces", "Physical Damage: 5-10\nAttacks per Second: 1.40\n")
+MACE_2H = _it("Two Hand Maces", "Physical Damage: 30-50\nAttacks per Second: 1.10\n")
+SHIELD = _it("Shields", "Armour: 120\n--------\n+12% to Fire Resistance\n")
+FOCUS = _it("Foci", "Energy Shield: 30\n")
+STAFF = _it("Staves", "30% increased Spell Damage\n")
+
+
+def test_hand_kinds_and_keys():
+    from poe2_overlay.items import MAIN, OFF, hand_keys
+    assert parse_item(MACE_1H).hand == "one" and parse_item(MACE_2H).hand == "two"
+    assert parse_item(SHIELD).hand == "off" and parse_item(STAFF).hand == "two"
+    assert parse_item(BONE_WAND).hand == "one" and parse_item(BONE_WAND).slot == "손"
+    assert parse_item(_it("Body Armours")).slot == "갑옷"  # 언어와 상관없는 부위 키
+    assert hand_keys(parse_item(MACE_2H), {}) == [MAIN]
+    assert hand_keys(parse_item(MACE_1H), {}) == [MAIN, OFF]
+    assert hand_keys(parse_item(SHIELD), {}) == [OFF]
+
+
+def test_dual_wield_compares_weaker_hand():
+    from poe2_overlay.items import MAIN, OFF, equip_key, hand_plan
+    gear = {MAIN: MACE_1H, OFF: MACE_1H_B}
+    cands, notes = hand_plan(parse_item(MACE_1H), gear)
+    assert cands == [OFF, MAIN] and notes == []  # 약한 쪽(보조 손) 먼저
+    assert equip_key(parse_item(MACE_1H), gear, OFF) == OFF
+
+
+def test_two_hander_vs_one_hand_and_shield():
+    from poe2_overlay.items import MAIN, OFF, equip_key, hand_plan
+    gear = {MAIN: MACE_1H, OFF: SHIELD}
+    cands, notes = hand_plan(parse_item(MACE_2H), gear)
+    assert cands == [MAIN]  # 무기는 무기끼리
+    assert notes and notes[0][0].startswith("양손 무기: 보조 손이 빠짐")
+    assert equip_key(parse_item(MACE_2H), gear) == MAIN
+    # 양손을 들고 있을 때 방패: 들 수 없다는 안내
+    cands, notes = hand_plan(parse_item(SHIELD), {MAIN: MACE_2H})
+    assert cands == [] and notes[0][0].startswith("양손 무기를 들고 있음")
+    # 양손을 들고 있을 때 한 손 무기: 보조 손이 열린다는 안내
+    _, notes = hand_plan(parse_item(MACE_1H), {MAIN: MACE_2H})
+    assert notes[0][0].startswith("한 손 무기")
+
+
+def test_giant_grip_two_handers_in_one_hand():
+    # 보조 손에 양손 무기가 등록돼 있으면(거인의 피 등) 양손 무기도 두 칸 중 약한 쪽과 비교
+    from poe2_overlay.items import MAIN, OFF, giant_grip, hand_keys, hand_plan
+    gear = {MAIN: MACE_2H, OFF: MACE_2H.replace("30-50", "20-30")}
+    assert giant_grip(gear)
+    assert hand_keys(parse_item(MACE_2H), gear) == [MAIN, OFF]
+    cands, notes = hand_plan(parse_item(MACE_2H), gear)
+    assert cands == [OFF, MAIN] and notes == []
+    assert giant_grip({MAIN: MACE_2H, OFF: SHIELD})  # 양손 + 방패도 한 손 취급
+    assert not giant_grip({MAIN: MACE_1H, OFF: SHIELD})
+
+
+def test_caster_weapons_share_main_hand():
+    # 지팡이·스태프·셉터가 따로 저장되던 문제: 모두 주 손에서 비교
+    from poe2_overlay.items import MAIN, hand_plan
+    cands, notes = hand_plan(parse_item(BONE_WAND), {MAIN: STAFF})
+    assert cands == [MAIN] and notes[0][0].startswith("한 손 무기")  # 스태프 → 지팡이: 집중구를 들 수 있게 됨
+    _, diffs, verdict = compare(parse_item(BONE_WAND), parse_item(STAFF))
+    assert verdict == 1 and "주문 피해 증가 +12" in diffs
+
+
+def test_normalize_old_gear():
+    from poe2_overlay.items import MAIN, OFF, normalize_gear
+    old = {"Wands": BONE_WAND, "Boots": _it("Boots", "Energy Shield: 10\n"), "Staves": STAFF, "Foci": FOCUS,
+           "퀘스트 아이템": "아이템 종류: 퀘스트 아이템\n아이템 희귀도: 퀘스트\nX\n", "Rings": _it("Rings"),
+           "반지#2": "아이템 종류: 반지\n아이템 희귀도: 희귀\nY\n"}
+    g = normalize_gear(old)
+    # 무기가 둘(지팡이·스태프)이라 어느 것인지 몰라 버림, 집중구는 하나라 보조 손, 퀘스트 아이템 제외, 부위 키는 언어 무관
+    assert set(g) == {OFF, "장화", "반지", "반지#2"} and g[OFF] == FOCUS
+    g = normalize_gear({"무기": MACE_1H, "방패": SHIELD.replace("Item Class: Shields", "아이템 종류: 방패")})
+    assert g[MAIN] == MACE_1H and OFF in g
+    assert normalize_gear(g) == g  # 두 번 해도 같음

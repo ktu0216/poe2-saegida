@@ -25,7 +25,8 @@ from .regex import RegexBook
 from .builds import (GemNames, families, family_for_class, family_of, parse_uncut, pick_stage, plan, scan,
                      uncut_advice)
 from .encounters import Encounters
-from .items import compare, defense_score, is_gear, is_item_text, parse_item, slot_keys
+from .items import (MAIN, OFF, compare, defense_score, equip_key, hand_keys, hand_plan, is_gear, is_item_text,
+                    normalize_gear, parse_item, slot_keys, slot_label)
 from .rewards import RewardTable, load_passive_sources
 from .tracker import MAX_GAP, Character, PLACEHOLDERS, Snapshot, Tracker, fight_quiet, parse_ts
 from .ui import Overlay, make_icon
@@ -236,9 +237,8 @@ class Controller:
         migrate = saved.get("version", 1) < PROGRESS_VERSION
         if not migrate and saved.get("log_path") == str(self.log_path) and 0 <= saved.get("offset", -1) <= size:
             chars = {k: Character.from_dict(v) for k, v in saved.get("characters", {}).items()}
-            for ch in chars.values():  # 예전에 잘못 등록된 젬·화폐 칸 정리
-                for k in [k for k in ch.gear if "젬" in k or (parse_item(ch.gear[k]) and not is_gear(parse_item(ch.gear[k])))]:
-                    del ch.gear[k]
+            for ch in chars.values():  # 예전 저장본: 젬·화폐·퀘스트 아이템 칸 정리, 무기는 주 손 / 보조 손으로, 부위 키는 언어 무관하게
+                ch.gear = normalize_gear({k: v for k, v in ch.gear.items() if "젬" not in k})
             self.tracker = Tracker(self.guide, chars, saved.get("current"), self.encounters)
             self.tracker.endgame = self.endgame_bosses
             self.tracker.passive_sources = self.passive_sources
@@ -262,7 +262,7 @@ class Controller:
                 if c := self.tracker.chars.get(name):
                     c.mode = old.get("mode", "") or c.mode
                     c.league = old.get("league", "") or c.league
-                    c.gear = old.get("gear") or c.gear  # Ctrl+C 로 지정한 장착 기준도 로그로는 되살릴 수 없다
+                    c.gear = normalize_gear(old.get("gear") or c.gear)  # Ctrl+C 로 지정한 장착 기준도 로그로는 되살릴 수 없다
         if not saved.get("eg_backfill"):  # 엔드게임 기록 기능 이전 캐릭터: 전체 로그로 한 번 채운다 (몇 초)
             self._backfill_endgame(size)
         self.tail = LogTail(self.log_path, size)
@@ -561,51 +561,65 @@ class Controller:
         if item is None or c is None or not is_gear(item):  # 젬·화폐는 장비 비교 대상이 아니다
             return
         self.last_item_text = text
-        keys = slot_keys(item.slot)  # 반지는 두 칸
-        label = lambda k: t((k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else item.slot)
-        if any(c.gear.get(k) == text for k in keys):
-            k = next(k for k in keys if c.gear.get(k) == text)
+        if item.hand:  # 무기·방패·집중구: 주 손 / 보조 손 두 칸
+            keys = hand_keys(item, c.gear)
+            filled, notes = hand_plan(item, c.gear)
+            check = [MAIN, OFF]
+        else:
+            keys = slot_keys(item.slot)  # 반지는 두 칸
+            filled = sorted((k for k in keys if k in c.gear), key=lambda k: defense_score(parse_item(c.gear[k])))
+            notes, check = [], keys
+        label = lambda k: t(slot_label(k, keys))
+        note_html = "".join(f'<br><span style="color:#e0b862">⚠ {t(n, **kw)}</span>' for n, kw in notes)
+        hint = f'<br><span style="color:#9a9284">' + t("장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {key}) 로 등록", key=HOTKEYS["equip"]) + '</span>'
+        if any(c.gear.get(k) == text for k in check):
+            k = next(k for k in check if c.gear.get(k) == text)
             title, _, _ = compare(item, None)
             self._show_item(t("📌 장착 중 ({slot}) · {title}", slot=label(k), title=title), "#9a9284")
             return
-        empty = [k for k in keys if k not in c.gear]
         prev_text = self.prev_copied.get(item.slot)
         self.prev_copied[item.slot] = text
-        if empty and is_town(c.zone) and len(empty) == len(keys):  # 마을에서 복사한 건 대부분 상점/창고 아이템
-            hint = f'<br><span style="color:#9a9284">' + t("장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {key}) 로 등록", key=HOTKEYS["equip"]) + '</span>'
+        if not filled and is_town(c.zone):  # 마을에서 복사한 건 대부분 상점/창고 아이템
             if prev_text and prev_text != text:  # 기준이 없으면 직전에 복사한 같은 부위 아이템과 비교
                 title, diffs, verdict = compare(item, parse_item(prev_text))
                 color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
                 mark = t({1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷"))
                 body = f'{mark} · {t(item.slot)} {title} {t("(직전 복사 대비)")}' + ("<br>" + " · ".join(diffs) if diffs else "")
-                self._show_item(body + hint, color)
+                self._show_item(body + note_html + hint, color)
                 return
             title, _, _ = compare(item, None)
-            self._show_item(f'{item.slot} {title}' + hint, "#ece6da")
+            self._show_item(f'{t(item.slot)} {title}' + note_html + hint, "#ece6da")
             return
-        if empty and not is_town(c.zone):  # 마을 밖: 빈 칸 = 지금 장착 중인 아이템으로 본다
-            c.gear[empty[0]] = text
+        key = equip_key(item, c.gear)
+        if not is_town(c.zone) and key not in c.gear and not notes and (not filled or not item.hand):
+            # 마을 밖: 빈 칸 = 지금 장착 중인 아이템으로 본다 (양손 무기를 든 채 주운 방패처럼 안내가 붙는 경우는 제외)
+            c.gear[key] = text
             self.dirty = True
             title, _, _ = compare(item, None)
-            self._show_item(t("📌 {slot} 장착 기준 저장 · {title}", slot=label(empty[0]), title=title), "#8fd18b")
+            self._show_item(t("📌 {slot} 장착 기준 저장 · {title}", slot=label(key), title=title), "#8fd18b")
+            return
+        if not filled:  # 비교할 기준이 없음 (예: 방패만 등록된 채 무기 복사)
+            title, _, _ = compare(item, None)
+            self._show_item(f'{t(item.slot)} {title}' + note_html + hint, "#ece6da")
             return
         # 비교 대상: 칸이 여러 개면 가장 약한 쪽 (바꾼다면 그걸 뺀다)
-        filled = [k for k in keys if k in c.gear]
-        target = min(filled, key=lambda k: defense_score(parse_item(c.gear[k])))
+        target = filled[0]
         self.compare_target = target
         marks = {1: "▲ 더 좋음", -1: "▼ 더 나쁨"}
         title, diffs, verdict = compare(item, parse_item(c.gear[target]))
         color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
-        if len(filled) > 1:  # 반지: 두 칸 모두와 비교해 보여 준다 (바꾼다면 약한 쪽 기준 판정)
-            body = f'{item.slot} {title}'
-            for k in sorted(filled, key=lambda k: k != target):
+        if len(filled) > 1:  # 반지·두 손 무기: 두 칸 모두와 비교해 보여 준다 (바꾼다면 약한 쪽 기준 판정)
+            body = f'{t(item.slot)} {title}'
+            for k in filled:
                 _, d, v = compare(item, parse_item(c.gear[k]))
                 body += (f'<br>{t(marks.get(v, "≈ 비슷"))} · {t("{slot} 대비", slot=label(k))}'
                          + (t(" (약한 쪽)") if k == target else "") + (" — " + " · ".join(d) if d else ""))
         else:
-            body = f'{t(marks.get(verdict, "≈ 비슷"))} · {t(item.slot)} {title}' + (" " + t("({slot} 대비)", slot=label(target)) if len(keys) > 1 else "")
+            body = (f'{t(marks.get(verdict, "≈ 비슷"))} · {t(item.slot)} {title}'
+                    + (" " + t("({slot} 대비)", slot=label(target)) if len(keys) > 1 or item.hand else ""))
             if diffs:
                 body += "<br>" + " · ".join(diffs)
+        body += note_html
         body += f'<br><span style="color:#9a9284">' + t("장착했다면 한 번 더 Ctrl+C (또는 {key}) 로 기준 갱신", key=HOTKEYS["equip"]) + '</span>'
         self._show_item(body, color)
 
@@ -637,29 +651,34 @@ class Controller:
         item = parse_item(self.last_item_text) if self.last_item_text else None
         if c is None or item is None or not is_gear(item):  # 젬·화폐(미가공 젬 등)는 장착 기준이 아니다
             return
-        keys = slot_keys(item.slot)
-        name = lambda k: t((k.replace("#", " ") if "#" in k else f"{k} 1") if len(keys) > 1 else k)
+        keys = hand_keys(item, c.gear) if item.hand else slot_keys(item.slot)
+        name = lambda k: t(slot_label(k, keys))
         how = f"{via} → " if via else ""
         title, _, _ = compare(item, None)
-        cur = next((k for k in keys if c.gear.get(k) == self.last_item_text), None)
+        cur = next((k for k in ([MAIN, OFF] if item.hand else keys) if c.gear.get(k) == self.last_item_text), None)
         if cur is not None:
+            if item.hand == "two" and cur == MAIN:
+                keys = [MAIN, OFF]  # 양손 무기를 다시 등록 = 두 손에 하나씩 (거인의 피 등) → 보조 손으로 옮긴다
             if len(keys) == 1:
                 return
-            # 반지처럼 칸이 둘: 다시 등록하면 다른 칸으로 옮긴다 (원래 칸은 등록 전 반지로 되돌림)
-            key = keys[(keys.index(cur) + 1) % len(keys)]
+            # 반지·한 손 무기처럼 칸이 둘: 다시 등록하면 다른 칸으로 옮긴다 (원래 칸은 등록 전 아이템으로 되돌림)
+            key = keys[(keys.index(cur) + 1) % len(keys)] if cur in keys else keys[0]
             back_key, back_text = self._equip_undo
             if back_key == cur and back_text:
                 c.gear[cur] = back_text
             else:
                 c.gear.pop(cur, None)
         else:
-            empty = [k for k in keys if k not in c.gear]
-            # 빈 칸 > 마지막으로 비교한 칸(가장 약한 쪽) > 첫 칸
-            key = empty[0] if empty else (self.compare_target if self.compare_target in keys else keys[0])
+            key = equip_key(item, c.gear, self.compare_target)
+        dropped = ""
+        if item.hand == "two" and keys == [MAIN] and OFF in c.gear:
+            dropped = c.gear.pop(OFF)  # 양손 무기: 보조 손은 비운다 (양손을 한 손에 든다면 보조 손을 다시 등록)
         self._equip_undo = (key, c.gear.get(key, ""))
         c.gear[key] = self.last_item_text
         self.dirty = True
         msg = t("📌 {how}{slot} 장착 기준 등록 · {title}", how=how, slot=name(key), title=title)
+        if dropped:
+            msg += f'<br><span style="color:#9a9284">' + t("보조 손 기준을 비움 — 양손 무기를 한 손에 든다면 보조 손 아이템도 다시 등록") + '</span>'
         if len(keys) > 1:
             other = name(keys[(keys.index(key) + 1) % len(keys)])
             msg += f'<br><span style="color:#9a9284">' + t("{other} 자리에 꼈다면 한 번 더 두 번 복사 (또는 {key})", other=other, key=HOTKEYS["equip"]) + '</span>'
