@@ -112,7 +112,13 @@
                   {"speaker": "Doryani", "text": "at the eve of the end", "label": "", "engage": true},
                   {"speaker": "Doryani", "text": "All that I sacrificed", "label": "", "kill": true}
                 ]},
-    "g4_2_2":  {"bosses": ["Captain Hartlin"], "gate": false},
+    "g4_2_2":  {"label": "Omniphobia",
+                "_note": "Omniphobia is killed in the same step after Hartlin, so Hartlin is only a progress marker. Omniphobia does not speak: The Raven's 'parting gift' starts the fight, leaving the area = kill",
+                "markers": [
+                  {"speaker": "Captain Hartlin", "text": "None may leave this accursed island", "label": "Captain Hartlin fight"},
+                  {"speaker": "Captain Hartlin", "text": "Do not... believe his lies", "label": "Hartlin dead → talk to Freya (Karui totem)"},
+                  {"speaker": "The Raven", "text": "parting gift", "label": "", "engage": true}
+                ]},
     "g4_3_1":  {"label": "Great White One", "gate": false},
     "g4_3_2":  {"bosses": ["Diamora, the Song of Death"], "gate": false,
                 "markers": [

@@ -464,6 +464,10 @@ EN_LOG = {
               ("Doryani: Fool! There's no time for this! Atziri will soon commune with the Beast!", None),
               ("Doryani: So... at the eve of the end, the demon of Atzoatl has finally come for me!", "engaged"),
               ("Doryani: Ugh... how could this happen...? All I have done. All that I sacrificed...", "killed")],
+    "g4_2_2": [("Captain Hartlin: None may leave this accursed island!", None),  # 하틀린은 진행 표시만
+               ("Captain Hartlin: Do not... believe his lies...", None),
+               ("Freya Hartlin: Heh heh... thank you kindly... I am finally free!", None),
+               ("The Raven: I hope you enjoy my parting gift. I'll see you soon...", "engaged")],
 }
 
 
