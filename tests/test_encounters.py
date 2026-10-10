@@ -468,6 +468,10 @@ EN_LOG = {
                ("Captain Hartlin: Do not... believe his lies...", None),
                ("Freya Hartlin: Heh heh... thank you kindly... I am finally free!", None),
                ("The Raven: I hope you enjoy my parting gift. I'll see you soon...", "engaged")],
+    "g4_3_2": [("Matiki: You there! Save me from this seductive fiend, will you!", "soon"),
+               ("Diamora, the Song of Death: Have you come to join my beloved? You will join them!", "engaged"),
+               ("Matiki: Look out for the waves!", "engaged"),
+               ("Matiki: Good work! Come over here.", "killed")],  # 디아모라 마지막 대사가 안 나온 판
 }
 
 

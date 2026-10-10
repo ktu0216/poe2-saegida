@@ -120,8 +120,11 @@
                   {"speaker": "The Raven", "text": "parting gift", "label": "", "engage": true}
                 ]},
     "g4_3_1":  {"label": "Great White One", "gate": false},
-    "g4_3_2":  {"bosses": ["Diamora, the Song of Death"], "gate": false,
+    "g4_3_2":  {"bosses": ["Diamora, the Song of Death"],
+                "_note": "Her own last line does not always come (2026-10-11 run): Matiki's 'Good work' also = kill",
                 "markers": [
+                  {"speaker": "Matiki", "text": "seductive fiend", "label": "", "soon": true},
+                  {"speaker": "Matiki", "text": "Good work", "label": "", "kill": true},
                   {"speaker": "Diamora, the Song of Death", "text": "We could have been", "label": "", "kill": true}
                 ]},
     "g4_5_2":  {"bosses": ["The Prisoner"], "gate": false},
