@@ -433,6 +433,7 @@ EN_LOG = {
                 ("Risu, Faridun Defector: Quickly, break the lock!", "killed")],
     "g2_2": [("Balbala: Now <i>{jingakh}, I prove myself!", "engaged")],  # 로그 화자는 그냥 "Balbala"
     "g2_3": [("Sekhema Asala: Advance with me! There are two more gates we must open!", None),
+             ("Sekhema Asala: If we can allow the caravan through all three gates, my warriors will swarm them under.", None),
              ("Sekhema Asala: The final gate is broken! We must continue our advance!", "soon"),
              ("Jamanra, the Risen King: Noxious <i>{Sekhema}... ", "engaged"),
              ("Jamanra, the Risen King: We will finish this, but not today.", "killed")],
@@ -463,6 +464,7 @@ EN_LOG = {
     "g3_17": [("Doryani: The intruder is <i>{here?} What of Napuatzi...? I see. No mercy then!", None),  # 입장 직후 대사
               ("Doryani: Fool! There's no time for this! Atziri will soon commune with the Beast!", None),
               ("Doryani: So... at the eve of the end, the demon of Atzoatl has finally come for me!", "engaged"),
+              ("Doryani: This is not over yet.", "engaged"),  # 2페이즈
               ("Doryani: Ugh... how could this happen...? All I have done. All that I sacrificed...", "killed")],
     "g4_2_2": [("Captain Hartlin: None may leave this accursed island!", None),  # 하틀린은 진행 표시만
                ("Captain Hartlin: Do not... believe his lies...", None),

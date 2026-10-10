@@ -57,9 +57,10 @@
                 ]},
     "g2_2":    {"bosses": ["Balbala", "Balbala, the Traitor"], "_note": "Log speaker is just \"Balbala\". No death line (leaving the area = kill)"},
     "g2_3":    {"bosses": ["Jamanra, the Risen King"],
-                "_note": "Gate 2/3 line not confirmed yet (after a death the gates kept their progress and Asala said 'If we can allow the caravan through all three gates')",
+                "_note": "Gate 2/3: '…all three gates…' (Korean logs: this line comes ~20 s before 'show these demons no mercy' in every run; the English run had no mercy line)",
                 "markers": [
                   {"speaker": "Sekhema Asala", "text": "two more gates", "label": "Gate 1/3"},
+                  {"speaker": "Sekhema Asala", "text": "all three gates", "label": "Gate 2/3"},
                   {"speaker": "Sekhema Asala", "text": "final gate is broken", "label": "Gate 3/3", "soon": true},
                   {"speaker": "Jamanra, the Risen King", "text": "but not today", "label": "", "kill": true}
                 ]},
@@ -107,9 +108,10 @@
                   {"speaker": "Viper Napuatzi", "text": "Bring her to Doryani", "label": "", "soon": true}
                 ]},
     "g3_17":   {"label": "Doryani",
-                "_note": "Doryani talks from the moment you enter, so his name is not a fight signal: the boss room line starts it. Phase 2 line not identified yet",
+                "_note": "Doryani talks from the moment you enter, so his name is not a fight signal: the boss room line starts it. Phase 2 = 'This is not over yet' (Korean logs: 아직 끝이 아니다 in almost every run, 치명적이진 않아 only sometimes)",
                 "markers": [
                   {"speaker": "Doryani", "text": "at the eve of the end", "label": "", "engage": true},
+                  {"speaker": "Doryani", "text": "This is not over yet", "label": "Phase 2", "phase": true},
                   {"speaker": "Doryani", "text": "All that I sacrificed", "label": "", "kill": true}
                 ]},
     "g4_2_2":  {"label": "Omniphobia",

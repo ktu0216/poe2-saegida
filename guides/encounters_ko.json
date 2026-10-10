@@ -90,6 +90,7 @@
                 "markers": [
                   {"speaker": "도리아니", "text": "최후의 전야에", "label": "", "engage": true},
                   {"speaker": "도리아니", "text": "치명적이진 않아", "label": "2페이즈", "phase": true},
+                  {"speaker": "도리아니", "text": "아직 끝이 아니다", "label": "2페이즈", "phase": true},
                   {"speaker": "도리아니", "text": "그렇게 애썼는데", "label": "", "kill": true}
                 ]},
     "g4_2_2":  {"label": "옴니포비아",
