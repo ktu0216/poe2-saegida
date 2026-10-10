@@ -451,6 +451,9 @@ EN_LOG = {
     "g3_3": [(": You have received 2 Passive Skill Points.", "killed")],  # 은빛 주먹은 말하지 않음: 책 사용 = 처치
     "g3_6_1": [("BlackJaw: You dare disturb me?", "engaged"),  # 로그 화자는 "BlackJaw"
                (": tu_fr_xxxiii has received +10% to [Resistances|Fire Resistance].", "killed")],
+    "g3_6_2": [("Alva: This is the largest Soul Core I've ever seen!", None),
+               ("Alva: The Soul Core is charged! Why don't you do the honours?", None),
+               ("Alva: Oh dear. Now we just have to remove it from the giant construct... Good luck!", "soon")],
 }
 
 

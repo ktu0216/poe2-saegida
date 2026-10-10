@@ -84,7 +84,13 @@
                 "_note": "Silverfist does not speak: using the Book of Specialisation it drops = kill (like The Crowbell)"},
     "g3_5":    {"bosses": ["Xyclucian, the Chimera"], "gate": false},
     "g3_6_1":  {"bosses": ["BlackJaw", "Blackjaw, the Remnant"], "_note": "Log speaker is \"BlackJaw\". No death line: the fire resistance reward during the fight = kill"},
-    "g3_6_2":  {"label": "Zicoatl, Warden of the Core", "gate": false},
+    "g3_6_2":  {"bosses": ["Zicoatl, Warden of the Core"], "silent": true,
+                "_note": "Zicoatl does not speak: after Alva's 'remove it from the giant construct' (soon), leaving the area = kill",
+                "markers": [
+                  {"speaker": "Alva", "text": "largest Soul Core", "label": "Soul Core found"},
+                  {"speaker": "Alva", "text": "Soul Core is charged", "label": "Generator done"},
+                  {"speaker": "Alva", "text": "remove it from the giant construct", "label": "", "soon": true}
+                ]},
     "g3_7":    {"bosses": ["Ignagduk, the Bog Witch"], "gate": false},
     "g3_8":    {"subzones": {"g3_9": {"boss": "Mektul, the Forgemaster", "label": "Mektul (The Molten Vault)"}}},
     "g3_11":   {"bosses": ["The Queen of Filth"], "gate": false},
