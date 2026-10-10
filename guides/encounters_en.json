@@ -106,7 +106,12 @@
                   {"speaker": "Viper Napuatzi", "text": "Take her", "label": "", "soon": true},
                   {"speaker": "Viper Napuatzi", "text": "Bring her to Doryani", "label": "", "soon": true}
                 ]},
-    "g3_17":   {"bosses": ["Doryani, Royal Thaumaturge"], "gate": false},
+    "g3_17":   {"label": "Doryani",
+                "_note": "Doryani talks from the moment you enter, so his name is not a fight signal: the boss room line starts it. Phase 2 line not identified yet",
+                "markers": [
+                  {"speaker": "Doryani", "text": "at the eve of the end", "label": "", "engage": true},
+                  {"speaker": "Doryani", "text": "All that I sacrificed", "label": "", "kill": true}
+                ]},
     "g4_2_2":  {"bosses": ["Captain Hartlin"], "gate": false},
     "g4_3_1":  {"label": "Great White One", "gate": false},
     "g4_3_2":  {"bosses": ["Diamora, the Song of Death"], "gate": false,

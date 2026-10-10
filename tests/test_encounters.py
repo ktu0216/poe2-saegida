@@ -460,6 +460,10 @@ EN_LOG = {
     "g3_14": [("Viper Napuatzi: Halt! Your rampage ends here!", "soon"),  # 알바와의 대화는 전투 전
               ("Viper Napuatzi: Bring her to Doryani!", "soon"),
               ("Viper Napuatzi: As for you, I will pay back every drop of Vaal blood you have spilled.", "engaged")],
+    "g3_17": [("Doryani: The intruder is <i>{here?} What of Napuatzi...? I see. No mercy then!", None),  # 입장 직후 대사
+              ("Doryani: Fool! There's no time for this! Atziri will soon commune with the Beast!", None),
+              ("Doryani: So... at the eve of the end, the demon of Atzoatl has finally come for me!", "engaged"),
+              ("Doryani: Ugh... how could this happen...? All I have done. All that I sacrificed...", "killed")],
 }
 
 
