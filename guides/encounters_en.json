@@ -177,7 +177,7 @@
                 ]},
     "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "_note": "Names confirmed in the log. No death line: leaving the area = kill"},
     "p1_2":    {"bosses": ["Siora, Blade of the Mists"],
-                "_note": "Phase 2 line (Korean: 변하는 건 없다) not seen in the English run yet",
+                "_note": "No phase 2: the Korean '변하는 건 없다' line came 6-8 s before death in some runs only (not in the English run)",
                 "markers": [
                   {"speaker": "Siora, Blade of the Mists", "text": "The Mists remain", "label": "", "kill": true}
                 ]},
@@ -186,7 +186,7 @@
                 "markers": [
                   {"speaker": "Oswin, The Dread Warden", "text": "flay you slow", "label": "", "kill": true}
                 ]},
-    "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "_note": "Names confirmed in the log. No death line: leaving the area = kill. Phase 2 (Wulfric transforms) line not seen in the English log yet"},
+    "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "_note": "Names confirmed in the log. No death line: leaving the area = kill. The Korean phase-2 line (Wulfric transforms) appeared in only 1 of the Korean runs and not in the English run"},
     "p2_1":    {"bosses": ["Akthi, the Final Sting", "Anundr, the Sandworm"], "gate": false},
     "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"],
                 "_note": "'The Serpent Clan rises once more!' is her first line; the death line is 'shall rise again'",
