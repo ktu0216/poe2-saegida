@@ -181,7 +181,11 @@
                 "markers": [
                   {"speaker": "Siora, Blade of the Mists", "text": "The Mists remain", "label": "", "kill": true}
                 ]},
-    "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "book_kill": "engaged", "gate": false},
+    "p1_5":    {"bosses": ["Oswin, The Dread Warden", "Oswin, the Dread Warden"], "book_kill": "engaged",
+                "_note": "Log speaker has a capital \"The\". His last line varies (Korean logs: two kinds); using the Jailer's Ledger in the fight also = kill",
+                "markers": [
+                  {"speaker": "Oswin, The Dread Warden", "text": "flay you slow", "label": "", "kill": true}
+                ]},
     "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "gate": false},
     "p2_1":    {"bosses": ["Akthi, the Final Sting", "Anundr, the Sandworm"], "gate": false},
     "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"],
