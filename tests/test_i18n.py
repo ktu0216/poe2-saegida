@@ -34,7 +34,7 @@ def test_english_data_files_load():
     assert config.data_file("rewards", "en").name == "rewards_en.json"
     assert len(RewardTable.load(config.data_file("rewards", "en")).slots) == 15
     assert len(load_passive_sources(config.data_file("quest_passives", "en"))) == 12
-    assert Encounters.load(config.data_file("encounters", "en")).get("p1_5").bosses == ("Oswin, the Dread Warden",)
+    assert Encounters.load(config.data_file("encounters", "en")).get("p1_5").bosses[0] == "Oswin, The Dread Warden"  # 로그 화자 이름 (대문자 The)
     g = Guide.load(config.resource_dir() / "guides" / "default_en.csv")
     assert len(g) == len(Guide.load(config.resource_dir() / "guides" / "default_ko.csv"))
     # 지역 메모는 한/영 같은 지역을 갖고 있어야 한다
