@@ -88,7 +88,7 @@ g4_4_2,Halls of the Dead,Go to Trial of the Ancestors
 g4_4_3,Trial of the Ancestors,Finish the trial → Arastas
 g4_8b,Arastas,Go to The Excavation
 g4_10,The Excavation,Kill 「Benedictus」 → town
-g4_town,Kingsmarch,Talk → Ngakanu
+g4_town,Kingsmarch,Talk → sail with Rhodri → Ngakanu
 g4_11_1b,Ngakanu,Enter Heart of the Tribe
 g4_11_2,Heart of the Tribe,Kill the final boss 「Tavakai」 → town
 g4_town,Kingsmarch,Start the interludes
