@@ -180,7 +180,11 @@
     "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "book_kill": "engaged", "gate": false},
     "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "gate": false},
     "p2_1":    {"bosses": ["Akthi, the Final Sting", "Anundr, the Sandworm"], "gate": false},
-    "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"], "gate": false},
+    "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"],
+                "_note": "'The Serpent Clan rises once more!' is her first line; the death line is 'shall rise again'",
+                "markers": [
+                  {"speaker": "Elzarah, the Cobra Lord", "text": "shall rise again", "label": "", "kill": true}
+                ]},
     "p2_5":    {"bosses": ["Vornas, the Fell Flame"], "gate": false},
     "p2_7":    {"bosses": ["Azmadi, the Faridun Prince"], "gate": false},
     "p3_2":    {"bosses": ["Lythara, The Wayward Spear", "Lythara, the Wayward Spear"],

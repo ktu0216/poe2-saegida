@@ -485,6 +485,9 @@ EN_LOG = {
                 ("Tavakai: What... what have I done?", "killed"),
                 ("Tavakai: Please... can you heal her?", "killed")],  # 처치 뒤 대화는 전투로 되돌리지 않음
     "p3_6": [("Stormgore: You dare disturb me?", "engaged")],  # 로그 화자는 그냥 "Stormgore"
+    "p2_3": [("Elzarah, the Cobra Lord: The Serpent Clan rises once more!", "engaged"),  # 첫 대사 (처치 아님)
+             ("Jado: Vile serpent!", "engaged"),
+             ("Elzarah, the Cobra Lord: The Serpent Clan shall rise again...", "killed")],
     "p3_2": [("Lythara, The Wayward Spear: My kin died by the Spirit's will. You'll die by mine.", "engaged"),  # 대문자 The
              ("Lythara, The Wayward Spear: Argh... was I...?", "killed")],
     "g4_10": [("The Countess: You really are becoming quite a nuisance...", None),
