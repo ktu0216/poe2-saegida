@@ -485,6 +485,8 @@ EN_LOG = {
                 ("Tavakai: What... what have I done?", "killed"),
                 ("Tavakai: Please... can you heal her?", "killed")],  # 처치 뒤 대화는 전투로 되돌리지 않음
     "p3_6": [("Stormgore: You dare disturb me?", "engaged")],  # 로그 화자는 그냥 "Stormgore"
+    "p1_6": [("Thane Wulfric: Soon you will serve our master...", "engaged"),
+             ("Lady Elswyth: Yes! I shall dance! With their corpse...", "engaged")],
     "p1_5": [("Oswin, The Dread Warden: Fresh meat for the cages!", "engaged"),  # 대문자 The
              ("Oswin, The Dread Warden: He'll flay you slow...", "killed")],
     "p1_2": [("Siora, Blade of the Mists: The King in the Mists claims this wood. I guard what is His.", "engaged"),

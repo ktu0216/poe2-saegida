@@ -186,7 +186,7 @@
                 "markers": [
                   {"speaker": "Oswin, The Dread Warden", "text": "flay you slow", "label": "", "kill": true}
                 ]},
-    "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "gate": false},
+    "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "_note": "Names confirmed in the log. No death line: leaving the area = kill. Phase 2 (Wulfric transforms) line not seen in the English log yet"},
     "p2_1":    {"bosses": ["Akthi, the Final Sting", "Anundr, the Sandworm"], "gate": false},
     "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"],
                 "_note": "'The Serpent Clan rises once more!' is her first line; the death line is 'shall rise again'",
