@@ -476,6 +476,8 @@ EN_LOG = {
                ("Matiki: Good work! Come over here.", "killed")],  # 디아모라 마지막 대사가 안 나온 판
     "g4_5_2": [("The Prisoner: Izaro... You traitor... Where are you!?", "engaged"),
                ("The Hooded One: Now, we must find the others. Make haste.", "killed")],
+    "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
+               ("The Hooded One: Look for the last piece.", "killed")],
 }
 
 
