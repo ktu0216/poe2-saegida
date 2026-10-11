@@ -162,7 +162,12 @@
                 "markers": [
                   {"speaker": "Vel Anxa, of the Order", "text": "Torvian! Crush the intruder", "label": "", "engage": true}
                 ]},
-    "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"], "gate": false},
+    "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"],
+                "_note": "Tavakai / Makoru lines after the kill are not a fight (the Tavakai fight is g4_11_2)",
+                "markers": [
+                  {"speaker": "The Countess", "text": "deal with them", "label": "", "soon": true},
+                  {"speaker": "Benedictus, First Herald of Utopia", "text": "For the Saviour", "label": "", "kill": true}
+                ]},
     "g4_11_2": {"bosses": ["Tavakai, the Chieftain"], "gate": false},
     "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "gate": false},
     "p1_2":    {"bosses": ["Siora, Blade of the Mists"], "gate": false},

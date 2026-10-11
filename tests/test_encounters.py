@@ -479,6 +479,10 @@ EN_LOG = {
     "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
                ("The Hooded One: Look for the last piece.", "killed")],
     "g4_7": [("The Hooded One: This is the final piece. We have succeeded.", "killed")],  # 보스는 말하지 않음
+    "g4_10": [("The Countess: You really are becoming quite a nuisance...", None),
+              ("The Countess: You and your shade cannot stop us. First Herald... deal with them.", "soon"),
+              ("Benedictus, First Herald of Utopia: As you wish!", "engaged"),
+              ("Benedictus, First Herald of Utopia: My lady... you must take your leave! I will bury it all! For the Saviourrr!", "killed")],
     "g4_8b": [("Benedictus, First Herald of Utopia: Ahh... the meddler. In the flesh.", None),  # 이벤트 대사
               ("Missionary Lorandis: Why did it come to this? We were trying to... save you...", None),
               ("Vel Anxa, of the Order: Torvian! Crush the intruder!", "engaged")],
