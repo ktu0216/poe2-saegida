@@ -175,7 +175,7 @@
                   {"speaker": "Tukohama", "text": "is not the Way", "label": "Phase 3", "phase": true},
                   {"speaker": "Tavakai", "text": "what have I done", "label": "", "kill": true}
                 ]},
-    "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "gate": false},
+    "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "_note": "Names confirmed in the log. No death line: leaving the area = kill"},
     "p1_2":    {"bosses": ["Siora, Blade of the Mists"], "gate": false},
     "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "book_kill": "engaged", "gate": false},
     "p1_6":    {"bosses": ["Thane Wulfric", "Lady Elswyth"], "gate": false},
