@@ -727,3 +727,13 @@ def test_halls_of_the_dead_trial_progress_both_languages():
         for ln in lines:
             feed(t, parse_line(f"2026/10/11 12:33:30 1 a [INFO Client 1] {ln}"))
         assert t.snapshot().flags["marker"] == want and "boss" not in t.snapshot().flags
+
+
+def test_korean_balbala_death_line():
+    g = Guide(parse_csv("g2_2,배신자의 길,발바라 처치\ng2_town,카라반,마을\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G2_2", 19), LevelUp("t", "1", "me", "레인저", 18),
+         NpcLine("t", "1", "발바라", "이제 내 실력을 증명하겠다, <i>{진가크}!"))
+    assert t.snapshot().flags["boss"] == "engaged"
+    feed(t, NpcLine("t", "1", "발바라", "너는... 가치 있는 적이구나..."))
+    assert t.snapshot().flags["boss"] == "killed"
