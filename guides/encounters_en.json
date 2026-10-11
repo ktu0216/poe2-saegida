@@ -168,7 +168,13 @@
                   {"speaker": "The Countess", "text": "deal with them", "label": "", "soon": true},
                   {"speaker": "Benedictus, First Herald of Utopia", "text": "For the Saviour", "label": "", "kill": true}
                 ]},
-    "g4_11_2": {"bosses": ["Tavakai, the Chieftain"], "gate": false},
+    "g4_11_2": {"bosses": ["Tavakai", "Tavakai, the Chieftain"],
+                "_note": "Log speaker is just \"Tavakai\"",
+                "markers": [
+                  {"speaker": "Tavakai", "text": "Aid me Ancestors", "label": "Phase 2", "phase": true},
+                  {"speaker": "Tukohama", "text": "is not the Way", "label": "Phase 3", "phase": true},
+                  {"speaker": "Tavakai", "text": "what have I done", "label": "", "kill": true}
+                ]},
     "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "gate": false},
     "p1_2":    {"bosses": ["Siora, Blade of the Mists"], "gate": false},
     "p1_5":    {"bosses": ["Oswin, the Dread Warden"], "book_kill": "engaged", "gate": false},

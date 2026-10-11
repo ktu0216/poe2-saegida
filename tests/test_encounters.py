@@ -479,6 +479,11 @@ EN_LOG = {
     "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
                ("The Hooded One: Look for the last piece.", "killed")],
     "g4_7": [("The Hooded One: This is the final piece. We have succeeded.", "killed")],  # 보스는 말하지 않음
+    "g4_11_2": [("Tavakai: Another interfering with things they don't understand!", "engaged"),  # 로그 화자는 그냥 "Tavakai"
+                ("Tavakai: This outsider challenges our Way! Aid me Ancestors, let them know the might of the Karui!", "engaged"),
+                ("Tukohama: This... is not the Way.", "engaged"),
+                ("Tavakai: What... what have I done?", "killed"),
+                ("Tavakai: Please... can you heal her?", "killed")],  # 처치 뒤 대화는 전투로 되돌리지 않음
     "g4_10": [("The Countess: You really are becoming quite a nuisance...", None),
               ("The Countess: You and your shade cannot stop us. First Herald... deal with them.", "soon"),
               ("Benedictus, First Herald of Utopia: As you wish!", "engaged"),
