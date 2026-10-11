@@ -142,7 +142,7 @@
                   {"speaker": "The Hooded One", "text": "This is the final piece", "label": "", "kill": true}
                 ]},
     "g4_4_1":  {"task_label": "Trial",
-                "_note": "Kaom confirmed in the log; Maata and Rakiata names/lines assumed from the Korean data (… 미소를 보낸다) — check when they appear",
+                "_note": "All three trial lines confirmed in the log (2026-10-11): '… smiles upon your strength / bravery / fluidity'",
                 "markers": [
                   {"speaker": "Kaom", "text": "smiles upon", "label": "", "task": "Kaom"},
                   {"speaker": "Maata", "text": "smiles upon", "label": "", "task": "Maata"},
