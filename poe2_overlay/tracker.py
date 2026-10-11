@@ -298,23 +298,29 @@ class Tracker:
         """퀘스트 패시브를 받은 단계: 패시브를 주는 단계(passive_sources) 중 아직 안 받은 것.
         1) 지금 지역의 출처 (사냥터에서 바로 쓴 책, 마을 NPC 보상)
         2) 마을에서 썼으면 직전에 있던 사냥터의 출처 (은빛 주먹을 늦게 잡고 마을에서 책 사용 등)
-        여러 개면 현재 단계에서 가까운 것. 못 찾으면 현재 단계가 출처일 때만 그 단계."""
+        여러 개면 현재 단계에서 가까운 것. 그 지역이 앞으로 처음 다시 나오는 단계보다 뒤의 출처는 쓰지 않는다
+        (액트 4 마을에서 투옌의 책을 쓰면 막간 뒤 두건 쓴 자 단계에 붙던 문제).
+        3) 현재 단계가 출처면 그 단계 4) 지나온 단계 중 아직 안 받은 가장 가까운 출처 (늦게 쓴 책)."""
         steps = self.guide.steps
         if not steps:
             return None
 
+        def is_src(i: int) -> bool:
+            st = steps[i]
+            return any(src.on(st.zone, st.text) for src in self.passive_sources)                 and not c.step_flags.get(str(i), {}).get("passive")
+
         def cands(zone: str) -> list[int]:
-            return [i for i, st in enumerate(steps)
-                    if st.zone == zone and any(src.on(st.zone, st.text) for src in self.passive_sources)
-                    and not c.step_flags.get(str(i), {}).get("passive")]
+            # 앞쪽은 그 지역이 다음에 처음 나오는 단계까지만 (우나의 류트: 오검 마을을 건너뛰고 마을에서 받음)
+            nxt = next((j for j in range(c.cursor + 1, len(steps)) if steps[j].zone == zone), c.cursor)
+            return [i for i, st in enumerate(steps) if st.zone == zone and i <= max(nxt, c.cursor + 1) and is_src(i)]
 
         found = cands(c.zone) or (cands(c.last_field_zone) if is_town(c.zone) and c.last_field_zone else [])
         if found:
             return min(found, key=lambda i: abs(i - c.cursor))
-        if 0 <= c.cursor < len(steps) and any(src.on(steps[c.cursor].zone, steps[c.cursor].text)
-                                               for src in self.passive_sources):
+        if 0 <= c.cursor < len(steps) and is_src(c.cursor):
             return c.cursor
-        return None
+        behind = [i for i in range(min(c.cursor, len(steps) - 1), -1, -1) if is_src(i)]
+        return behind[0] if behind else None
 
     def _flags(self, c: Character) -> Optional[dict]:
         """현재 가이드 단계의 상태 (캐릭터가 그 단계 지역에 있을 때). 단계 밖 보스 지역이면 임시 상태."""

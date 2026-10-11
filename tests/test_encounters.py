@@ -3,7 +3,7 @@ from poe2_overlay.config import resource_dir
 from poe2_overlay.encounters import Encounters
 from poe2_overlay.guide import Guide, parse_csv
 from poe2_overlay.logparse import AreaEntered, Death, LevelUp, NpcLine, parse_line
-from poe2_overlay.tracker import Tracker
+from poe2_overlay.tracker import Character, Tracker
 
 ENC = Encounters.load(resource_dir() / "guides" / "encounters_ko.json")
 GUIDE = Guide(parse_csv("""
@@ -663,3 +663,19 @@ def test_english_eye_of_hinekora_trial_task():
          parse_line("2026/10/11 12:19:46 1 a [INFO Client 1] Kaom: Ngamahu smiles upon your strength."))
     f = t.snapshot().flags
     assert f["marker"] == "Trial 1/3 (Kaom)" and "boss" not in f
+
+
+def test_book_in_town_does_not_jump_to_far_future_source():
+    # 액트 4 마을에서 투옌의 책 사용 → 막간 뒤 두건 쓴 자 단계(멀리 앞)가 아니라 지나온 투옌 단계에 (2026-10-11)
+    from poe2_overlay.logparse import PassivePoints
+    from poe2_overlay.rewards import load_passive_sources
+    g = Guide.load(resource_dir() / "guides" / "default_en.csv")
+    t = Tracker(g, encounters=Encounters.load(resource_dir() / "guides" / "encounters_en.json"))
+    t.passive_sources = load_passive_sources(resource_dir() / "guides" / "quest_passives_en.json")
+    tujen = next(s.index for s in g.steps if s.zone == "g4_2_2" and "Tujen" in s.text)
+    hooded = next(s.index for s in g.steps if s.zone == "g4_town" and "Hooded One" in s.text)
+    prison = next(s.index for s in g.steps if s.zone == "g4_5_2")
+    c = Character(name="me", cursor=prison, zone="g4_5_2")
+    t.chars["me"], t.current, t.confirmed = c, "me", True
+    feed(t, AreaEntered("t", "1", "G4_town", 53), PassivePoints("t", "1", 2, False))
+    assert c.step_flags[str(tujen)].get("passive") and "passive" not in c.step_flags.get(str(hooded), {})
