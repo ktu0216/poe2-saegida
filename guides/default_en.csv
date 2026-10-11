@@ -92,7 +92,7 @@ g4_town,Kingsmarch,Talk → sail with Rhodri → Ngakanu
 g4_11_1b,Ngakanu,Enter Heart of the Tribe
 g4_11_2,Heart of the Tribe,Kill the final boss 「Tavakai」 → town
 g4_town,Kingsmarch,Start the interludes: Travel to Mount Kriar (Interlude 3 first)
-p3_town,The Glade,Talk → Ashen Forest
+p3_town,The Glade,No need to talk → Ashen Forest
 p3_1,Ashen Forest,Go to Kriar Village
 p3_2,Kriar Village,Go to Glacial Tarn
 p3_3,Glacial Tarn,Enter Howling Caves
