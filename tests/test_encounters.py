@@ -484,6 +484,8 @@ EN_LOG = {
                 ("Tukohama: This... is not the Way.", "engaged"),
                 ("Tavakai: What... what have I done?", "killed"),
                 ("Tavakai: Please... can you heal her?", "killed")],  # 처치 뒤 대화는 전투로 되돌리지 않음
+    "p3_2": [("Lythara, The Wayward Spear: My kin died by the Spirit's will. You'll die by mine.", "engaged"),  # 대문자 The
+             ("Lythara, The Wayward Spear: Argh... was I...?", "killed")],
     "g4_10": [("The Countess: You really are becoming quite a nuisance...", None),
               ("The Countess: You and your shade cannot stop us. First Herald... deal with them.", "soon"),
               ("Benedictus, First Herald of Utopia: As you wish!", "engaged"),

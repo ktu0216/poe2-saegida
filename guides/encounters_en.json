@@ -183,7 +183,11 @@
     "p2_3":    {"bosses": ["Elzarah, the Cobra Lord"], "gate": false},
     "p2_5":    {"bosses": ["Vornas, the Fell Flame"], "gate": false},
     "p2_7":    {"bosses": ["Azmadi, the Faridun Prince"], "gate": false},
-    "p3_2":    {"bosses": ["Lythara, the Wayward Spear"], "gate": false},
+    "p3_2":    {"bosses": ["Lythara, The Wayward Spear", "Lythara, the Wayward Spear"],
+                "_note": "Log speaker has a capital \"The\". Last line 'Argh... was I...?' then the spirit reward (also = kill)",
+                "markers": [
+                  {"speaker": "Lythara, The Wayward Spear", "text": "Argh... was I", "label": "", "kill": true}
+                ]},
     "p3_3":    {"bosses": ["Rakkar, the Frozen Talon"], "gate": false},
     "p3_4":    {"bosses": ["The Abominable Yeti"], "gate": false},
     "p3_6":    {"bosses": ["Stormgore, the Guardian"], "gate": false},
