@@ -100,6 +100,10 @@ https://github.com/user-attachments/assets/602c86dd-506f-4dc7-924c-94535b4e995c
 
 Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.
 
+## 후원
+
+모든 기능은 무료이고 앞으로도 그렇습니다. 도움이 되셨다면 ☕ [Ko-fi에서 커피 한 잔](https://ko-fi.com/saegida)으로 응원해 주세요.
+
 ## 라이선스
 
 [MIT](LICENSE)
@@ -107,7 +111,7 @@ Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.
 ## 크레딧
 
 - 지역 팁 일부: [POE2Radar](https://github.com/Sikaka/POE2Radar) `zone_notes.json` (MIT, 원문 Path of Levelling 2)을 요약·번역
-- 보스·지역·보상 영어 이름: [poe2db.tw](https://poe2db.tw)
+- 지역·보상 영어 이름: [poe2db.tw](https://poe2db.tw) (보스 이름과 대사는 실제 게임 로그 기준)
 - 영어 클라이언트 로그 형식: [bear421/poe-map-log-viewer](https://github.com/bear421/poe-map-log-viewer) (MIT) 문서
 - 젬 내부 ID → 이름: [Path of Building (PoE2)](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2) `Data/Gems.lua`
 - 막간 지역 팁 일부: [poe2way 액트 가이드](https://www.poe2way.com/act-guide/ko) 요약

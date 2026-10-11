@@ -36,6 +36,7 @@ RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
+KOFI_URL = "https://ko-fi.com/saegida"  # 후원 (모든 기능 무료, 메뉴 맨 아래 한 줄만)
 HOTKEYS = {
     "next": "Ctrl+Alt+Right",
     "prev": "Ctrl+Alt+Left",
@@ -1225,6 +1226,7 @@ class Controller:
         uc.triggered.connect(lambda: self.toggle_setting("update_check"))
         um.addAction(uc)
         m.addSeparator()
+        m.addAction(t("☕ 개발자에게 커피 사주기 (Ko-fi)"), lambda: webbrowser.open(KOFI_URL))
         m.addAction(t("종료"), self.app.quit)
 
 

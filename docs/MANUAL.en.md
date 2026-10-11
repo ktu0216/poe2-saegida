@@ -76,7 +76,7 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 - During a fight the panel shrinks to **one line**, and a `Tab→minimap` hint shows for 3 seconds when it starts (it never presses keys for you). Both can be turned off in the menu.
 - Taunts right after you die ("What a sweet scream…") do not restart the fight.
 - Bosses without a kill line go back to the full panel **30 seconds after their last line** (the kill itself is still recorded when you leave the area). To see it right away, **click the one-line panel** or press `Ctrl+Alt+X` — it stays expanded in that area.
-- **English client**: fewer progress and kill lines are known than for Korean so far (they are being added from real logs), so most fights start on the boss's first line and end when you leave the area alive.
+- **English client**: boss names and progress / phase / kill lines were taken from a full English playthrough (0.2.2). A few bosses never speak; those count as killed when you leave the area alive, as in Korean.
 
 ## 5. Permanent rewards and quest passives
 
@@ -123,7 +123,7 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 
 - Talking to a vendor in town copies a shop search regex for your build and act to the clipboard. Paste with `Ctrl+V`.
 - Copy manually with `Ctrl+Alt+C`; auto-copy can be turned off in the menu.
-- The regex has to match the game's item text, so it is **Korean client only** for now.
+- The regex follows the **game language** (item text): English and Korean rules exist for the bundled builds. A regex with spaces is copied in quotes so the game treats it as one search.
 
 ## 10. Endgame log
 

@@ -102,10 +102,13 @@ A personal tool, not affiliated with Grinding Gear Games or Kakao Games.
 
 ### English client status
 
-The English client is newer than the Korean one. Area tracking, level-ups, deaths, rewards, quest passives and
-the endgame log work. Boss **kill and phase lines** are only known for the Korean client so far — on English,
-a boss fight starts on the boss's first line and counts as killed when you leave the area alive.
-If you notice a reward that never ticks or a boss that never shows, please open an issue with the log lines.
+Since 0.2.2 the whole campaign (acts 1–4 and interludes 1–3) has been played through on the English client, so
+boss names, boss-soon / fight / phase / kill lines and progress markers come from real English logs, as they do for
+Korean. If you notice a reward that never ticks or a boss that never shows, please open an issue with the log lines.
+
+## Support
+
+Everything is free and will stay free. If it helped you, ☕ [buy me a coffee on Ko-fi](https://ko-fi.com/saegida).
 
 ## License
 
@@ -114,7 +117,7 @@ If you notice a reward that never ticks or a boss that never shows, please open 
 ## Credits
 
 - Some zone tips: summarised from [POE2Radar](https://github.com/Sikaka/POE2Radar) `zone_notes.json` (MIT, originally Path of Levelling 2)
-- English boss, area and reward names: [poe2db.tw](https://poe2db.tw)
+- English area and reward names: [poe2db.tw](https://poe2db.tw) (boss names and lines come from real game logs)
 - English client log format: documented in [bear421/poe-map-log-viewer](https://github.com/bear421/poe-map-log-viewer) (MIT)
 - Gem internal ID → name: [Path of Building (PoE2)](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2) `Data/Gems.lua`
 - Some interlude tips: summarised from the [poe2way act guide](https://www.poe2way.com/act-guide/ko)
