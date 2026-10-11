@@ -65,6 +65,9 @@ def test_played_line():
         "2026/10/11 04:08:58", "1", 30707)
     assert parse_line(p + ": You have played for 1 day, 1 hour, 1 minute, and 1 second.").seconds == 90061
     assert parse_line(p + ": You have played for 12 seconds.").seconds == 12
+    # 한국어 클라이언트 (2026-10-11 로그): "시" = 시간
+    assert parse_line(p + ": 14시, 23분, 30초 동안 플레이했습니다.").seconds == 14 * 3600 + 23 * 60 + 30
+    assert parse_line(p + ": 1일, 2시, 3분, 4초 동안 플레이했습니다.").seconds == 86400 + 7200 + 180 + 4
 
 
 def test_mid_campaign_character_is_partial_and_skipped_for_pb():

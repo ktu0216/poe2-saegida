@@ -28,9 +28,10 @@ _REWARD_EN = re.compile(r"^: (?P<name>\S+) ha(?:s|ve) received (?P<text>.+?)\.$"
 _PASSIVE_KO = re.compile(r"^: (?:(?P<weapon>무기 세트 )?패시브 스킬 포인트(?:를)? ?(?P<n>\d+)(?:포인트를)? ?획득했습니다\.)")
 # NPC 대사: 화자 이름은 한글 등 비ASCII 포함, 숫자 없음 ("Tile hash: 123" 같은 기술 로그 제외)
 _NPC = re.compile(r"^(?P<who>[^:#@%$&\[\]\s][^:]{0,40}?): (?P<text>.+)$")
-# "You have played for 8 hours, 31 minutes, and 47 seconds." (한국어 문구는 아직 로그로 확인 못 함)
-_PLAYED = re.compile(r"^: You have played for ")
-_PLAYED_UNIT = re.compile(r"(\d+) (days?|hours?|minutes?|seconds?)")
+# "You have played for 8 hours, 31 minutes, and 47 seconds." / "14시, 23분, 30초 동안 플레이했습니다." (시 = 시간)
+_PLAYED = re.compile(r"^: (?:You have played for |.*동안 플레이했습니다)")
+_PLAYED_UNIT = re.compile(r"(\d+) ?(days?|hours?|minutes?|seconds?|일|시|분|초)")
+_PLAYED_KO = {"일": "day", "시": "hour", "분": "minute", "초": "second"}
 _AFK_ON = re.compile(r"^: (?:자리 비움 모드를 설정했습니다|AFK mode is now ON)")
 _AFK_OFF = re.compile(r"^: (?:자리 비움 모드를 해제했습니다|AFK mode is now OFF)")
 # 전직 패시브: "Successfully allocated passive skill id: AscendancyMercenary3Small1, name: 스킬 젬 퀄리티"
@@ -209,7 +210,7 @@ def parse_line(line: str) -> Optional[Event]:
     if not body.startswith(": "):
         return Activity(ts, pid)
     if _PLAYED.match(body):
-        units = dict((u.rstrip("s"), int(n)) for n, u in _PLAYED_UNIT.findall(body))
+        units = dict((_PLAYED_KO.get(u, u.rstrip("s")), int(n)) for n, u in _PLAYED_UNIT.findall(body))
         return Played(ts, pid, units.get("day", 0) * 86400 + units.get("hour", 0) * 3600
                       + units.get("minute", 0) * 60 + units.get("second", 0))
     if _AFK_ON.match(body):
