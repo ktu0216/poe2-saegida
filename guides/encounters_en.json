@@ -190,7 +190,7 @@
                 ]},
     "p3_3":    {"bosses": ["Rakkar, the Frozen Talon"], "gate": false},
     "p3_4":    {"bosses": ["The Abominable Yeti"], "gate": false},
-    "p3_6":    {"bosses": ["Stormgore, the Guardian"], "gate": false},
+    "p3_6":    {"bosses": ["Stormgore", "Stormgore, the Guardian"], "_note": "Log speaker is just \"Stormgore\" (same as the Korean log). No death line: leaving the area = kill"},
     "p3_7":    {"bosses": ["Zelina, Blood Priestess", "Zolin, Blood Priest"], "gate": false,
                 "_note": "Ritual chants in Vaal (<i>{...}) come before the fight = boss soon. Kill line from an older log: 'Enough, we submit!' (speaker names still to check in an English log)",
                 "markers": [
