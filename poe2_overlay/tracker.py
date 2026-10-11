@@ -37,14 +37,14 @@ PLACEHOLDERS = (NEW_CHAR, UNKNOWN_CHAR)
 # 전직 ID -> 한국어 전직 이름 (레벨업 줄 "(젬링 리저네어)" 에서 확인한 것). 모르는 전직은 다음 레벨업 때 채워진다.
 ASCENDANCY_KO = {
     "Mercenary2": "위치헌터", "Mercenary3": "젬링 리저네어", "Warrior1": "타이탄", "Warrior2": "워브링어",
-    "Warrior3": "스미스 오브 키타바", "Sorceress1": "스톰위버", "Huntress1": "아마존", "Witch3": "리치",
+    "Warrior3": "스미스 오브 키타바", "Sorceress1": "스톰위버", "Huntress1": "아마존", "Ranger1": "데드아이", "Witch3": "리치",
     "Druid1": "오라클", "Druid2": "샤먼",
 }
 # 영어 클라이언트 (전직 노드를 찍은 뒤 다음 레벨업 줄 전까지 클래스 이름)
 ASCENDANCY_EN = {
     "Mercenary2": "Witchhunter", "Mercenary3": "Gemling Legionnaire", "Warrior1": "Titan", "Warrior2": "Warbringer",
     "Warrior3": "Smith of Kitava", "Sorceress1": "Stormweaver", "Sorceress3": "Disciple of Varashta",
-    "Huntress1": "Amazon", "Witch3": "Lich", "Druid1": "Oracle", "Druid2": "Shaman",
+    "Huntress1": "Amazon", "Ranger1": "Deadeye", "Witch3": "Lich", "Druid1": "Oracle", "Druid2": "Shaman",
 }
 ASCENSION_MAX = 4  # 전직 시련 1~4차, 한 번에 2포인트
 

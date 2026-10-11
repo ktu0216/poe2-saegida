@@ -43,3 +43,14 @@ def test_search_text_quotes_regex_with_spaces():
     assert book.select("", "Mercenary", "Act 1").search_text.startswith('"!quiver" ')  # 이미 따옴표
     assert book.select("Navira", "", "Act 1").search_text == '"spell sk|minion|allies|spirit|movement"'
     assert book.select("Shield Wall", "", "Act 1").search_text == "to.att|speed|melee|leech|tower"  # 띄어쓰기 없음
+
+
+def test_deadeye_act1_and_later_rules():
+    # Fubgun 레벨링 가이드: 액트 1과 액트 2부터 정규식이 다르다 (acts 로 고름), 전직 이름 Deadeye 로도 고름
+    from poe2_overlay.config import data_file
+    en = RegexBook.load(data_file("regex", "en"))
+    assert en.select("얼음 데드아이 1. Lv 1-14", "Ranger", "액트 1").name == "Ice Shot Deadeye (Act 1)"
+    assert en.select("얼음 데드아이 2. Lv 15-23", "Ranger", "액트 2").name == "Ice Shot Deadeye"
+    assert en.select("", "Deadeye", "막간 1").name == "Ice Shot Deadeye"
+    assert "Bow Skill" in en.select("", "Deadeye", "액트 3").regex  # 복사 원문의 'Bow 스위치'(자동 번역) 바로잡음
+    assert BOOK.select("", "데드아이", "액트 2").name == "얼음 데드아이"

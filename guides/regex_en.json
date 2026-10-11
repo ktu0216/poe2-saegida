@@ -32,6 +32,30 @@
       "regex": "\\d.+life|\\d+% i.+mov|d Spell D|os D|ell s|m En"
     },
     {
+      "name": "Ice Shot Deadeye (Act 1)",
+      "build": "데드아이|Deadeye|Ice Shot",
+      "classes": [
+        "Ranger",
+        "Deadeye"
+      ],
+      "acts": [
+        "액트 1"
+      ],
+      "_note": "Fubgun leveling guide (mobalytics, 0.5), Act 1 regex as written",
+      "regex": "\"!Mace|Staff|Spear|Cross|Plate|Cuira|Raime|Vest|Mantl|Raise|Perry\" \"s: (am|ri|be|bow)|movem|[edgl] to.att|[3-9]\\d% to.*Bow Skill|[2-4]\\d% to.*res|[5-9]\\d to.*life|to.*(int|str)\""
+    },
+    {
+      "name": "Ice Shot Deadeye",
+      "build": "데드아이|Deadeye|Ice Shot",
+      "classes": [
+        "Ranger",
+        "Deadeye"
+      ],
+      "acts": [],
+      "_note": "Fubgun leveling guide, 'Act 2+' regex ('Bow 스위치' in the copied text was a browser translation of 'Bow Skill')",
+      "regex": "\"!Mace|Staff|Spear|Cross|Plate|Cuira|Greathe|Mitts|Greav|Robe|Raime|Circle|Tiara|Vest|Mantl|Crown|Cuffs|Raise|Ferry\" \"s: (am|ri|be|bow)|movem|to.*(int|str)|[edgl] to.att|[3-9]\\d% to.*Bow Skill|[2-4]\\d% to.*res|[5-9]\\d to.*life\""
+    },
+    {
       "name": "Grenade starter",
       "build": "유탄|Grenade",
       "classes": [
