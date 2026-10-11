@@ -129,7 +129,10 @@
                   {"speaker": "Matiki", "text": "Good work", "label": "", "kill": true},
                   {"speaker": "Diamora, the Song of Death", "text": "We could have been", "label": "", "kill": true}
                 ]},
-    "g4_5_2":  {"bosses": ["The Prisoner"], "gate": false},
+    "g4_5_2":  {"bosses": ["The Prisoner"],
+                "markers": [
+                  {"speaker": "The Hooded One", "text": "we must find the others", "label": "", "kill": true}
+                ]},
     "g4_1_2":  {"bosses": ["Krutog, Lord of Kin"], "gate": false},
     "g4_7":    {"label": "Scourge of the Skies", "gate": false},
     "g4_4_2":  {"bosses": ["Yama The White"], "gate": false},
