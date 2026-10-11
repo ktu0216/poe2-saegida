@@ -148,7 +148,15 @@
                   {"speaker": "Maata", "text": "smiles upon", "label": "", "task": "Maata"},
                   {"speaker": "Rakiata", "text": "smiles upon", "label": "", "task": "Rakiata"}
                 ]},
-    "g4_4_2":  {"bosses": ["Yama The White"], "gate": false},
+    "g4_4_2":  {"bosses": ["Yama The White"],
+                "_note": "Hinekora says two lines per trial (start, end) in a fixed order: the end lines mark trial 1/3~3/3. Yama's 'You are not worthy!' is a mid-fight line, the kill is 'You are worthy.'",
+                "markers": [
+                  {"speaker": "Hinekora", "text": "The cycle of life continues", "label": "Trial 1/3"},
+                  {"speaker": "Hinekora", "text": "The sea holds many secrets", "label": "Trial 2/3"},
+                  {"speaker": "Hinekora", "text": "warrior emerges from the caldera", "label": "Trial 3/3"},
+                  {"speaker": "Navali", "text": "one final challenge", "label": "", "soon": true},
+                  {"speaker": "Yama The White", "text": "You are worthy", "label": "", "kill": true}
+                ]},
     "g4_8b":   {"label": "Torvian, Hand of the Saviour", "gate": false},
     "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"], "gate": false},
     "g4_11_2": {"bosses": ["Tavakai, the Chieftain"], "gate": false},

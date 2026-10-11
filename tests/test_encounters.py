@@ -479,6 +479,11 @@ EN_LOG = {
     "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
                ("The Hooded One: Look for the last piece.", "killed")],
     "g4_7": [("The Hooded One: This is the final piece. We have succeeded.", "killed")],  # 보스는 말하지 않음
+    "g4_4_2": [("Hinekora: The cycle of life continues. The lone traveller journeys on.", None),  # 시련 1/3
+               ("Navali: Hinekora has seen you. But now... one final challenge.", "soon"),
+               ("Yama The White: A challenger! Haha! Old Yama see if worthy of Hinekora! Haha! Come!", "engaged"),
+               ("Yama The White: You are not worthy!", "engaged"),  # 처치 아님
+               ("Yama The White: Ahhh! Okay, okay. Yama sees you. You are worthy.", "killed")],
 }
 
 
@@ -679,3 +684,17 @@ def test_book_in_town_does_not_jump_to_far_future_source():
     t.chars["me"], t.current, t.confirmed = c, "me", True
     feed(t, AreaEntered("t", "1", "G4_town", 53), PassivePoints("t", "1", 2, False))
     assert c.step_flags[str(tujen)].get("passive") and "passive" not in c.step_flags.get(str(hooded), {})
+
+
+def test_halls_of_the_dead_trial_progress_both_languages():
+    for lang, lines, want in (
+            ("en", ["Hinekora: The cycle of life continues.", "Hinekora: The sea holds many secrets for those who seek.",
+                    "Hinekora: The warrior emerges from the caldera, born anew."], "Trial 3/3"),
+            ("ko", ["히네코라: 생명의 순환이 계속되듯, 고독한 나그네의 여정도 이어진다.", "히네코라: 바다는 많은 비밀을 간직하고 있으니",
+                    "히네코라: 칼데라로부터 새로 태어난 전사가 나타난다."], "시련 3/3")):
+        enc = Encounters.load(resource_dir() / "guides" / f"encounters_{lang}.json")
+        t = Tracker(Guide(parse_csv("g4_4_2,halls,trials\ng4_4_3,next,x\n"), "t"), encounters=enc)
+        feed(t, AreaEntered("t", "1", "G4_4_2", 52), LevelUp("t", "1", "me", "Lich", 48))
+        for ln in lines:
+            feed(t, parse_line(f"2026/10/11 12:33:30 1 a [INFO Client 1] {ln}"))
+        assert t.snapshot().flags["marker"] == want and "boss" not in t.snapshot().flags
