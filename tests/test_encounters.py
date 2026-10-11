@@ -522,15 +522,16 @@ def test_yeti_then_hilda_in_town_advances():
     assert g.next_position(i + 1, "P3_3") == i + 2
 
 
-def test_cuachic_vault_chant_is_soon_not_fight():
-    # 쿠아식 금고실: 입장 직후 바알어 의식 주문은 전투 전 → 곧 보스, 일반 대사부터 전투, 항복 = 처치
+def test_cuachic_vault_chant_is_marker_not_fight():
+    # 쿠아식 금고실: 입장 직후 바알어 의식 주문은 전투 전 → 표시만 (보스방 한참 전부터 들려 한 줄 패널은 띄우지 않음),
+    # 일반 대사부터 전투, 항복 = 처치
     g = Guide(parse_csv("p3_7,쿠아식 금고실,보스 처치\np3_town,풀숲,마을\n"), "t")
     t = Tracker(g, encounters=ENC)
     feed(t, AreaEntered("t", "1", "P3_7", 56), LevelUp("t", "1", "me", "머서너리", 54),
          NpcLine("t", "1", "피의 여사제 젤리나", "<i>{쿡스테 키이밀!}"),
          NpcLine("t", "1", "피의 사제 졸린", "<i>{틀락시에 레 바알!}"))
     f = t.snapshot().flags
-    assert f.get("soon") and "boss" not in f
+    assert f.get("marker") == "의식 영창 — 보스 가까움" and not f.get("soon") and "boss" not in f
     feed(t, NpcLine("t", "1", "피의 사제 졸린", "말도 안 되는 소리를 하는군."))
     assert t.snapshot().flags["boss"] == "engaged"
     feed(t, NpcLine("t", "1", "피의 사제 졸린", "그만, 항복하겠다!"))
