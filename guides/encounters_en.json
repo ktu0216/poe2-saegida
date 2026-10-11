@@ -141,6 +141,13 @@
                 "markers": [
                   {"speaker": "The Hooded One", "text": "This is the final piece", "label": "", "kill": true}
                 ]},
+    "g4_4_1":  {"task_label": "Trial",
+                "_note": "Kaom confirmed in the log; Maata and Rakiata names/lines assumed from the Korean data (… 미소를 보낸다) — check when they appear",
+                "markers": [
+                  {"speaker": "Kaom", "text": "smiles upon", "label": "", "task": "Kaom"},
+                  {"speaker": "Maata", "text": "smiles upon", "label": "", "task": "Maata"},
+                  {"speaker": "Rakiata", "text": "smiles upon", "label": "", "task": "Rakiata"}
+                ]},
     "g4_4_2":  {"bosses": ["Yama The White"], "gate": false},
     "g4_8b":   {"label": "Torvian, Hand of the Saviour", "gate": false},
     "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"], "gate": false},

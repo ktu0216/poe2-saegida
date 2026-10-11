@@ -652,3 +652,14 @@ def test_marker_only_zone_gates_town_visit():
          parse_line("2026/10/11 02:36:21 1 a [INFO Client 1] Doryani: Ugh... All I have done. All that I sacrificed..."),
          AreaEntered("t", "1", "G3_town", 44))
     assert t.snapshot().step.zone == "g3_town"
+
+
+def test_english_eye_of_hinekora_trial_task():
+    enc = Encounters.load(resource_dir() / "guides" / "encounters_en.json")
+    g = Guide(parse_csv("g4_4_1,Eye of Hinekora,trials\ng4_4_2,Halls of the Dead,next\n"), "t")
+    t = Tracker(g, encounters=enc)
+    feed(t, AreaEntered("t", "1", "G4_4_1", 51), LevelUp("t", "1", "me", "Lich", 47),
+         parse_line("2026/10/11 12:19:14 1 a [INFO Client 1] Kaom: Now we test your mettle... Rise, warriors of Ngamahu!"),
+         parse_line("2026/10/11 12:19:46 1 a [INFO Client 1] Kaom: Ngamahu smiles upon your strength."))
+    f = t.snapshot().flags
+    assert f["marker"] == "Trial 1/3 (Kaom)" and "boss" not in f
