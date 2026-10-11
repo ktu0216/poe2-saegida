@@ -186,7 +186,11 @@
                   {"speaker": "Elzarah, the Cobra Lord", "text": "shall rise again", "label": "", "kill": true}
                 ]},
     "p2_5":    {"bosses": ["Vornas, the Fell Flame"], "gate": false},
-    "p2_7":    {"bosses": ["Azmadi, the Faridun Prince"], "gate": false},
+    "p2_7":    {"bosses": ["Azmadi, the Faridun Prince"],
+                "_note": "His last line varies per run (Korean logs had two others): 'My empire... unborn...' seen 2026-10-11",
+                "markers": [
+                  {"speaker": "Azmadi, the Faridun Prince", "text": "My empire... unborn", "label": "", "kill": true}
+                ]},
     "p3_2":    {"bosses": ["Lythara, The Wayward Spear", "Lythara, the Wayward Spear"],
                 "_note": "Log speaker has a capital \"The\". Last line 'Argh... was I...?' then the spirit reward (also = kill)",
                 "markers": [
