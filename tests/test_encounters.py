@@ -485,6 +485,8 @@ EN_LOG = {
                 ("Tavakai: What... what have I done?", "killed"),
                 ("Tavakai: Please... can you heal her?", "killed")],  # 처치 뒤 대화는 전투로 되돌리지 않음
     "p3_6": [("Stormgore: You dare disturb me?", "engaged")],  # 로그 화자는 그냥 "Stormgore"
+    "p1_2": [("Siora, Blade of the Mists: The King in the Mists claims this wood. I guard what is His.", "engaged"),
+             ("Siora, Blade of the Mists: The Mists remain...", "killed")],
     "p1_1": [("Heldra of the Black Pyre: Hah! Let us deal with this worm first.", "engaged"),
              ("Isolde of the White Shroud: So be it!", "engaged")],
     "p2_7": [("Azmadi, the Faridun Prince: Hold fast, Rashi. Soon your gift will quench the sands.", "engaged"),
