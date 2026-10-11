@@ -1,6 +1,6 @@
 # poe2-saegida speedrun guide, English (main quests + permanent rewards on the way)
 # Same format as the default guide: id,area_name,quest — skipped steps are passed automatically when you enter a later area
-# Rule: take passive points, spirit and resistances; skip side content that only gives gems or currency (Mud Burrow, Mysterious Campsite, Lightless Passage, Molten Vault, the Whakapanu shark)
+# Rule: take passive points, spirit and resistances; skip side content that only gives gems or currency (Mud Burrow, Mysterious Campsite, Lightless Passage, Molten Vault). The Whakapanu shark (Kaimana's choose-one defence reward) is also skipped for time, as in the reference run
 # Reference route: GuyThatDies "Mercenary Twisters: Level 1 to Maps in 3:46" (patch 0.5, https://www.youtube.com/watch?v=C31A2pLbefk), summarised from the commentary
 #   Video cumulative times (minus the 2 min mule): Act 1 35:00 · Act 2 1:25:20 · Act 3 2:07:50 · Act 4 3:01:55 · Interlude 3 3:16:30 · Interlude 2 3:31:10 · Interlude 1 3:44
 #   General: run past most monsters, use "respawn at checkpoint" to go back and to skip dialogue, no ascending during the campaign
@@ -78,7 +78,7 @@ g4_2_1,Kedge Bay,Follow the ocean to the exit → Journey's End
 g4_2_2,Journey's End,Hartlin (high cold res) → talk to Freya → Omniphobia → talk to Tujen in town
 g4_town,Kingsmarch,Dannig's quest item and the Verisium Spikes → Journey's End
 g4_2_2,Journey's End,Sail → Whakapanu Island
-g4_3_1,Whakapanu Island,Skip the shark → Singing Caverns
+g4_3_1,Whakapanu Island,Skip the shark (time over its defence reward) → Singing Caverns
 g4_3_2,Singing Caverns,「Diamora」: max rage and kill her while frozen (she escapes otherwise) · +10 res amulet → talk to Matiki → Abandoned Prison
 g4_5_1,Abandoned Prison,The chapel key drops from necromancers · beware the skeleton cages → Solitary Confinement
 g4_5_2,Solitary Confinement,Kill 「The Prisoner」 (flask recovery choice) → Isle of Kin
