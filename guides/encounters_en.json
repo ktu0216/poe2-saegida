@@ -137,7 +137,10 @@
                 "markers": [
                   {"speaker": "The Hooded One", "text": "Look for the last piece", "label": "", "kill": true}
                 ]},
-    "g4_7":    {"label": "Scourge of the Skies", "gate": false},
+    "g4_7":    {"label": "Scourge of the Skies", "_note": "The boss does not speak: the Hooded One's line after the kill",
+                "markers": [
+                  {"speaker": "The Hooded One", "text": "This is the final piece", "label": "", "kill": true}
+                ]},
     "g4_4_2":  {"bosses": ["Yama The White"], "gate": false},
     "g4_8b":   {"label": "Torvian, Hand of the Saviour", "gate": false},
     "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"], "gate": false},

@@ -478,6 +478,7 @@ EN_LOG = {
                ("The Hooded One: Now, we must find the others. Make haste.", "killed")],
     "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
                ("The Hooded One: Look for the last piece.", "killed")],
+    "g4_7": [("The Hooded One: This is the final piece. We have succeeded.", "killed")],  # 보스는 말하지 않음
 }
 
 
