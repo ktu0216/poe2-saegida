@@ -157,7 +157,11 @@
                   {"speaker": "Navali", "text": "one final challenge", "label": "", "soon": true},
                   {"speaker": "Yama The White", "text": "You are worthy", "label": "", "kill": true}
                 ]},
-    "g4_8b":   {"label": "Torvian, Hand of the Saviour", "gate": false},
+    "g4_8b":   {"label": "Torvian, Hand of the Saviour",
+                "_note": "Torvian does not speak: Vel Anxa's shout starts the fight, leaving the area = kill. The Lorandis / Benedictus event lines before it are not the fight",
+                "markers": [
+                  {"speaker": "Vel Anxa, of the Order", "text": "Torvian! Crush the intruder", "label": "", "engage": true}
+                ]},
     "g4_10":   {"bosses": ["Benedictus, First Herald of Utopia"], "gate": false},
     "g4_11_2": {"bosses": ["Tavakai, the Chieftain"], "gate": false},
     "p1_1":    {"bosses": ["Heldra of the Black Pyre", "Isolde of the White Shroud"], "gate": false},

@@ -479,6 +479,9 @@ EN_LOG = {
     "g4_1_2": [("Krutog, Lord of Kin: You don't bring sulphite?", "engaged"),
                ("The Hooded One: Look for the last piece.", "killed")],
     "g4_7": [("The Hooded One: This is the final piece. We have succeeded.", "killed")],  # 보스는 말하지 않음
+    "g4_8b": [("Benedictus, First Herald of Utopia: Ahh... the meddler. In the flesh.", None),  # 이벤트 대사
+              ("Missionary Lorandis: Why did it come to this? We were trying to... save you...", None),
+              ("Vel Anxa, of the Order: Torvian! Crush the intruder!", "engaged")],
     "g4_4_2": [("Hinekora: The cycle of life continues. The lone traveller journeys on.", None),  # 시련 1/3
                ("Navali: Hinekora has seen you. But now... one final challenge.", "soon"),
                ("Yama The White: A challenger! Haha! Old Yama see if worthy of Hinekora! Haha! Come!", "engaged"),
