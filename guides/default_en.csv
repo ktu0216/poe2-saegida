@@ -37,9 +37,9 @@ g2_4_1,Keth,Kill 「Kabala」 → The Lost City
 g2_4_2,The Lost City,Enter Buried Shrines
 g2_4_3,Buried Shrines,Kill 「Azarian」 → Essence of Water → town
 g2_town,The Ardura Caravan,Talk → Valley of the Titans
-g2_6,Valley of the Titans,Find The Titan Grotto
-g2_7,The Titan Grotto,Get the 「Medallion」 → town
-g2_town,The Ardura Caravan,Choose the Medallion reward → Deshar
+g2_6,Valley of the Titans,Find the 「Medallion」 and choose its reward (charm, pick one) → The Titan Grotto
+g2_7,The Titan Grotto,Kill 「Zalmarath」 → town
+g2_town,The Ardura Caravan,On to Deshar
 g2_8,Deshar,Find Path of Mourning
 g2_9_1,Path of Mourning,Enter The Spires of Deshar
 g2_9_2,The Spires of Deshar,Kill 「Tor Gul」 → town

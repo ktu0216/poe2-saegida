@@ -39,9 +39,9 @@ g2_4_1,Keth,The relic drops from snakes · the boss is usually straight ahead fr
 g2_4_2,The Lost City,Run straight to the wall then one way (turn back at a dead end) → Buried Shrines
 g2_4_3,Buried Shrines,Kill 「Azarian」 → Essence of Water → town
 g2_town,The Ardura Caravan,Talk → Valley of the Titans
-g2_6,Valley of the Titans,Straight to The Titan Grotto
-g2_7,The Titan Grotto,Get the 「Medallion」 → town
-g2_town,The Ardura Caravan,Medallion reward (charm slot) → Deshar
+g2_6,Valley of the Titans,「Medallion」 reward (charm slot) → The Titan Grotto
+g2_7,The Titan Grotto,Kill 「Zalmarath」 → town
+g2_town,The Ardura Caravan,On to Deshar
 g2_8,Deshar,Straight to Path of Mourning
 g2_9_1,Path of Mourning,Enter The Spires of Deshar
 g2_9_2,The Spires of Deshar,Kill 「Tor Gul」 (lightning res) → town
