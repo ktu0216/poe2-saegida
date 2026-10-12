@@ -106,7 +106,7 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
   - Saving a two-handed weapon clears the off hand. When you compare a two-hander, the off-hand item you would lose is shown with ⚠.
   - If you hold two-handers in one hand (Giant's Blood etc.), register the off-hand two-hander or shield again; from then on two-handers are compared like one-handers.
   - Wands, sceptres and staves share the same slots, so they are compared with each other.
-- Weapons are judged by DPS (physical / elemental / attack speed / crit), caster weapons by spell damage, damage-type increases, cast speed and skill levels, armour and jewellery by life, resistances (1% = 3 life), movement speed, added damage, defences, spirit and skill levels.
+- Weapons are judged by DPS (physical / elemental / attack speed / crit), caster weapons by spell damage, damage-type increases, cast speed and skill levels, armour and jewellery by life, resistances (1% = 3 life), movement speed (1% = 5 life), attributes (1 = 1 life), added damage, defences, spirit and skill levels.
 - Saved items survive a game language change. Quest items, flasks and charms are never used as a baseline.
 - `Ctrl+C` on an uncut gem → what to make from it for your build.
 

@@ -282,3 +282,40 @@ def test_bow_elemental_line_and_korean_chaos_count_in_dps():
     assert eq.damage == {"물리": (33, 56), "화염": (1, 3), "냉기": (14, 18), "혼돈": (7, 19)}
     _, _, verdict = compare(parse_item(SHOP_BOW_KO), eq)
     assert verdict == -1  # 상점 활(물리 + 카오스)이 장착 활(물리 + 원소 + 카오스)보다 약하다
+
+
+BOOTS_EQUIPPED_KO = """아이템 종류: 장화
+아이템 희귀도: 희귀
+천공인 질주
+도마뱀비늘 장화
+--------
+회피: 118
+--------
+요구 사항: 레벨 33, 45 민첩
+--------
+{ 접두어 속성 부여 "종마의" (등급: 4) — 속도 }
+이동 속도 20% 증가
+{ 접미어 속성 부여 "- 매" (등급: 5) — 능력치 }
+민첩 +19(17-20)
+"""
+BOOTS_SHOP_KO = """아이템 종류: 장화
+아이템 희귀도: 마법
+주자의 강철코 장화 - 돌풍
+--------
+회피: 102
+--------
+요구 사항: 레벨 28, 39 민첩
+--------
+이동 속도 10% 증가
+번개 저항 +12(11-15)%
+"""
+
+
+def test_boots_move_speed_and_attributes_outweigh_small_resist():
+    # 이동 속도 20% + 민첩 19 장화가 이동 속도 10% + 번개 저항 12% 장화보다 '나쁨'으로 나오던 문제 (2026-10-13)
+    eq, shop = parse_item(BOOTS_EQUIPPED_KO), parse_item(BOOTS_SHOP_KO)
+    assert eq.attributes == 19 and shop.attributes == 0  # 요구 사항 줄의 '45 민첩'은 능력치가 아님
+    _, diffs, verdict = compare(shop, eq)
+    assert verdict == -1 and "능력치 합 -19" in diffs
+    en = parse_item("Item Class: Amulets\nRarity: Rare\nX\nAmber Amulet\n--------\n+5 to all Attributes\n+12 to Strength\n")
+    assert en.attributes == 27

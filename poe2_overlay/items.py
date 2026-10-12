@@ -36,6 +36,11 @@ _RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|카오스|모든 �
 _RES_EN = re.compile(r"\+(\d+)% to (Fire|Cold|Lightning|Chaos|all Elemental) Resistances?")
 _LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+)|^\+(\d+) to maximum Life$)")  # 게임 문구는 "생명력 최대치 +29"
 _MOVE = re.compile(r"이동 속도 (\d+)% 증가|(\d+)% increased Movement Speed")
+# 능력치: "민첩 +19" / "모든 능력치 +5" / "+19 to Dexterity" / "+5 to all Attributes"
+_ATTR = re.compile(r"^(힘|민첩|지능|모든 능력치) \+(\d+)$|^\+(\d+) to (Strength|Dexterity|Intelligence|all Attributes)$")
+_ATTR_KIND = {"Strength": "힘", "Dexterity": "민첩", "Intelligence": "지능", "all Attributes": "모든 능력치"}
+# 이동 속도는 장화에서 가장 중요한 옵션이라 저항(1% = 3)보다 무겁게 본다
+MOVE_WEIGHT = 5
 _SPIRIT_MOD = re.compile(r"^정신력 \+(\d+)$|^\+(\d+) to Spirit$")  # 목걸이 고정 옵션 등 (셉터는 속성 줄 "정신력: N")
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
 _ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈|카오스) 피해 (\d+)~(\d+) 추가")
@@ -79,6 +84,7 @@ class Item:
     energy_shield: int = 0
     life: int = 0
     move_speed: int = 0
+    attributes: int = 0  # 힘·민첩·지능 합 (모든 능력치는 3배)
     res: dict[str, int] = field(default_factory=dict)
     added: dict[str, tuple[int, int]] = field(default_factory=dict)  # 공격 시 피해 추가 (장신구 등)
     item_level: int = 0
@@ -209,6 +215,9 @@ def parse_item(text: str) -> Optional[Item]:
             item.life += int(m[1] or m[2] or m[3])
         if m := _MOVE.search(ln):
             item.move_speed += int(m[1] or m[2])
+        if m := _ATTR.match(ln):
+            kind = _ATTR_KIND.get(m[4], m[4]) if m[3] else m[1]
+            item.attributes += int(m[2] or m[3]) * (3 if kind == "모든 능력치" else 1)
         if item.item_class not in ("셉터", "Sceptres", "Sceptre") and (m := _SPIRIT_MOD.match(ln)):
             item.spirit += int(m[1] or m[2])
         if m := _INC.match(ln):
@@ -343,7 +352,7 @@ def slot_keys(slot: str) -> list[str]:
 
 def defense_score(it: Item) -> float:
     """방어구·장신구 비교 점수 (compare 의 판정과 같은 가중치)."""
-    return (it.life + it.res_total * 3 + it.move_speed * 3 + it.added_avg * 2
+    return (it.life + it.res_total * 3 + it.move_speed * MOVE_WEIGHT + it.attributes + it.added_avg * 2
             + (it.armour + it.evasion + it.energy_shield) / 10 + it.spirit / 2
             + sum(it.skill_levels.values()) * 30 + caster_score(it))
 
@@ -390,7 +399,7 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
 
     def rows(it: Item):
         r = {"방어도": it.armour, "회피": it.evasion, "에너지 보호막": it.energy_shield,
-             "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed,
+             "생명력": it.life, "저항 합": it.res_total, "이동 속도": it.move_speed, "능력치 합": it.attributes,
              "공격 추가 피해": round(it.added_avg, 1), "정신력": it.spirit}
         for kind in set(new.skill_levels) | set(old.skill_levels if old else {}):
             r[f"{kind} 스킬 레벨"] = it.skill_levels.get(kind, 0)
@@ -408,7 +417,8 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
     # 액트 진행 기준 가중치: 저항 1% 는 생명력 3 정도로 본다 (하드코어·저항 미달 구간에서 저항이 더 귀함)
     score = ((cur["생명력"] - prev["생명력"])
              + (cur["저항 합"] - prev["저항 합"]) * 3
-             + (cur["이동 속도"] - prev["이동 속도"]) * 3
+             + (cur["이동 속도"] - prev["이동 속도"]) * MOVE_WEIGHT
+             + (cur["능력치 합"] - prev["능력치 합"])
              + (cur["공격 추가 피해"] - prev["공격 추가 피해"]) * 2
              + sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
              + (cur["정신력"] - prev["정신력"]) / 2

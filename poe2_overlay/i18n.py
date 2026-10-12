@@ -212,6 +212,7 @@ EN: dict[str, str] = {
     "생명력": "Life",
     "저항 합": "Total res",
     "이동 속도": "Move speed",
+    "능력치 합": "Total attributes",
     "공격 추가 피해": "Added attack dmg",
     "정신력": "Spirit",
     "{kind} 스킬 레벨": "{kind} skill levels",
