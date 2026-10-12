@@ -251,3 +251,34 @@ def test_wand_and_sceptre_go_to_different_hands():
     assert cands[0] == MAIN
     cands, _ = hand_plan(parse_item(SCEPTRE), {MAIN: BONE_WAND, OFF: SCEPTRE})
     assert cands[0] == OFF
+
+
+EQUIPPED_BOW_KO = """아이템 종류: 활
+아이템 희귀도: 희귀
+고통 안내
+광신자 활
+--------
+퀄리티: +8% (augmented)
+물리 피해: 33-56 (augmented)
+원소 피해: 1-3 (fire), 14-18 (cold)
+카오스 피해: 7-19 (chaos)
+치명타 명중 확률: 5.00%
+초당 공격 횟수: 1.29 (augmented)
+"""
+SHOP_BOW_KO = """아이템 종류: 활
+아이템 희귀도: 마법
+대성공의 광신자 활
+--------
+물리 피해: 39-63 (augmented)
+카오스 피해: 7-19 (chaos)
+치명타 명중 확률: 5.00%
+초당 공격 횟수: 1.20
+"""
+
+
+def test_bow_elemental_line_and_korean_chaos_count_in_dps():
+    # 한 줄로 묶인 원소 피해와 '카오스 피해'를 못 읽어 장착 활이 물리 DPS 만으로 비교되던 문제 (2026-10-13)
+    eq = parse_item(EQUIPPED_BOW_KO)
+    assert eq.damage == {"물리": (33, 56), "화염": (1, 3), "냉기": (14, 18), "혼돈": (7, 19)}
+    _, _, verdict = compare(parse_item(SHOP_BOW_KO), eq)
+    assert verdict == -1  # 상점 활(물리 + 카오스)이 장착 활(물리 + 원소 + 카오스)보다 약하다

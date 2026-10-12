@@ -21,20 +21,24 @@ from .i18n import t
 HEADERS = ("아이템 종류:", "Item Class:")
 ELEMENTS = ("화염", "냉기", "번개")
 
-_RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈|Physical|Fire|Cold|Lightning|Chaos) (?:피해|Damage): (\d+)-(\d+)")
+_RANGE = re.compile(r"^(물리|화염|냉기|번개|혼돈|카오스|Physical|Fire|Cold|Lightning|Chaos) (?:피해|Damage): (\d+)-(\d+)")
+# 무기의 원소 피해는 한 줄에 묶여 나온다: "원소 피해: 1-3 (fire), 14-18 (cold)" / "Elemental Damage: ..."
+_ELEM_LINE = re.compile(r"^(?:원소 피해|Elemental Damage): ")
+_ELEM_PART = re.compile(r"(\d+)-(\d+) \((fire|cold|lightning)\)")
+_ELEM_KIND = {"fire": "화염", "cold": "냉기", "lightning": "번개"}
 # 영어 클라이언트 → 내부 키(한국어)
-_EN_KIND = {"Physical": "물리", "Fire": "화염", "Cold": "냉기", "Lightning": "번개", "Chaos": "혼돈",
+_EN_KIND = {"Physical": "물리", "Fire": "화염", "Cold": "냉기", "Lightning": "번개", "Chaos": "혼돈", "카오스": "혼돈",
             "all Elemental": "모든 원소", "Elemental": "모든 원소"}
 _NUM = re.compile(r"^([^:{]+): ([\d.]+)")
 # "모든 소환수 스킬 레벨 +1", "+1 to Level of all Minion Skills" (셉터·투구·목걸이 등)
 _SKILL_LV = re.compile(r"모든 (.+?) 스킬 레벨 \+(\d+)|\+(\d+) to Level of all (.+?) Skills")
-_RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|모든 원소) 저항|(화염|냉기|번개|혼돈|모든 원소) 저항 \+(\d+)%)")
+_RES = re.compile(r"(?:\+(\d+)% (화염|냉기|번개|혼돈|카오스|모든 원소) 저항|(화염|냉기|번개|혼돈|카오스|모든 원소) 저항 \+(\d+)%)")
 _RES_EN = re.compile(r"\+(\d+)% to (Fire|Cold|Lightning|Chaos|all Elemental) Resistances?")
 _LIFE = re.compile(r"(?:\+(\d+) 최대 생명력|(?:최대 생명력|생명력 최대치) \+(\d+)|^\+(\d+) to maximum Life$)")  # 게임 문구는 "생명력 최대치 +29"
 _MOVE = re.compile(r"이동 속도 (\d+)% 증가|(\d+)% increased Movement Speed")
 _SPIRIT_MOD = re.compile(r"^정신력 \+(\d+)$|^\+(\d+) to Spirit$")  # 목걸이 고정 옵션 등 (셉터는 속성 줄 "정신력: N")
 # 장신구 등: 공격 시 피해 추가 (무기 공격에 더해진다)
-_ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈) 피해 (\d+)~(\d+) 추가")
+_ADDED = re.compile(r"공격 시 (물리|화염|냉기|번개|혼돈|카오스) 피해 (\d+)~(\d+) 추가")
 _ADDED_EN = re.compile(r"Adds (\d+) to (\d+) (Physical|Fire|Cold|Lightning|Chaos) Damage to Attacks")
 # 주문 무기·장신구: "주문 피해 42% 증가" / "42% increased Spell Damage" (치명타 주문 피해 보너스는 제외)
 _INC = re.compile(r"^(주문|카오스|혼돈|화염|냉기|번개|원소) 피해 (\d+)% 증가$|^(\d+)% increased (Spell|Chaos|Fire|Cold|Lightning|Elemental) Damage$")
@@ -163,6 +167,10 @@ def parse_item(text: str) -> Optional[Item]:
         if m := _RANGE.match(ln):
             item.damage[_EN_KIND.get(m[1], m[1])] = (int(m[2]), int(m[3]))
             continue
+        if _ELEM_LINE.match(ln):  # 놓치면 원소 무기 DPS 가 물리만으로 계산된다 (2026-10-13 활 비교)
+            for lo, hi, kind in _ELEM_PART.findall(ln):
+                item.damage[_ELEM_KIND[kind]] = (int(lo), int(hi))
+            continue
         if m := _NUM.match(ln):
             key, val = m[1].strip(), float(m[2])
             if key in ("치명타 명중 확률", "Critical Hit Chance"):
@@ -184,14 +192,15 @@ def parse_item(text: str) -> Optional[Item]:
             continue  # 옵션 등급 설명 줄
         ln = _ROLL.sub("", ln)
         if not item.is_weapon and (m := _ADDED.search(ln)):  # 무기의 같은 문구는 이미 피해 줄에 포함
-            lo, hi = item.added.get(m[1], (0, 0))
-            item.added[m[1]] = (lo + int(m[2]), hi + int(m[3]))
+            kind = _EN_KIND.get(m[1], m[1])
+            lo, hi = item.added.get(kind, (0, 0))
+            item.added[kind] = (lo + int(m[2]), hi + int(m[3]))
         if not item.is_weapon and (m := _ADDED_EN.search(ln)):
             kind = _EN_KIND[m[3]]
             lo, hi = item.added.get(kind, (0, 0))
             item.added[kind] = (lo + int(m[1]), hi + int(m[2]))
         for m in _RES.finditer(ln):
-            kind = m[2] or m[3]
+            kind = _EN_KIND.get(m[2] or m[3], m[2] or m[3])
             item.res[kind] = item.res.get(kind, 0) + int(m[1] or m[4])
         for m in _RES_EN.finditer(ln):
             kind = _EN_KIND[m[2]]
