@@ -71,7 +71,7 @@ g3_14,Utzaal,Go to Aggorat
 g3_16,Aggorat,Enter The Black Chambers
 g3_17,The Black Chambers,Kill 「Doryani」 → town
 g3_town,Ziggurat Encampment,Talk → Act 4
-g4_town,Kingsmarch,Talk → Kedge Bay
+g4_town,Kingsmarch,Talk to Alva for the ship's charter → set sail → Kedge Bay
 g4_2_1,Kedge Bay,Go to Journey's End
 g4_2_2,Journey's End,Kill Hartlin → talk to Freya → kill Omniphobia → talk to Tujen in town
 g4_town,Kingsmarch,Talk → Journey's End
