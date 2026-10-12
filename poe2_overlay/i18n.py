@@ -218,6 +218,7 @@ EN: dict[str, str] = {
     "{kind} 스킬 레벨": "{kind} skill levels",
     "{kind} 피해 증가": "{kind} damage",
     "시전 속도": "Cast speed",
+    "공격 속도": "Attack speed",
     "반지 2": "Ring 2",
     "☕ 개발자에게 커피 사주기 (Ko-fi)": "☕ Buy the developer a coffee (Ko-fi)",
     # PC 옮기기

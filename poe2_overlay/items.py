@@ -49,6 +49,13 @@ _ADDED_EN = re.compile(r"Adds (\d+) to (\d+) (Physical|Fire|Cold|Lightning|Chaos
 _INC = re.compile(r"^(주문|카오스|혼돈|화염|냉기|번개|원소) 피해 (\d+)% 증가$|^(\d+)% increased (Spell|Chaos|Fire|Cold|Lightning|Elemental) Damage$")
 _INC_KIND = {"Spell": "주문", "Chaos": "카오스", "혼돈": "카오스", "Fire": "화염", "Cold": "냉기", "Lightning": "번개",
              "Elemental": "원소"}
+# 장신구의 공격 속도 (무기의 공격 속도는 이미 "초당 공격 횟수"에 들어 있다)
+_ATKSPD = re.compile(r"^공격 속도 (\d+)% 증가$|^(\d+)% increased Attack Speed$")
+# 장신구의 고정 방어 옵션 (방어구는 속성 줄 "회피: 118" 에 이미 합쳐져 있다)
+_FLAT_DEF = re.compile(r"^(회피|방어도|에너지 보호막|최대 에너지 보호막|에너지 보호막 최대치) \+(\d+)$"
+                       r"|^\+(\d+) to (Evasion Rating|Armour|maximum Energy Shield)$")
+_FLAT_KIND = {"회피": "evasion", "Evasion Rating": "evasion", "방어도": "armour", "Armour": "armour"}
+JEWELRY = ("반지", "목걸이", "허리띠")
 _CAST = re.compile(r"^시전 속도 (\d+)% 증가$|^(\d+)% increased Cast Speed$")
 # 옵션 수치 뒤의 등급 범위 표기 제거: "화염 저항 +7(6-10)%" -> "화염 저항 +7%"
 _ROLL = re.compile(r"\(\d+(?:\.\d+)?-\d+(?:\.\d+)?\)")
@@ -92,6 +99,7 @@ class Item:
     skill_levels: dict[str, int] = field(default_factory=dict)  # 소환수/투사체/주문 … → +N
     inc_damage: dict[str, int] = field(default_factory=dict)  # 주문/카오스/화염 … 피해 N% 증가
     cast_speed: int = 0
+    attack_speed: int = 0  # 장신구 등의 공격 속도 증가 (무기 제외)
 
     @property
     def is_weapon(self) -> bool:
@@ -224,6 +232,11 @@ def parse_item(text: str) -> Optional[Item]:
             kind = m[1] or m[4]
             kind = _INC_KIND.get(kind, kind)
             item.inc_damage[kind] = item.inc_damage.get(kind, 0) + int(m[2] or m[3])
+        if not item.is_weapon and (m := _ATKSPD.match(ln)):
+            item.attack_speed += int(m[1] or m[2])
+        if item.slot in JEWELRY and (m := _FLAT_DEF.match(ln)):
+            attr = _FLAT_KIND.get(m[1] or m[4], "energy_shield")
+            setattr(item, attr, getattr(item, attr) + int(m[2] or m[3]))
         if m := _CAST.match(ln):
             item.cast_speed += int(m[1] or m[2])
         for m in _SKILL_LV.finditer(ln):
@@ -350,17 +363,32 @@ def slot_keys(slot: str) -> list[str]:
     return [slot] + [f"{slot}#{k}" for k in range(2, n + 1)]
 
 
-def defense_score(it: Item) -> float:
+def build_profile(gear: dict[str, str]) -> str:
+    """주 손 무기로 본 빌드 유형: "attack"(활·창 등 공격 무기) / "caster"(지팡이·셉터·스태프) / "" 모름."""
+    main = parse_item(gear[MAIN]) if MAIN in gear else None
+    if main is None:
+        return ""
+    return "attack" if main.is_weapon else "caster"
+
+
+def defense_score(it: Item, profile: str = "") -> float:
     """방어구·장신구 비교 점수 (compare 의 판정과 같은 가중치)."""
     return (it.life + it.res_total * 3 + it.move_speed * MOVE_WEIGHT + it.attributes + it.added_avg * 2
             + (it.armour + it.evasion + it.energy_shield) / 10 + it.spirit / 2
-            + sum(it.skill_levels.values()) * 30 + caster_score(it))
+            + sum(it.skill_levels.values()) * 30 + caster_score(it, profile))
 
 
-def caster_score(it: Item) -> float:
-    """주문 피해·시전 속도: 주문 피해 증가 1% = 1점, 피해 종류별 증가는 빌드에 따라 달라 절반, 시전 속도 1% = 2점."""
-    return (it.inc_damage.get("주문", 0) + sum(v for k, v in it.inc_damage.items() if k != "주문") / 2
-            + it.cast_speed * 2)
+def caster_score(it: Item, profile: str = "") -> float:
+    """피해·속도 옵션 점수. 피해 종류별 증가(냉기 등)는 빌드에 따라 달라 1% = 0.5점.
+    주문형: 주문 피해 1% = 1점, 시전 속도 1% = 2점 / 공격형: 공격 속도 1% = 2점 (주문 피해·시전 속도는 0) / 모름: 다 친다."""
+    elem = sum(v for k, v in it.inc_damage.items() if k != "주문") / 2
+    spell = it.inc_damage.get("주문", 0) + it.cast_speed * 2
+    attack = it.attack_speed * 2
+    if profile == "attack":
+        return elem + attack
+    if profile == "caster":
+        return elem + spell
+    return elem + spell + attack
 
 
 def _pct(new: float, old: float) -> str:
@@ -380,8 +408,8 @@ def _label(key: str) -> str:
     return t(key)
 
 
-def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
-    """(제목, 변화 목록, 판정 +1 좋음 / -1 나쁨 / 0 비슷·기준 없음)."""
+def compare(new: Item, old: Optional[Item], profile: str = "") -> tuple[str, list[str], int]:
+    """(제목, 변화 목록, 판정 +1 좋음 / -1 나쁨 / 0 비슷·기준 없음). profile: build_profile — 공격형이면 주문 옵션을 빼고 본다."""
     if new.is_weapon:
         title = f"DPS {new.dps:.1f}"
         if old is None or not old.is_weapon:
@@ -404,8 +432,12 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
         for kind in set(new.skill_levels) | set(old.skill_levels if old else {}):
             r[f"{kind} 스킬 레벨"] = it.skill_levels.get(kind, 0)
         for kind in set(new.inc_damage) | set(old.inc_damage if old else {}):
-            r[f"{kind} 피해 증가"] = it.inc_damage.get(kind, 0)
-        r["시전 속도"] = it.cast_speed
+            if not (profile == "attack" and kind == "주문"):
+                r[f"{kind} 피해 증가"] = it.inc_damage.get(kind, 0)
+        if profile != "attack":
+            r["시전 속도"] = it.cast_speed
+        if profile != "caster":
+            r["공격 속도"] = it.attack_speed
         return r
 
     cur = rows(new)
@@ -423,6 +455,6 @@ def compare(new: Item, old: Optional[Item]) -> tuple[str, list[str], int]:
              + sum(cur[k] - prev[k] for k in ("방어도", "회피", "에너지 보호막")) / 10
              + (cur["정신력"] - prev["정신력"]) / 2
              + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30  # 스킬 레벨 +1 은 매우 큼
-             + caster_score(new) - caster_score(old))
+             + caster_score(new, profile) - caster_score(old, profile))
     verdict = 1 if score > 2 else (-1 if score < -2 else 0)
     return new.item_class, diffs, verdict

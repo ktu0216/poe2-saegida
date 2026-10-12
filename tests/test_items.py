@@ -319,3 +319,49 @@ def test_boots_move_speed_and_attributes_outweigh_small_resist():
     assert verdict == -1 and "능력치 합 -19" in diffs
     en = parse_item("Item Class: Amulets\nRarity: Rare\nX\nAmber Amulet\n--------\n+5 to all Attributes\n+12 to Strength\n")
     assert en.attributes == 27
+
+
+RING_EQ_KO = """아이템 종류: 반지
+아이템 희귀도: 희귀
+휴거 눈
+진주 반지
+--------
+{ 고정 속성 부여 — 시전, 속도 }
+시전 속도 10(7-10)% 증가
+--------
+회피 +50(39-51)
+발견하는 아이템 희귀도 10(8-11)% 증가
+생명력 최대치 +43(40-59)
+민첩 +6(5-8)
+모든 원소 저항 +3(3-5)%
+"""
+RING_SHOP_KO = """아이템 종류: 반지
+아이템 희귀도: 마법
+통렬한 루비 반지 - 하늘
+--------
+화염 저항 +22(20-30)%
+--------
+냉기 피해 12(8-12)% 증가
+모든 능력치 +7(5-7)
+"""
+BOW_MAIN = "아이템 종류: 활\n아이템 희귀도: 마법\nX\n--------\n물리 피해: 10-20\n초당 공격 횟수: 1.20\n"
+WAND_MAIN = "아이템 종류: 마법봉\n아이템 희귀도: 마법\nX\n--------\n주문 피해 30% 증가\n"
+
+
+def test_ring_compare_follows_build_profile():
+    # 활(공격형)이면 반지의 시전 속도는 점수에서 빠지고, 장신구의 고정 회피를 읽는다 (2026-10-13 반지 비교)
+    from poe2_overlay.items import MAIN, build_profile
+    eq, shop = parse_item(RING_EQ_KO), parse_item(RING_SHOP_KO)
+    assert eq.evasion == 50 and eq.cast_speed == 10 and shop.attributes == 21
+    assert build_profile({MAIN: BOW_MAIN}) == "attack" and build_profile({MAIN: WAND_MAIN}) == "caster"
+    _, diffs, verdict = compare(shop, eq, "attack")
+    assert verdict == 1 and not any(d.startswith("시전 속도") for d in diffs)
+    _, _, verdict = compare(shop, eq, "caster")  # 주문형이면 시전 속도 10%가 크다
+    assert verdict == -1
+
+
+def test_jewelry_attack_speed_counts_for_attack_builds():
+    a = parse_item("아이템 종류: 장갑\n아이템 희귀도: 마법\nX\n--------\n공격 속도 8% 증가\n")
+    b = parse_item("아이템 종류: 장갑\n아이템 희귀도: 마법\nY\n--------\n")
+    assert a.attack_speed == 8
+    assert compare(a, b, "attack")[2] == 1 and compare(a, b, "caster")[2] == 0
