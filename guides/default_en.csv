@@ -45,7 +45,7 @@ g2_9_1,Path of Mourning,Enter The Spires of Deshar
 g2_9_2,The Spires of Deshar,Kill 「Tor Gul」 → town
 g2_town,The Ardura Caravan,Final Letter reward from Shambrin → Dreadnought
 g2_12,Dreadnought,Kill 「Jamanra」 → Act 3
-g2_town,The Ardura Caravan,Go to Act 3
+g2_town,The Ardura Caravan,Talk to the Hooded One → Sekhema Asala in the caravan → Act 3
 g3_1,Sandswept Marsh,Go to Ziggurat Encampment
 g3_town,Ziggurat Encampment,Talk → Jungle Ruins
 g3_3,Jungle Ruins,Kill Mighty Silverfist → find The Venom Crypts
