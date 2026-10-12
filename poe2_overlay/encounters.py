@@ -17,6 +17,7 @@ class Marker:
     kill: bool = False  # 보스 처치 대사
     soon: bool = False  # 곧 보스 등장
     task: str = ""  # 지역 안의 할 일 하나 완료 (히네코라의 눈 시험 3개 등) → "시험 2/3"
+    done: bool = False  # 이 단계의 마지막 할 일 (물의 여신에게 불 붙이기): 나오기 전엔 보스를 잡았어도 마을 방문으로 넘어가지 않는다
 
 
 @dataclass(frozen=True)
@@ -56,7 +57,8 @@ class Encounters:
             zones[code.lower()] = ZoneEncounter(
                 tuple(z.get("bosses", [])),
                 tuple(Marker(m["speaker"], m["text"], m["label"], bool(m.get("engage")), bool(m.get("phase")),
-                             bool(m.get("kill")), bool(m.get("soon")), m.get("task", "")) for m in z.get("markers", [])),
+                             bool(m.get("kill")), bool(m.get("soon")), m.get("task", ""), bool(m.get("done")))
+                      for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
                 tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""),
                 bool(z.get("silent")), z.get("task_label", "할 일"), bool(z.get("gate", True)))

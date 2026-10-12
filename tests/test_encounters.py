@@ -737,3 +737,18 @@ def test_korean_balbala_death_line():
     assert t.snapshot().flags["boss"] == "engaged"
     feed(t, NpcLine("t", "1", "발바라", "너는... 가치 있는 적이구나..."))
     assert t.snapshot().flags["boss"] == "killed"
+
+
+def test_buried_shrines_town_visit_waits_for_goddess():
+    # 묻힌 성소: 아자리안 처치 뒤 여신에게 불을 붙이기 전에 마을에 다녀오면 단계가 넘어가던 문제 (2026-10-12)
+    g = Guide(parse_csv("g2_4_3,묻힌 성소,아자리안 처치 → 물의 정수 → 마을\ng2_town,카라반,대화 → 거신의 계곡\n"
+                        "g2_6,거신의 계곡,거신 석굴\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G2_4_3", 25), LevelUp("t", "1", "me", "데드아이", 23),
+         NpcLine("t", "1", "버림받은 아들 아자리안", "당신은 어린아이를 죽도록 내버려 두었다."),
+         NpcLine("t", "1", "버림받은 아들 아자리안", "그녀는... 날 원하지 않았어..."),
+         AreaEntered("t", "1", "G2_town", 32))
+    assert t.snapshot().step.zone == "g2_4_3"  # 아자리안은 잡았지만 여신이 남음
+    feed(t, AreaEntered("t", "1", "G2_4_3", 25), NpcLine("t", "1", "물의 여신", "드디어... 죽는구나... 고맙다..."),
+         AreaEntered("t", "1", "G2_town", 32))
+    assert t.snapshot().step.zone == "g2_town"

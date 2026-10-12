@@ -389,6 +389,8 @@ class Tracker:
         killed = f.get("boss") == "killed"
         for m in enc.markers:
             if ev.who == m.speaker and m.text in ev.text:
+                if m.done:
+                    f["done"] = True
                 if m.task:  # 할 일 체크 (보스 전투와 별개)
                     done = f.setdefault("tasks", [])
                     if m.task not in done:
@@ -494,8 +496,9 @@ class Tracker:
             enc = self.encounters.get(cur.zone)
             # 보스 이름이 있거나, 이름 대신 전투·처치 대사로 잡는 곳(도리아니·옴니포비아)
             fight = enc and (enc.bosses or any(m.engage or m.kill for m in enc.markers))
-            if fight and enc.gate and flags.get("boss") != "killed":
-                new = None  # 보스 처치 전 마을 방문(정비)은 단계를 넘기지 않는다
+            need_done = enc and any(m.done for m in enc.markers)  # 보스 뒤 할 일까지 있는 단계 (물의 여신)
+            if (fight and enc.gate and flags.get("boss") != "killed") or (need_done and not flags.get("done")):
+                new = None  # 보스 처치(와 마지막 할 일) 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is None and (back := self._interlude_back(c, code)) is not None:
             # 막간 안에서 순서를 바꿔 갔다가(갈라이 문·키마 먼저) 건너뛴 지역으로 돌아옴 → 건너뛴 단계로
             c.jump_from = -1

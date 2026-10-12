@@ -70,7 +70,7 @@
                 "_note": "The Water Goddess also talks before the fight, so her lines are not a fight signal",
                 "markers": [
                   {"speaker": "Azarian, the Forsaken Son", "text": "didn't... want me", "label": "", "kill": true},
-                  {"speaker": "The Water Goddess", "text": "At last... death", "label": "Goddess set alight (done)"}
+                  {"speaker": "The Water Goddess", "text": "At last... death", "label": "Goddess set alight (done)", "done": true}
                 ]},
     "g2_7":    {"bosses": ["Zalmarath, the Colossus"], "gate": false},
     "g2_9_2":  {"bosses": ["Jamanra, the Risen King"], "label": "Tor Gul, the Defiler"},
