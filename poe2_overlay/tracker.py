@@ -497,6 +497,8 @@ class Tracker:
             # 보스 이름이 있거나, 이름 대신 전투·처치 대사로 잡는 곳(도리아니·옴니포비아)
             fight = enc and (enc.bosses or any(m.engage or m.kill for m in enc.markers))
             need_done = enc and any(m.done for m in enc.markers)  # 보스 뒤 할 일까지 있는 단계 (물의 여신)
+            if enc and enc.gate_last and new + 1 < len(steps) and steps[new + 1].zone == cur.zone:
+                fight = need_done = False  # 마을 다녀와서 같은 지역으로 돌아오는 첫 방문: 보스는 다음 방문 단계에서
             if (fight and enc.gate and flags.get("boss") != "killed") or (need_done and not flags.get("done")):
                 new = None  # 보스 처치(와 마지막 할 일) 전 마을 방문(정비)은 단계를 넘기지 않는다
         if new is None and (back := self._interlude_back(c, code)) is not None:

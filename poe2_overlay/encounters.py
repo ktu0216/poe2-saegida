@@ -37,6 +37,7 @@ class ZoneEncounter:
     silent: bool = False  # 보스가 말하지 않음: "곧 보스" 뒤에 지역을 떠나면 처치로 본다 (지코아틀 등)
     task_label: str = "할 일"  # 할 일 체크 표시 이름 ("시험 2/3")
     gate: bool = True  # 보스 처치 전 마을 방문은 단계를 넘기지 않음. 로그로 확인 안 된 보스(말을 안 할 수 있음)는 false
+    gate_last: bool = False  # 마을 다녀와서 같은 지역으로 돌아오는 경우 마지막 방문 단계만 막음 (여정의 끝: 하틀린 → 대닉 → 옴니포비아)
 
     @property
     def tasks(self) -> list[str]:
@@ -61,7 +62,8 @@ class Encounters:
                       for m in z.get("markers", [])),
                 {k.lower(): SubZone(v["boss"], v["label"]) for k, v in z.get("subzones", {}).items()},
                 tuple(z.get("engage_after_soon", [])), z.get("book_kill", ""), z.get("label", ""),
-                bool(z.get("silent")), z.get("task_label", "할 일"), bool(z.get("gate", True)))
+                bool(z.get("silent")), z.get("task_label", "할 일"), bool(z.get("gate", True)),
+                bool(z.get("gate_last")))
         return cls(zones)
 
     def get(self, zone: str) -> Optional[ZoneEncounter]:

@@ -706,7 +706,7 @@ def test_book_in_town_does_not_jump_to_far_future_source():
     g = Guide.load(resource_dir() / "guides" / "default_en.csv")
     t = Tracker(g, encounters=Encounters.load(resource_dir() / "guides" / "encounters_en.json"))
     t.passive_sources = load_passive_sources(resource_dir() / "guides" / "quest_passives_en.json")
-    tujen = next(s.index for s in g.steps if s.zone == "g4_2_2" and "Tujen" in s.text)
+    tujen = next(s.index for s in g.steps if s.zone == "g4_town" and "Tujen" in s.text)
     hooded = next(s.index for s in g.steps if s.zone == "g4_town" and "Hooded One" in s.text)
     prison = next(s.index for s in g.steps if s.zone == "g4_5_2")
     c = Character(name="me", cursor=prison, zone="g4_5_2")
@@ -752,3 +752,21 @@ def test_buried_shrines_town_visit_waits_for_goddess():
     feed(t, AreaEntered("t", "1", "G2_4_3", 25), NpcLine("t", "1", "물의 여신", "드디어... 죽는구나... 고맙다..."),
          AreaEntered("t", "1", "G2_town", 32))
     assert t.snapshot().step.zone == "g2_town"
+
+
+def test_journeys_end_first_visit_goes_to_town_before_omniphobia():
+    # 여정의 끝: 하틀린 → 마을 대닉(베리시움 가시) → 다시 와서 옴니포비아 → 마을 투젠 (2026-10-17 한국어 플레이)
+    g = Guide(parse_csv("g4_2_2,여정의 끝,하틀린 → 마을\ng4_town,킹스마치,대닉 → 여정의 끝\n"
+                        "g4_2_2,여정의 끝,옴니포비아 → 마을\ng4_town,킹스마치,투젠 → 와카파누 섬\n"
+                        "g4_3_1,와카파누 섬,노래하는 암굴\n"), "t")
+    t = Tracker(g, encounters=ENC)
+    feed(t, AreaEntered("t", "1", "G4_2_2", 40), LevelUp("t", "1", "me", "데드아이", 40),
+         NpcLine("t", "1", "하틀린 선장", "거짓말을... 믿지 마라"), AreaEntered("t", "1", "G4_town", 40))
+    assert t.snapshot().step.index == 1  # 첫 방문은 옴니포비아 전이라도 마을 단계로
+    feed(t, AreaEntered("t", "1", "G4_2_2", 40))
+    assert t.snapshot().step.index == 2
+    feed(t, AreaEntered("t", "1", "G4_town", 40))
+    assert t.snapshot().step.index == 2  # 두 번째 방문은 옴니포비아 처치 전 마을 정비 = 단계 유지
+    feed(t, AreaEntered("t", "1", "G4_2_2", 40), NpcLine("t", "1", "큰까마귀", "작별 선물은 마음에 드나?"),
+         AreaEntered("t", "1", "G4_town", 40))
+    assert t.snapshot().step.index == 3

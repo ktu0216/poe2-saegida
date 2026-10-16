@@ -73,9 +73,10 @@ g3_17,The Black Chambers,Kill 「Doryani」 → town
 g3_town,Ziggurat Encampment,Talk → Act 4
 g4_town,Kingsmarch,Talk to Alva for the ship's charter → set sail → Kedge Bay
 g4_2_1,Kedge Bay,Go to Journey's End
-g4_2_2,Journey's End,Kill Hartlin → talk to Freya → kill Omniphobia → talk to Tujen in town
-g4_town,Kingsmarch,Talk → Journey's End
-g4_2_2,Journey's End,Sail → Whakapanu Island
+g4_2_2,Journey's End,Kill 「Captain Hartlin」 → take the Verisium ingot → town
+g4_town,Kingsmarch,Talk to Dannig → 「Verisium spikes」 → Journey's End
+g4_2_2,Journey's End,Talk to Freya Hartlin → kill 「Omniphobia」 → town
+g4_town,Kingsmarch,Talk to Tujen → set sail → Whakapanu Island
 g4_3_1,Whakapanu Island,Enter Singing Caverns
 g4_3_2,Singing Caverns,Kill 「Diamora」 → Abandoned Prison
 g4_5_1,Abandoned Prison,Enter Solitary Confinement
