@@ -1,0 +1,820 @@
+{
+"stats": {
+"result": [
+{
+"id": "pseudo",
+"label": "유사",
+"entries": [
+{
+"id": "pseudo.pseudo_total_cold_resistance",
+"text": "냉기 저항 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_fire_resistance",
+"text": "화염 저항 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_lightning_resistance",
+"text": "번개 저항 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_elemental_resistance",
+"text": "원소 저항력 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_chaos_resistance",
+"text": "카오스 저항 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_resistance",
+"text": "총 저항 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_count_resistances",
+"text": "총 저항 #",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_count_elemental_resistances",
+"text": "총 원소 저항력 #",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_all_elemental_resistances",
+"text": "모든 원소 저항력 총 +#%",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_strength",
+"text": "힘 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_dexterity",
+"text": "민첩 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_intelligence",
+"text": "지능 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_all_attributes",
+"text": "모든 능력치 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_attributes",
+"text": "능력치 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_life",
+"text": "생명력 최대치 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_mana",
+"text": "마나 최대치 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_total_energy_shield",
+"text": "에너지 보호막 최대치 총 +#",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_increased_energy_shield",
+"text": "에너지 보호막 최대치 총 #% 증가",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_increased_movement_speed",
+"text": "이동 속도 #% 증가",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_enchant_mods",
+"text": "# 인챈트 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_implicit_mods",
+"text": "# 고정 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_prefix_mods",
+"text": "# 접두어 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_suffix_mods",
+"text": "# 접미어 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_affix_mods",
+"text": "# 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_desecrated_prefix_mods",
+"text": "# 훼손된 접두어 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_desecrated_suffix_mods",
+"text": "# 훼손된 접미어 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_desecrated_mods",
+"text": "# 훼손된 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_unrevealed_prefix_mods",
+"text": "# 드러나지 않은 접두어 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_unrevealed_suffix_mods",
+"text": "# 드러나지 않은 접미어 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_unrevealed_mods",
+"text": "# 드러나지 않은 속성",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_empty_prefix_mods",
+"text": "# 빈 접두어 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_empty_suffix_mods",
+"text": "# 빈 접미어 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_empty_affix_mods",
+"text": "# 빈 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_fractured_mods",
+"text": "# 분열된 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_crafted_mods",
+"text": "# 제작을 통한 속성 부여",
+"type": "pseudo"
+},
+{
+"id": "pseudo.pseudo_number_of_uses_remaining",
+"text": "사용 횟수 #회 남음(서판)",
+"type": "pseudo"
+}
+]
+},
+{
+"id": "explicit",
+"label": "비고정",
+"entries": [
+{
+"id": "explicit.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_3261801346",
+"text": "민첩 #",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_3032590688",
+"text": "공격 시 물리 피해 #~# 추가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_3981240776",
+"text": "정신력 #",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_53045048",
+"text": "회피 #(특정)",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_4067062424",
+"text": "공격 시 냉기 피해 #~# 추가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_2144192055",
+"text": "회피 #",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_1940865751",
+"text": "물리 피해 #~# 추가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_518292764",
+"text": "치명타 확률 #%",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_2421436896",
+"text": "화살이 갈라짐",
+"type": "explicit"
+},
+{
+"id": "explicit.stat_2704225257",
+"text": "정신력 #",
+"type": "explicit"
+}
+]
+},
+{
+"id": "implicit",
+"label": "고정",
+"entries": [
+{
+"id": "implicit.stat_3981240776",
+"text": "정신력 #",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_3261801346",
+"text": "민첩 #",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_3032590688",
+"text": "공격 시 물리 피해 #~# 추가",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "implicit"
+},
+{
+"id": "implicit.stat_1803308202",
+"text": "볼트 속도 #% 증가",
+"type": "implicit"
+}
+]
+},
+{
+"id": "fractured",
+"label": "분열된",
+"entries": [
+{
+"id": "fractured.stat_3981240776",
+"text": "정신력 #",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_518292764",
+"text": "치명타 확률 #%",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_3261801346",
+"text": "민첩 #",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_3032590688",
+"text": "공격 시 물리 피해 #~# 추가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_1940865751",
+"text": "물리 피해 #~# 추가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_4067062424",
+"text": "공격 시 냉기 피해 #~# 추가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_53045048",
+"text": "회피 #(특정)",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_2144192055",
+"text": "회피 #",
+"type": "fractured"
+},
+{
+"id": "fractured.stat_2704225257",
+"text": "정신력 #",
+"type": "fractured"
+}
+]
+},
+{
+"id": "crafted",
+"label": "제작된",
+"entries": [
+{
+"id": "crafted.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_1940865751",
+"text": "물리 피해 #~# 추가",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_518292764",
+"text": "치명타 확률 #%",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_3981240776",
+"text": "정신력 #",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "crafted"
+},
+{
+"id": "crafted.stat_3261801346",
+"text": "민첩 #",
+"type": "crafted"
+}
+]
+},
+{
+"id": "enchant",
+"label": "인챈트",
+"entries": [
+{
+"id": "enchant.stat_3261801346",
+"text": "민첩 #",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_3981240776",
+"text": "정신력 #",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "enchant"
+},
+{
+"id": "enchant.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "enchant"
+}
+]
+},
+{
+"id": "rune",
+"label": "증강물",
+"entries": [
+{
+"id": "rune.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "augment"
+},
+{
+"id": "rune.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "augment"
+},
+{
+"id": "rune.stat_3261801346",
+"text": "민첩 #",
+"type": "augment"
+},
+{
+"id": "rune.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "augment"
+},
+{
+"id": "rune.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "augment"
+},
+{
+"id": "rune.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "augment"
+},
+{
+"id": "rune.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "augment"
+},
+{
+"id": "rune.stat_3032590688",
+"text": "공격 시 물리 피해 #~# 추가",
+"type": "augment"
+},
+{
+"id": "rune.stat_53045048",
+"text": "회피 #(특정)",
+"type": "augment"
+},
+{
+"id": "rune.stat_2704225257",
+"text": "정신력 #",
+"type": "augment"
+},
+{
+"id": "rune.stat_3981240776",
+"text": "정신력 #",
+"type": "augment"
+},
+{
+"id": "rune.stat_518292764",
+"text": "치명타 확률 #%",
+"type": "augment"
+},
+{
+"id": "rune.stat_1940865751",
+"text": "물리 피해 #~# 추가",
+"type": "augment"
+}
+]
+},
+{
+"id": "desecrated",
+"label": "훼손된",
+"entries": [
+{
+"id": "desecrated.stat_3372524247",
+"text": "화염 저항 #%",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_2250533757",
+"text": "이동 속도 #% 증가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_53045048",
+"text": "회피 #(특정)",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_3981240776",
+"text": "정신력 #",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_3032590688",
+"text": "공격 시 물리 피해 #~# 추가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_681332047",
+"text": "공격 속도 #% 증가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_4067062424",
+"text": "공격 시 냉기 피해 #~# 추가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_3261801346",
+"text": "민첩 #",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_210067635",
+"text": "공격 속도 #% 증가(특정)",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_1940865751",
+"text": "물리 피해 #~# 추가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_1037193709",
+"text": "냉기 피해 #~# 추가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_709508406",
+"text": "화염 피해 #~# 추가",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_518292764",
+"text": "치명타 확률 #%",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_2704225257",
+"text": "정신력 #",
+"type": "desecrated"
+},
+{
+"id": "desecrated.stat_2144192055",
+"text": "회피 #",
+"type": "desecrated"
+}
+]
+},
+{
+"id": "sanctum",
+"label": "성역",
+"entries": [
+{
+"id": "sanctum.stat_1416455556",
+"text": "이동 속도 #% 증가",
+"type": "sanctum"
+}
+]
+}
+]
+},
+"static": {
+"result": [
+{
+"id": "Currency",
+"entries": [
+{
+"id": "aug",
+"text": "확장의 오브",
+"image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb01hZ2ljIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c8ad0ddc84/CurrencyAddModToMagic.png"
+},
+{
+"id": "chaos",
+"text": "카오스 오브",
+"image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxSYXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c0ca392a78/CurrencyRerollRare.png"
+},
+{
+"id": "regal",
+"text": "제왕의 오브",
+"image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlTWFnaWNUb1JhcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/e8fb148e80/CurrencyUpgradeMagicToRare.png"
+},
+{
+"id": "exalted",
+"text": "엑잘티드 오브",
+"image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb1JhcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/ad7c366789/CurrencyAddModToRare.png"
+},
+{
+"id": "divine",
+"text": "신성한 오브",
+"image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lNb2RWYWx1ZXMiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/2986e220b3/CurrencyModValues.png"
+}
+]
+},
+{
+"id": "Fragments",
+"entries": []
+},
+{
+"id": "Verisium",
+"entries": []
+}
+]
+},
+"items": {
+"result": [
+{
+"id": "accessory",
+"entries": [
+{
+"type": "철제 반지"
+},
+{
+"type": "철제 반지",
+"text": "검은 심장 철제 반지",
+"name": "검은 심장",
+"flags": {
+"unique": true
+}
+},
+{
+"type": "철제 반지",
+"text": "얼음송곳니의 위력 철제 반지",
+"name": "얼음송곳니의 위력",
+"flags": {
+"unique": true
+}
+},
+{
+"type": "철제 반지",
+"text": "귀한 고통 철제 반지",
+"name": "귀한 고통",
+"flags": {
+"unique": true
+}
+},
+{
+"type": "철제 반지",
+"text": "혈관 관통 철제 반지",
+"name": "혈관 관통",
+"flags": {
+"unique": true
+}
+}
+]
+},
+{
+"id": "armour",
+"entries": [
+{
+"type": "도마뱀비늘 장화"
+},
+{
+"type": "도마뱀비늘 장화",
+"text": "덤불 매복 도마뱀비늘 장화",
+"name": "덤불 매복",
+"flags": {
+"unique": true
+}
+}
+]
+},
+{
+"id": "currency",
+"entries": []
+},
+{
+"id": "flask",
+"entries": []
+},
+{
+"id": "gem",
+"entries": []
+},
+{
+"id": "jewel",
+"entries": []
+},
+{
+"id": "map",
+"entries": []
+},
+{
+"id": "weapon",
+"entries": [
+{
+"type": "광신자 활"
+},
+{
+"type": "맹신자 활"
+},
+{
+"type": "팽팽한 석궁"
+},
+{
+"type": "팽팽한 석궁",
+"text": "성벽 랩터 팽팽한 석궁",
+"name": "성벽 랩터",
+"flags": {
+"unique": true
+}
+},
+{
+"type": "맹신자 활",
+"text": "슬리버텅 맹신자 활",
+"name": "슬리버텅",
+"flags": {
+"unique": true
+}
+}
+]
+},
+{
+"id": "sanctum",
+"entries": []
+},
+{
+"id": "wombgift",
+"entries": []
+}
+]
+}
+}

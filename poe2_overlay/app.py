@@ -33,6 +33,7 @@ from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
 
 RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어 변경 등)
+from .trade import RateLimited, TradeClient, TradeData, build_query, price_text, summary
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -170,6 +171,16 @@ class Controller:
         self._price_timer = QTimer()
         self._price_timer.setSingleShot(True)
         self._price_timer.timeout.connect(self._disarm_price)
+        # 거래소: 카카오 클라이언트면 카카오 거래소, 아니면 국제 거래소
+        self.realm = "kakao" if self.log_path and "kakao" in self.log_path.name.lower() else "ggg"
+        self.trade_data: dict[str, TradeData] = {}
+        self.trade_clients: dict[str, TradeClient] = {}
+        self.price_msg, self.price_color = "", "#e0b862"
+        self._price_busy = False
+        self._price_result = None  # 작업 스레드 → tick 에서 화면에
+        self._price_clear = QTimer()
+        self._price_clear.setSingleShot(True)
+        self._price_clear.timeout.connect(self._clear_price)
         app.clipboard().dataChanged.connect(self.on_clipboard)
         self.hotkeys.register(HOTKEYS["opacity_up"], lambda: self.change_opacity(0.1))
         self.hotkeys.register(HOTKEYS["opacity_down"], lambda: self.change_opacity(-0.1))
@@ -444,7 +455,8 @@ class Controller:
                 eg = endgame.Summary(0, 0.0, 0, 0, "", 0.0, [])
         self.overlay.render(snap, self._notice_text(), states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg + self.price_hint(),
-                            gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg)
+                            gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg,
+                            price_msg=self.price_msg, price_color=self.price_color)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -649,7 +661,7 @@ class Controller:
             notes, check = [], keys
         label = lambda k: t(slot_label(k, keys))
         note_html = "".join(f'<br><span style="color:#e0b862">⚠ {t(n, **kw)}</span>' for n, kw in notes)
-        hint = f'<br><span style="color:#9a9284">' + t("장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {key}) 로 등록", key=HOTKEYS["equip"]) + '</span>'
+        hint = f'<br><span style="color:#9a9284">' + t("기준 없음 · 장착 중이면 Ctrl+C 한 번 더 → 등록") + '</span>'
         if any(c.gear.get(k) == text for k in check):
             k = next(k for k in check if c.gear.get(k) == text)
             title, _, _ = compare(item, None, build_profile(c.gear))
@@ -698,7 +710,7 @@ class Controller:
             if diffs:
                 body += "<br>" + " · ".join(diffs)
         body += note_html
-        body += f'<br><span style="color:#9a9284">' + t("장착했다면 한 번 더 Ctrl+C (또는 {key}) 로 기준 갱신", key=HOTKEYS["equip"]) + '</span>'
+        body += f'<br><span style="color:#9a9284">' + t("장착했으면 Ctrl+C 한 번 더 → 기준 갱신") + '</span>'
         self._show_item(body, color)
 
     # ---------------------------------------------------------- 시세 키 (Ctrl+C 뒤 잠깐)
@@ -732,18 +744,96 @@ class Controller:
         if not self._price_hid or not self.item_msg:
             return ""
         return (f'<br><span style="color:#9a9284">'
-                + t("💰 {key}: 시세 ({sec}초 안에)", key=self._price_key, sec=f"{self._price_window():g}") + "</span>")
+                + t("💰 {key} → 시세 ({sec}초 안)", key=self._price_key, sec=f"{self._price_window():g}") + "</span>")
 
     def price_check(self) -> None:
+        """마지막으로 복사한 아이템의 시세 (거래소 검색 1번 + 매물 10개). 네트워크는 작업 스레드에서."""
         text = self._price_text
         self._disarm_price()
-        item = parse_item(text) if text else None
-        if item is None:
+        if not text or self._price_busy:
             return
-        # TODO 시세: 거래소 검색 연결 전 — 단축키 흐름만 먼저 (notes/price-check-plan.md)
-        name = item.name or t(item.slot)
-        self._show_item(t("💰 시세 검색: {name}", name=name) + '<br><span style="color:#9a9284">'
-                        + t("거래소 연결은 준비 중입니다 (단축키 동작 시험)") + "</span>", "#e0b862")
+        c = self.tracker.snapshot().character
+        league = (c.league if c else "") or self.tracker.league
+        if not league:
+            self._show_price(t("리그를 알 수 없습니다 — 캐릭터 선택 화면에서 리그를 고른 뒤 다시"), "#ff8a65")
+            return
+        level = c.level if c and c.level < 90 else 0  # 레벨링 중이면 지금 낄 수 있는 것만
+        profile = build_profile(c.gear) if c else ""
+        realm = self.realm
+        self._price_busy = True
+        self._show_price(t("💰 시세 찾는 중…"), "#9a9284")
+
+        def work():
+            try:
+                data = self.trade_data.get(realm) or TradeData.load(config.APP_DIR / "trade", realm)
+                self.trade_data[realm] = data
+                q = build_query(text, data, level, profile)
+                if q.unsupported:
+                    self._price_result = ("unsupported", q, None)
+                    return
+                client = self.trade_clients.setdefault(realm, TradeClient(realm))
+                self._price_result = ("ok", q, client.search(league, q))
+            except RateLimited as e:
+                self._price_result = ("limited", None, e.wait)
+            except Exception as e:  # 네트워크·거래소 오류: 화면에 짧게
+                self._price_result = ("error", None, str(e))
+        threading.Thread(target=work, daemon=True).start()
+
+    def _handle_price_result(self) -> None:
+        if self._price_result is None:
+            return
+        kind, q, value = self._price_result
+        self._price_result = None
+        self._price_busy = False
+        esc = html.escape
+        if kind == "limited":
+            self._show_price(t("거래소 요청 제한 — {sec}초 뒤 다시", sec=int(value) + 1), "#ff8a65")
+            return
+        if kind == "error":
+            self._show_price(t("거래소 연결 실패: {err}", err=esc(value)[:80]), "#ff8a65")
+            return
+        if kind == "unsupported":
+            self._show_price(t(q.unsupported), "#9a9284")
+            return
+        res = value
+        lang = "ko" if self.lang == "ko" else "en"
+        data = self.trade_data.get(self.realm)
+        dim = lambda s: f'<span style="color:#9a9284">{s}</span>'
+        title = f"<b>{esc(q.base or q.name)}</b>" + (f" {dim(esc(q.name))}" if q.rarity == "unique" else "")
+        conds = []
+        for f in q.filters:
+            if not f.enabled or (f.min is None and f.max is None):
+                continue
+            num = f"{(f.min if f.min is not None else f.max):g}{f.unit}"
+            conds.append(t("{label} {n} 이상", label=esc(t(f.label)), n=num) if f.min is not None
+                         else t("{label} {n} 이하", label=esc(t(f.label)), n=num))
+        cond = dim(t("찾은 조건: {c}", c=" · ".join(conds) or t("이름만")))
+        link = f'<a href="{esc(res.url)}" style="color:#9fd3ff">{t("거래소에서 열기 ↗")}</a>'
+        if not res.listings:
+            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다 (즉시 구매 · 최근 1주일)')}<br>{cond}<br>{link}",
+                             "#9a9284")
+            return
+        low, mid, groups = summary(res)
+        p = lambda a, c: esc(price_text(a, c, data, lang))
+        big = (t("최저 {p}", p=f'<b style="color:#e8b04a">{p(low.amount, low.currency)}</b>')
+               + " &nbsp; " + t("중간 {p}", p=f"<b>{p(mid.amount, mid.currency)}</b>"))
+        spread = " · ".join(
+            (p(lo, cur) if lo == hi else f"{p(lo, cur).split(' ')[0]}~{p(hi, cur)}") + f" ({n})"
+            for cur, lo, hi, n in groups)
+        count = t("비슷한 매물 {n}개 (즉시 구매 · 최근 1주일) — 싼 10개: {s}", n=res.total, s=spread)
+        self._show_price(f"{title}<br>{big}<br>{dim(count)}<br>{cond}<br>{link}", "#e0b862")
+
+    def _show_price(self, html_text: str, color: str) -> None:
+        self.price_msg, self.price_color = html_text, color
+        self._price_clear.start(45000)
+        # 알림 창은 평소 클릭 통과 — 시세 카드가 있는 동안만 눌러서 "거래소에서 열기" (포커스는 뺏지 않음)
+        set_click_through(int(self.overlay.toast.winId()), "<a " not in html_text)
+        self.refresh()
+
+    def _clear_price(self) -> None:
+        self.price_msg = ""
+        set_click_through(int(self.overlay.toast.winId()), True)
+        self.refresh()
 
     def _show_uncut(self, kind: str, level: int) -> None:
         snap = self.tracker.snapshot()
@@ -946,6 +1036,7 @@ class Controller:
 
     def tick(self) -> None:
         self._handle_update_result()
+        self._handle_price_result()
         pids = game_pids()
         self.game_running = bool(pids)
         if self.auto_pos and pids and not self._auto_placed:

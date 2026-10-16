@@ -339,7 +339,7 @@ class Overlay(QWidget):
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
                item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
-               item_color: str = ACCENT, endgame=None) -> None:
+               item_color: str = ACCENT, endgame=None, price_msg: str = "", price_color: str = ACCENT) -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names, hidden=gem_card)
         # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
@@ -348,6 +348,8 @@ class Overlay(QWidget):
             cards.append(("", html.escape(flash), OK))
         if item_msg:
             cards.append((t("⚔ 아이템 비교"), item_msg, item_color))
+        if price_msg:
+            cards.append((t("💰 시세"), price_msg, price_color))
         if gem_card:  # Ctrl+Alt+G
             if gems is not None:
                 head, body = _gem_card(gems, gem_names)
@@ -735,6 +737,9 @@ class Toast(QWidget):
             h.setText(head)
             lay.addWidget(h)
         b = _label(self.fs - 2, TEXT)
+        if "<a " in body:  # 시세 카드의 "거래소에서 열기"
+            b.setOpenExternalLinks(True)
+            b.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
         b.setText(body)
         lay.addWidget(b)
         return f
