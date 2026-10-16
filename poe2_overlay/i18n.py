@@ -180,6 +180,9 @@ EN: dict[str, str] = {
     "자동 숨김 꺼짐 (항상 표시)": "Auto-hide off (always shown)",
     # 아이템 비교
     "두 번 복사": "double copy",
+    "💰 {key}: 시세 ({sec}초 안에)": "💰 {key}: price check (within {sec}s)",
+    "💰 시세 검색: {name}": "💰 Price check: {name}",
+    "거래소 연결은 준비 중입니다 (단축키 동작 시험)": "Trade search is not connected yet (hotkey test)",
     "📌 장착 중 ({slot}) · {title}": "📌 Equipped ({slot}) · {title}",
     "장착 기준 없음 — 장착 중인 아이템이면 한 번 더 Ctrl+C (또는 {key}) 로 등록":
         "No equipped item saved — if you wear this, Ctrl+C again (or {key}) to save it",

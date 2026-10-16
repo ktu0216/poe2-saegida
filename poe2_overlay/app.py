@@ -53,7 +53,13 @@ HOTKEYS = {
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 TOP_RATIO = 0.08  # 기본 위치: 게임 창 왼쪽, 위에서 8% (왼쪽 위 버프·스킬 아이콘 아래)
-DOUBLE_COPY_SEC = 0.8  # 이보다 느린 재복사는 '다시 비교'로 본다
+DOUBLE_COPY_SEC = 0.8
+# 시세: Ctrl+C 뒤 이 시간 안에 시세 키 (게임은 다른 프로그램이 키를 엿보거나 대신 누르는 것을 막아서,
+# 복사 직후에만 RegisterHotKey 로 잠깐 잡는다 — 평소에는 게임·다른 프로그램이 그 키를 그대로 쓴다)
+# Ctrl 을 누른 채 C → V 로 굴린다. D 는 이동(WASD), X 는 무기 교체라 손이 헷갈림 (2026-10-17 플레이 시험).
+# Ctrl+V 는 채팅·검색창 붙여넣기에만 쓰이고, 복사 직후 잠깐만 잡으니 정규식 붙여넣기와 거의 겹치지 않는다.
+PRICE_KEYS = ("Ctrl+V", "Ctrl+B", "Ctrl+G")  # 다른 프로그램이 쓰면 다음 후보, settings.json "price_key" 로 바꿈
+PRICE_WINDOW_SEC = 2.0  # 5초는 길었음 (settings.json "price_window_sec")  # 이보다 느린 재복사는 '다시 비교'로 본다
 PROGRESS_VERSION = 23  # 23: 마을에서 쓴 책은 직전 사냥터 보상, 22: 22: 퀘스트 패시브를 주는 단계에 받음 표시, 21: 21: 퀘스트 패시브 받은 단계 표시, 20: 보스전 중 보상 획득은 처치, 19: 19: 건너뛴 지역에서 돌아오면 되돌리기, 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
@@ -158,6 +164,12 @@ class Controller:
         self._item_clear = QTimer()
         self._item_clear.setSingleShot(True)
         self._item_clear.timeout.connect(self._clear_item)
+        self._price_text = ""  # 시세 키를 누르면 검색할 아이템 (마지막 복사)
+        self._price_hid = 0  # 잠깐 등록한 시세 키 id (0 = 꺼짐)
+        self._price_key = ""
+        self._price_timer = QTimer()
+        self._price_timer.setSingleShot(True)
+        self._price_timer.timeout.connect(self._disarm_price)
         app.clipboard().dataChanged.connect(self.on_clipboard)
         self.hotkeys.register(HOTKEYS["opacity_up"], lambda: self.change_opacity(0.1))
         self.hotkeys.register(HOTKEYS["opacity_down"], lambda: self.change_opacity(-0.1))
@@ -431,7 +443,7 @@ class Controller:
             if eg is None:
                 eg = endgame.Summary(0, 0.0, 0, 0, "", 0.0, [])
         self.overlay.render(snap, self._notice_text(), states, self.rewards.quest_passive_total, timer,
-                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg,
+                            rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg + self.price_hint(),
                             gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg)
 
     # ---------------------------------------------------------- 보스전 간단 모드
@@ -605,6 +617,7 @@ class Controller:
         text = self.app.clipboard().text()
         if not is_item_text(text):
             return
+        self._arm_price(text)
         now = time.monotonic()
         if text == self.last_item_text:
             gap = now - self._last_copy_at
@@ -687,6 +700,50 @@ class Controller:
         body += note_html
         body += f'<br><span style="color:#9a9284">' + t("장착했다면 한 번 더 Ctrl+C (또는 {key}) 로 기준 갱신", key=HOTKEYS["equip"]) + '</span>'
         self._show_item(body, color)
+
+    # ---------------------------------------------------------- 시세 키 (Ctrl+C 뒤 잠깐)
+    def _arm_price(self, text: str) -> None:
+        """아이템을 복사하면 PRICE_WINDOW_SEC 동안 시세 키를 잡는다. 다시 복사하면 대상·시간을 새로."""
+        self._price_text = text
+        if not self._price_hid:
+            first = self.settings.get("price_key", "")
+            for key in ((first,) if first else ()) + PRICE_KEYS:
+                if hid := self.hotkeys.register_temp(key, self.price_check):
+                    self._price_hid, self._price_key = hid, key
+                    break
+        if self._price_hid:
+            self._price_timer.start(int(self._price_window() * 1000))
+
+    def _price_window(self) -> float:
+        try:
+            return max(1.0, float(self.settings.get("price_window_sec", PRICE_WINDOW_SEC)))
+        except (TypeError, ValueError):
+            return PRICE_WINDOW_SEC
+
+    def _disarm_price(self) -> None:
+        self._price_timer.stop()
+        if self._price_hid:
+            self.hotkeys.unregister(self._price_hid)
+            self._price_hid = 0
+            self.refresh()
+
+    def price_hint(self) -> str:
+        """비교 결과 아래 붙는 안내 (시세 키가 잡혀 있는 동안만)."""
+        if not self._price_hid or not self.item_msg:
+            return ""
+        return (f'<br><span style="color:#9a9284">'
+                + t("💰 {key}: 시세 ({sec}초 안에)", key=self._price_key, sec=f"{self._price_window():g}") + "</span>")
+
+    def price_check(self) -> None:
+        text = self._price_text
+        self._disarm_price()
+        item = parse_item(text) if text else None
+        if item is None:
+            return
+        # TODO 시세: 거래소 검색 연결 전 — 단축키 흐름만 먼저 (notes/price-check-plan.md)
+        name = item.name or t(item.slot)
+        self._show_item(t("💰 시세 검색: {name}", name=name) + '<br><span style="color:#9a9284">'
+                        + t("거래소 연결은 준비 중입니다 (단축키 동작 시험)") + "</span>", "#e0b862")
 
     def _show_uncut(self, kind: str, level: int) -> None:
         snap = self.tracker.snapshot()

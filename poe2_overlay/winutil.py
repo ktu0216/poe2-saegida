@@ -61,6 +61,20 @@ class HotkeyManager(QAbstractNativeEventFilter):
         self._handlers[hid] = handler
         return True
 
+    def register_temp(self, spec: str, handler: Callable[[], None]) -> int:
+        """잠깐만 쓰는 단축키: 등록 id (실패하면 0, failed 목록에는 넣지 않음). unregister 로 푼다."""
+        mods, vk = parse_hotkey(spec)
+        hid = self._next_id
+        self._next_id += 1
+        if not vk or not user32.RegisterHotKey(None, hid, mods, vk):
+            return 0
+        self._handlers[hid] = handler
+        return hid
+
+    def unregister(self, hid: int) -> None:
+        if self._handlers.pop(hid, None) is not None:
+            user32.UnregisterHotKey(None, hid)
+
     def unregister_all(self) -> None:
         for hid in self._handlers:
             user32.UnregisterHotKey(None, hid)
