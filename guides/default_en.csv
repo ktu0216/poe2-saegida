@@ -78,7 +78,7 @@ g4_town,Kingsmarch,Talk to Dannig → 「Verisium spikes」 → Journey's End
 g4_2_2,Journey's End,Talk to Freya Hartlin → kill 「Omniphobia」 → town
 g4_town,Kingsmarch,Talk to Tujen → set sail → Whakapanu Island
 g4_3_1,Whakapanu Island,Enter Singing Caverns
-g4_3_2,Singing Caverns,Kill 「Diamora」 → Abandoned Prison
+g4_3_2,Singing Caverns,Kill 「Diamora」 → talk to Matiki (Hinekora's Eye stays locked otherwise) → Abandoned Prison
 g4_5_1,Abandoned Prison,Enter Solitary Confinement
 g4_5_2,Solitary Confinement,Kill 「The Prisoner」 → Isle of Kin
 g4_1_1,Isle of Kin,Enter Volcanic Warrens
