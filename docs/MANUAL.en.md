@@ -111,6 +111,23 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 - Saved items survive a game language change. Quest items, flasks and charms are never used as a baseline.
 - `Ctrl+C` on an uncut gem → what to make from it for your build.
 
+### Price check
+
+- `Ctrl+C` an item, then **`Ctrl+V` within 2 seconds** → a trade price card (hold `Ctrl`, tap C → V). Works anywhere.
+  - `Ctrl+V` is only taken for those 2 seconds, so pasting into search boxes works as usual. If another program uses it: `Ctrl+B` → `Ctrl+G`.
+  - `Ctrl+C` alone never contacts the trade site.
+- The card: **lowest · middle price** (real currency plus `≈ ex`), number of similar listings, price ranges of the cheapest 10 per currency, a bait warning (lowest under 1/4 of the middle), and Open on the trade site ↗.
+- **Click a filter on the card to toggle it** (☑/☐); it searches again once shortly after. Filters are never widened automatically.
+  - Rare / magic gear: total life, resistances, movement speed and attributes (90% of yours), skill levels and speed, DPS for weapons, and while levelling only what you can wear now.
+  - Normal / magic gear: the base type (plus item level for normal) — crafting bases.
+  - Uniques: by name; rolls are off, and when turned on they ask for your roll or better.
+  - Gems: name + level + quality. Waystones and tablets: tier + modifiers.
+  - Currency, runes, soul cores and the like: exchange offers and 1 each ≈ ex.
+  - `Instant buyout only` (off: direct trade too), `Last week` (off: any time).
+- Exalted equivalents come from poe.ninja (every 30 minutes), or the exchange median when missing.
+- The trade site's rate limits are respected: if a wait would be needed, nothing is sent and "try again in N s" is shown. The same search is not sent again for 5 minutes.
+- The card disappears after a minute. Right-click menu → **💰 Show the last price check again**.
+
 ## 8. Gem guide
 
 ![Gem card](images/gem_card_en.png)
@@ -170,6 +187,7 @@ For characters that finished the campaign, the last guide step is replaced by:
 | `Ctrl+Alt+X` | Expand the one-line boss panel (`Ctrl+Alt+F8` if another program uses it) |
 | `Ctrl+Alt+C` | Copy vendor regex |
 | `Ctrl+Alt+E` | Save the last copied item as equipped |
+| `Ctrl+C` → `Ctrl+V` within 2 s | Price check |
 | `Ctrl+Alt+T` | Click-through on/off |
 | `Ctrl+Alt+H` | Hide / show |
 | `Ctrl+Alt+A` | Auto-hide when the game is not focused |

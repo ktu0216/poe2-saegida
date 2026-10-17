@@ -690,6 +690,7 @@ class Overlay(QWidget):
 
 class Toast(QWidget):
     """가이드 패널 바로 아래(공간이 없으면 위)에 붙는 알림 창. 카드(머리글+본문)를 위아래로 쌓는다."""
+    link = Signal(str)  # 카드 안 링크 (시세: 조건 켜고 끄기 f:N / o:status, 거래소 열기 http…)
 
     def __init__(self, fs: int, width: int):
         super().__init__(None, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -737,9 +738,9 @@ class Toast(QWidget):
             h.setText(head)
             lay.addWidget(h)
         b = _label(self.fs - 2, TEXT)
-        if "<a " in body:  # 시세 카드의 "거래소에서 열기"
-            b.setOpenExternalLinks(True)
+        if "<a " in body:  # 시세 카드: 조건 켜고 끄기, 거래소에서 열기
             b.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
+            b.linkActivated.connect(self.link.emit)
         b.setText(body)
         lay.addWidget(b)
         return f

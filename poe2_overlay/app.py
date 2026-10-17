@@ -33,7 +33,7 @@ from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
 
 RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어 변경 등)
-from .trade import RateLimited, TradeClient, TradeData, build_query, price_text, summary
+from .trade import RateLimited, TradeClient, TradeData, bait, build_query, ex_text, price_text, summary
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -173,7 +173,12 @@ class Controller:
         self._price_timer.timeout.connect(self._disarm_price)
         # 거래소: 카카오 클라이언트면 카카오 거래소, 아니면 국제 거래소
         self.realm = "kakao" if self.log_path and "kakao" in self.log_path.name.lower() else "ggg"
-        self.trade_data: dict[str, TradeData] = {}
+        self.trade_data: dict[tuple[str, str], TradeData] = {}  # (거래소, 아이템 문구 언어)
+        self._price_query = self._price_res = self._price_data = None  # 마지막 시세 (조건 바꿔 다시 찾기·다시 보기)
+        self._price_league, self._price_lang = "", "ko"
+        self._price_redo = QTimer()
+        self._price_redo.setSingleShot(True)
+        self._price_redo.timeout.connect(self._redo_price)
         self.trade_clients: dict[str, TradeClient] = {}
         self.price_msg, self.price_color = "", "#e0b862"
         self._price_busy = False
@@ -228,7 +233,8 @@ class Controller:
         self.overlay.setWindowOpacity(float(self.settings.get("window_opacity", 1.0)))
         self.overlay.show()
         set_click_through(int(self.overlay.winId()), False)  # 클릭해도 게임 포커스를 뺏지 않게
-        set_click_through(int(self.overlay.toast.winId()), True)  # 알림 창은 보기만: 항상 클릭 통과
+        set_click_through(int(self.overlay.toast.winId()), True)  # 알림 창은 보기만: 시세 카드가 있을 때만 클릭
+        self.overlay.toast.link.connect(self.on_price_link)
         # 저장된 위치가 없으면 게임 창 왼쪽 위(버프·스킬 아이콘 아래)에 붙인다. 게임 창을 찾을 때까지 tick 에서 재시도.
         self.auto_pos = self.settings["window"].get("x") is None
         self._auto_placed = False
@@ -759,20 +765,31 @@ class Controller:
             return
         level = c.level if c and c.level < 90 else 0  # 레벨링 중이면 지금 낄 수 있는 것만
         profile = build_profile(c.gear) if c else ""
+        text_lang = "en" if text.lstrip().startswith("Item Class:") else "ko"
+        self._price_league = league
+        self._price_search(league, text_lang, lambda data: build_query(text, data, level, profile))
+
+    def _price_search(self, league: str, text_lang: str, make_query) -> None:
+        """make_query(data) → Query 를 작업 스레드에서 검색. 조건을 바꿔 다시 찾을 때도 같은 길."""
         realm = self.realm
         self._price_busy = True
+        self._price_lang = text_lang
         self._show_price(t("💰 시세 찾는 중…"), "#9a9284")
 
         def work():
             try:
-                data = self.trade_data.get(realm) or TradeData.load(config.APP_DIR / "trade", realm)
-                self.trade_data[realm] = data
-                q = build_query(text, data, level, profile)
+                key = (realm, text_lang)
+                data = self.trade_data.get(key) or TradeData.load(config.APP_DIR / "trade", realm, text_lang)
+                self.trade_data[key] = data
+                q = make_query(data)
                 if q.unsupported:
                     self._price_result = ("unsupported", q, None)
                     return
                 client = self.trade_clients.setdefault(realm, TradeClient(realm))
-                self._price_result = ("ok", q, client.search(league, q))
+                res = client.search(league, q)
+                if not q.exchange:
+                    client.add_rates(league, res)  # 엑잘 환산 (화폐 종류당 교환소 1번, 30분 캐시)
+                self._price_result = ("ok", (q, data), res)
             except RateLimited as e:
                 self._price_result = ("limited", None, e.wait)
             except Exception as e:  # 네트워크·거래소 오류: 화면에 짧게
@@ -782,7 +799,7 @@ class Controller:
     def _handle_price_result(self) -> None:
         if self._price_result is None:
             return
-        kind, q, value = self._price_result
+        kind, qd, value = self._price_result
         self._price_result = None
         self._price_busy = False
         esc = html.escape
@@ -793,40 +810,101 @@ class Controller:
             self._show_price(t("거래소 연결 실패: {err}", err=esc(value)[:80]), "#ff8a65")
             return
         if kind == "unsupported":
-            self._show_price(t(q.unsupported), "#9a9284")
+            self._show_price(t(qd.unsupported), "#9a9284")
             return
-        res = value
+        q, data = qd
+        self._price_query, self._price_data = q, data
+        self._price_res = value
+        self._render_price()
+
+    def _render_price(self) -> None:
+        q, res, data = self._price_query, self._price_res, self._price_data
+        esc = html.escape
         lang = "ko" if self.lang == "ko" else "en"
-        data = self.trade_data.get(self.realm)
         dim = lambda s: f'<span style="color:#9a9284">{s}</span>'
+        p = lambda a, c: esc(price_text(a, c, data, lang))
+        exs = lambda v: esc(ex_text(v, lang))
         title = f"<b>{esc(q.base or q.name)}</b>" + (f" {dim(esc(q.name))}" if q.rarity == "unique" else "")
-        conds = []
-        for f in q.filters:
-            if not f.enabled or (f.min is None and f.max is None):
-                continue
-            num = f"{(f.min if f.min is not None else f.max):g}{f.unit}"
-            conds.append(t("{label} {n} 이상", label=esc(t(f.label)), n=num) if f.min is not None
-                         else t("{label} {n} 이하", label=esc(t(f.label)), n=num))
-        cond = dim(t("찾은 조건: {c}", c=" · ".join(conds) or t("이름만")))
         link = f'<a href="{esc(res.url)}" style="color:#9fd3ff">{t("거래소에서 열기 ↗")}</a>'
+        if q.exchange:  # 화폐·룬 …: 교환소 1개 가격
+            if res.unit_ex is None:
+                body = t("교환소에 엑잘로 사는 매물이 없습니다")
+            else:
+                body = (t("1개 ≈ {p}", p=f'<b style="color:#e8b04a">{exs(res.unit_ex)}</b>')
+                        + " " + dim(t("(교환소 매물 {n}개 중간값)", n=res.total)))
+            self._show_price(f"{title}<br>{body}<br>{link}", "#e0b862")
+            return
+        # 조건: 눌러서 켜고 끄기 (다시 검색은 잠깐 뒤 한 번만)
+        chips = []
+        for i, f in enumerate(q.filters):
+            if f.kind == "type":
+                text = t("베이스 {name}", name=esc(f.label))
+            elif f.min is None and f.max is None:
+                text = esc(t(f.label))
+            else:
+                num = f"{(f.min if f.min is not None else f.max):g}{f.unit}"
+                text = (t("{label} {n} 이상", label=esc(t(f.label)), n=num) if f.min is not None
+                        else t("{label} {n} 이하", label=esc(t(f.label)), n=num))
+            color = "#ece6da" if f.enabled else "#6f685c"
+            chips.append(f'<a href="f:{i}" style="color:{color};text-decoration:none">{"☑" if f.enabled else "☐"} {text}</a>')
+        opts = [(f'<a href="o:status" style="color:#ece6da;text-decoration:none">'
+                 + ("☑ " + t("즉시 구매만") if q.status == "securable" else "☐ " + t("즉시 구매만")) + "</a>"),
+                (f'<a href="o:indexed" style="color:#ece6da;text-decoration:none">'
+                 + ("☑ " + t("최근 1주일") if q.indexed else "☐ " + t("최근 1주일")) + "</a>")]
+        cond = (dim(t("조건 (눌러서 켜고 끄기)")) + "<br>" + "<br>".join(chips + [" &nbsp; ".join(opts)]))
         if not res.listings:
-            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다 (즉시 구매 · 최근 1주일)')}<br>{cond}<br>{link}",
-                             "#9a9284")
+            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다')}<br>{cond}<br>{link}", "#9a9284")
             return
         low, mid, groups = summary(res)
-        p = lambda a, c: esc(price_text(a, c, data, lang))
+        with_ex = lambda l: p(l.amount, l.currency) + (
+            f" {dim('≈' + exs(l.ex))}" if l.ex is not None and l.currency != "exalted" else "")
         big = (t("최저 {p}", p=f'<b style="color:#e8b04a">{p(low.amount, low.currency)}</b>')
-               + " &nbsp; " + t("중간 {p}", p=f"<b>{p(mid.amount, mid.currency)}</b>"))
-        spread = " · ".join(
-            (p(lo, cur) if lo == hi else f"{p(lo, cur).split(' ')[0]}~{p(hi, cur)}") + f" ({n})"
-            for cur, lo, hi, n in groups)
-        count = t("비슷한 매물 {n}개 (즉시 구매 · 최근 1주일) — 싼 10개: {s}", n=res.total, s=spread)
+               + (f" {dim('≈' + exs(low.ex))}" if low.ex is not None and low.currency != "exalted" else "")
+               + " &nbsp; " + t("중간 {p}", p=f"<b>{with_ex(mid)}</b>"))
+        if bait(res):
+            big += f'<br><span style="color:#ff8a65">{t("⚠ 최저가가 다른 매물보다 훨씬 쌉니다 (미끼일 수 있음)")}</span>'
+        spread = []
+        for cur, lo, hi, n in groups:
+            rng = p(lo, cur) if lo == hi else f"{p(lo, cur).split(' ')[0]}~{p(hi, cur)}"
+            ex = [l.ex for l in res.listings if l.currency == cur and l.ex is not None]
+            if ex and cur != "exalted":
+                rng += " " + ("≈" + exs(min(ex)) if min(ex) == max(ex) else f"≈{ex_text(min(ex), lang).split(' ')[0]}~{exs(max(ex))}")
+            spread.append(f"{rng} ({n})")
+        count = t("비슷한 매물 {n}개 — 싼 10개: {s}", n=res.total, s=" · ".join(spread))
         self._show_price(f"{title}<br>{big}<br>{dim(count)}<br>{cond}<br>{link}", "#e0b862")
+
+    def on_price_link(self, href: str) -> None:
+        """시세 카드의 링크: 거래소 열기 / 조건 켜고 끄기."""
+        if href.startswith("http"):
+            webbrowser.open(href)
+            return
+        q = self._price_query
+        if q is None or self._price_busy:
+            return
+        if href.startswith("f:"):
+            i = int(href[2:])
+            if 0 <= i < len(q.filters):
+                q.filters[i].enabled = not q.filters[i].enabled
+        elif href == "o:status":
+            q.status = "available" if q.status == "securable" else "securable"
+        elif href == "o:indexed":
+            q.indexed = "" if q.indexed else "1week"
+        self._render_price()  # 바뀐 체크를 바로 보여 주고
+        self._price_redo.start(900)  # 여러 개를 연달아 눌러도 검색은 한 번
+
+    def _redo_price(self) -> None:
+        q = self._price_query
+        if q is not None and self._price_league:
+            self._price_search(self._price_league, self._price_lang, lambda data: q)
+
+    def show_last_price(self) -> None:
+        if self._price_query is not None and self._price_res is not None:
+            self._render_price()
 
     def _show_price(self, html_text: str, color: str) -> None:
         self.price_msg, self.price_color = html_text, color
-        self._price_clear.start(45000)
-        # 알림 창은 평소 클릭 통과 — 시세 카드가 있는 동안만 눌러서 "거래소에서 열기" (포커스는 뺏지 않음)
+        self._price_clear.start(60000)
+        # 알림 창은 평소 클릭 통과 — 시세 카드가 있는 동안만 눌러서 조건·거래소 열기 (포커스는 뺏지 않음)
         set_click_through(int(self.overlay.toast.winId()), "<a " not in html_text)
         self.refresh()
 
@@ -1374,6 +1452,8 @@ class Controller:
         uc.setChecked(self.settings.get("update_check", True))
         uc.triggered.connect(lambda: self.toggle_setting("update_check"))
         um.addAction(uc)
+        a = m.addAction(t("💰 마지막 시세 다시 보기"), self.show_last_price)
+        a.setEnabled(self._price_res is not None)
         m.addSeparator()
         m.addAction(t("☕ 개발자에게 커피 사주기 (Ko-fi)"), lambda: webbrowser.open(KOFI_URL))
         m.addAction(t("종료"), self.app.quit)

@@ -40,6 +40,7 @@ https://github.com/user-attachments/assets/2c27bfc5-b0f1-4ccb-b99c-745cacdffff7
 | **XP efficiency** | Experience penalty from your level vs. the area level. |
 | **Act split timer** | Time per act and the difference to your best previous character (PB). |
 | **Item compare** | Ctrl+C a piece of gear in game and see if it beats what you are wearing. |
+| **Price check 💰** | Ctrl+V within 2 s after Ctrl+C — lowest and middle trade prices (with exalted equivalents); toggle filters on the card. |
 | **Gem guide** | Reads the build linked in the in-game Build Planner and shows the skills and supports for your level, and what unlocks next. |
 | **Completion card · LiveSplit** | Finish the campaign and a shareable card (PNG) with your act times is saved; splits export to a LiveSplit file. |
 | **Endgame log** | For characters that finished the campaign: maps this session, average time, deaths, pinnacle boss attempts and kills. |
@@ -94,7 +95,7 @@ See the **[user manual](docs/MANUAL.en.md)** for everything else.
 | Reads game memory | Reads only the **log file** the game writes itself (`Client.txt` / `KakaoClient.txt`) |
 | Sends input to the game (automation) | Only **shows** things — you press every key yourself |
 | Modifies game files or the process | Writes nothing to the game folder |
-| Sends game data anywhere | Everything stays on your PC (`%APPDATA%\poe2-saegida`). The only network use is the **update check** (asks GitHub for the latest version; can be turned off) |
+| Sends game data anywhere | Everything stays on your PC (`%APPDATA%\poe2-saegida`). Network use is limited to the **update check** (asks GitHub for the latest version; can be turned off) and **price checks you trigger** (trade search and exchange, poe.ninja prices — only item modifiers are sent, no account or login) |
 
 The clipboard is read only for item text you copy **while the game window is in front**.
 
