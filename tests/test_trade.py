@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from poe2_overlay.trade import (Query, RateLimited, RateLimiter, TradeClient, TradeData, bait, build_query, ex_text,
+from poe2_overlay.trade import (Filter, Query, RateLimited, RateLimiter, TradeClient, TradeData, bait, build_query, ex_text,
                                 price_text, summary)
 from test_items import BOOTS_EQUIPPED_KO, CROSSBOW, RING
 
@@ -41,26 +41,26 @@ SLIVERTONGUE = """아이템 종류: 활
 
 
 def on(q: Query) -> dict:
-    return {f.key: (f.min, f.max) for f in q.filters if f.enabled}
+    return {f.key: (f.min, f.max) for f in q.filters if f.enabled and f.kind != "opt"}
 
 
 def test_boots_search_uses_pseudo_totals_and_level():
     q = build_query(BOOTS_EQUIPPED_KO, DATA, char_level=45)
     assert q.category == "armour.boots" and q.rarity == "rare" and q.base == "도마뱀비늘 장화"
-    assert on(q) == {"pseudo.pseudo_increased_movement_speed": (18.0, None),
-                     "pseudo.pseudo_total_attributes": (17.0, None), "lvl": (None, 45.0)}
+    assert on(q) == {"pseudo.pseudo_increased_movement_speed": (20.0, None),  # 끼고 있는 수치 그대로
+                     "pseudo.pseudo_total_attributes": (19.0, None), "lvl": (None, 45.0)}
     body = q.body()["query"]
     assert "name" not in body and "type" not in body  # 희귀는 이름이 아니라 카테고리·옵션으로
     assert body["filters"]["type_filters"]["filters"]["rarity"] == {"option": "nonunique"}
     assert body["filters"]["req_filters"]["filters"]["lvl"] == {"max": 45.0}
-    assert {"id": "pseudo.pseudo_increased_movement_speed", "value": {"min": 18.0}} in body["stats"][0]["filters"]
+    assert {"id": "pseudo.pseudo_increased_movement_speed", "value": {"min": 20.0}} in body["stats"][0]["filters"]
 
 
 def test_magic_weapon_base_and_dps_filter():
     q = build_query(CROSSBOW, DATA)
     assert q.base == "팽팽한 석궁" and q.category == "weapon.crossbow"
     # 마법: 베이스 이름 + DPS (냉기 피해·공격 속도 옵션은 DPS 에 들어 있어 끔), 아이템 레벨은 꺼 둠
-    assert on(q) == {"type": (None, None), "dps": (23.0, None)}
+    assert on(q) == {"type": (None, None), "dps": (26.0, None)}
     assert q.body()["query"]["type"] == "팽팽한 석궁"
     labels = {f.label: f.enabled for f in q.filters}
     assert labels["공격 속도 5% 증가"] is False and labels["냉기 피해 3~5 추가"] is False
@@ -86,7 +86,7 @@ def test_toggling_filters_changes_body():
 
 def test_ring_resist_line_maps_to_total_resistance():
     q = build_query(RING, DATA)
-    assert on(q) == {"type": (None, None), "pseudo.pseudo_total_resistance": (6.3, None)}
+    assert on(q) == {"type": (None, None), "pseudo.pseudo_total_resistance": (7.0, None)}
     assert any(f.label == "화염 저항 +7%" and not f.enabled for f in q.filters)
 
 
@@ -96,7 +96,7 @@ def test_unique_searches_by_name_with_mods_listed_off():
     assert body["name"] == "슬리버텅" and body["type"] == "맹신자 활"
     assert body["filters"]["type_filters"]["filters"]["rarity"] == {"option": "unique"}
     assert on(q) == {}
-    groups = {f.label: f.ids[0].split(".")[0] for f in q.filters}
+    groups = {f.label: f.ids[0].split(".")[0] for f in q.filters if f.kind == "stat"}
     assert groups["민첩 +12"] == "rune" and groups["화살이 갈라짐"] == "explicit"
 
 
@@ -200,3 +200,73 @@ def test_exchange_unit_price_and_rates_on_listings():
     res.listings = [res.listings[2], res.listings[0], res.listings[1]]  # 신성 1개가 맨 앞이어도
     client.add_rates("L", res)
     assert [l.currency for l in res.listings] == ["chaos", "exalted", "divine"]  # 엑잘 환산 순
+
+
+def test_wheel_nudges_value_and_turns_filter_on():
+    q = build_query(BOOTS_EQUIPPED_KO, DATA, char_level=45)
+    move = next(f for f in q.filters if f.key == "pseudo.pseudo_increased_movement_speed")
+    dex = next(f for f in q.filters if f.label == "민첩 +19")
+    assert move.nudge(+2) and move.min == 30 and move.orig == 20  # 이동 속도는 5 단위
+    dex.enabled = False
+    assert dex.nudge(-1) and dex.min == 18 and dex.enabled  # 옵션 한 줄: 19 의 약 5% = 1, 휠로 바꾸면 켠다
+    lvl = next(f for f in q.filters if f.key == "lvl")
+    assert lvl.nudge(+1) and lvl.max == 46  # 레벨은 1 단위
+    assert Filter("x", "x", "stat", min=0.5).nudge(+1) and Filter("x", "x", "stat", min=0.5).nudge(-9)
+    assert not Filter("type", "베이스", "type").nudge(1)  # 수치 없는 조건
+
+
+def test_wheel_steps_per_filter():
+    q = build_query(BOOTS_EQUIPPED_KO, DATA)
+    attrs = next(f for f in q.filters if f.key == "pseudo.pseudo_total_attributes")
+    assert attrs.nudge(+1) and attrs.min == 20  # 합계는 1 단위 (사용자 요청)
+    dps = next(f for f in build_query(CROSSBOW, DATA).filters if f.key == "dps")
+    assert dps.nudge(-1) and dps.min == 25
+
+
+def test_reset_and_average_label():
+    q = build_query(CROSSBOW, DATA)
+    cold = next(f for f in q.filters if f.label == "냉기 피해 3~5 추가")
+    assert cold.avg and cold.min == 4  # 두 값은 평균으로 비교
+    cold.nudge(+3)
+    assert cold.min == 7 and cold.enabled and cold.changed
+    cold.reset()
+    assert cold.min == 4 and not cold.enabled and not cold.changed
+
+
+def test_sockets_level_and_corrupted_filters():
+    q = build_query(SLIVERTONGUE + "--------" + chr(10) + "타락" + chr(10), DATA)
+    f = {x.key: x for x in q.filters}
+    assert f["rune_sockets"].min == 2 and not f["rune_sockets"].enabled  # 홈: S S
+    assert f["lvl"].max == 39 and not f["lvl"].enabled  # 레벨링이 아니면 꺼 둠
+    cor = f["corrupted"]
+    assert cor.text == "true"  # 타락한 아이템은 타락만으로 시작
+    assert q.body()["query"]["filters"]["misc_filters"]["filters"]["corrupted"] == {"option": "true"}
+    cor.cycle()
+    assert cor.text == "" and "misc_filters" not in q.body()["query"]["filters"] and cor.changed
+    cor.cycle()
+    assert cor.text == "false"
+    cor.reset()
+    assert cor.text == "true"
+
+
+def test_socketless_armour_still_offers_socket_filter():
+    f = next(x for x in build_query(BOOTS_EQUIPPED_KO, DATA).filters if x.key == "rune_sockets")
+    assert f.min == 0 and not f.enabled
+    assert f.nudge(+1) and f.min == 1 and f.enabled  # 휠로 1개 이상
+    assert not any(x.key == "rune_sockets" for x in build_query(RING, DATA).filters)  # 장신구는 홈이 있을 때만
+    holed = RING.replace("아이템 레벨: 7", chr(10).join(["홈: S", "--------", "아이템 레벨: 7"]))
+    assert any(x.key == "rune_sockets" and x.min == 1 for x in build_query(holed, DATA).filters)
+
+
+def test_league_display_names():
+    d = TradeData.from_json({"leagues": {"result": [{"id": "Forbidden Rites", "text": "금단의 의식"},
+                                                    {"id": "HC Forbidden Rites", "text": "HC Forbidden Rites"}]}})
+    assert d.leagues["Forbidden Rites"] == "금단의 의식" and d.leagues["HC Forbidden Rites"] == "HC Forbidden Rites"
+
+
+def test_ssf_leagues_use_trade_league():
+    from poe2_overlay.trade import trade_league
+    assert trade_league("HC Forbidden Rites") == ("HC Forbidden Rites", False)
+    assert trade_league("SSF Forbidden Rites") == ("Forbidden Rites", True)
+    assert trade_league("HC SSF Forbidden Rites") == ("HC Forbidden Rites", True)
+    assert trade_league("SSF Hardcore") == ("Hardcore", True) and trade_league("SSF Standard") == ("Standard", True)

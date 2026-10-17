@@ -121,7 +121,7 @@ def _xp_badge(level: int, area_level: int) -> str:
     text = f'<span style="color:{color}">{t("경험치 {pct}%", pct=pct)}</span>'
     if pct < 100:
         lo, hi = full_xp_areas(level)
-        text += f' <span style="color:{DIM}">(100%: {lo}~{hi})</span>'
+        text += f' <span style="color:{DIM}">{t("(적정 {lo}~{hi})", lo=lo, hi=hi)}</span>'
     return text
 
 
@@ -340,7 +340,7 @@ class Overlay(QWidget):
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
                item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
                item_color: str = ACCENT, endgame=None, price_msg: str = "", price_color: str = ACCENT,
-               price_tools: tuple = ()) -> None:
+               price_tools: tuple = (), price_head: str = "") -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names, hidden=gem_card)
         # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
@@ -350,7 +350,7 @@ class Overlay(QWidget):
         if item_msg:
             cards.append((t("⚔ 아이템 비교"), item_msg, item_color))
         if price_msg:
-            cards.append((t("💰 시세"), price_msg, price_color, tuple(price_tools)))
+            cards.append((price_head or t("💰 시세"), price_msg, price_color, tuple(price_tools)))
         if gem_card:  # Ctrl+Alt+G
             if gems is not None:
                 head, body = _gem_card(gems, gem_names)
@@ -422,9 +422,8 @@ class Overlay(QWidget):
         if c.area_level and not is_town(c.zone):  # 마을은 안전 지대라 레벨·경험치 표시 없음
             gap = c.area_level - c.level
             color = WARN if gap >= 3 else (OK if gap <= 0 else DIM)
-            loc_html += f' · <span style="color:{color}">Lv {c.area_level}</span>'  # 한 줄에 들어가게 짧게
-            if gap >= 3:
-                loc_html += f' <span style="color:{WARN}">(−{gap})</span>'
+            # 한 줄에 들어가게 짧게: 레벨 차이 "(−6)" 는 빼고 색(주황 = 지역이 3 이상 높음)과 경험치 적정 범위로
+            loc_html += f' · <span style="color:{color}">Lv {c.area_level}</span>'
             loc_html += " · " + _xp_badge(c.level, c.area_level)
         if s.off_route and not is_town(c.zone) and endgame is None:  # 캠페인을 끝낸 캐릭터는 가이드 경로가 없다
             loc_html += f' · <span style="color:{WARN}">{t("가이드 경로 밖")}</span>'
@@ -472,7 +471,7 @@ class Overlay(QWidget):
             st = s.upcoming[0]
             rows.append(f'<div><span style="color:{TEXT}">{html.escape(st.area)}</span> — {rich(st.text)}</div>')
             if rest := s.upcoming[1:]:
-                rows.append(f'<div style="font-size:small;color:{DIM}">→ '
+                rows.append(f'<div style="font-size:small;color:#6f685c">→ '
                             + " → ".join(html.escape(x.area) for x in rest) + "</div>")
         self.next_lbl.setText("".join(rows))
 
@@ -482,9 +481,9 @@ class Overlay(QWidget):
             line = (t("🏆 영구 보상 {v}", v=f'<b style="color:{TEXT}">{done}/{len(rewards)}</b>')
                     + t(" · 퀘스트 패시브 {v}", v=f'<b style="color:{TEXT}">{c.passive_points}/{passive_total}</b>'))
             left = [r.slot for r in rewards if not r.done and step and r.slot.act == step.act]
-            if left:
-                line += t(" · {act} 남음: ", act=html.escape(tact(step.act))) + " · ".join(
-                    f'<span style="color:{GIFT}">{html.escape(sl.brief)}</span>' for sl in left)
+            if left:  # 이름은 🏆(Ctrl+Alt+R) 에서 — 패널에서는 개수만 (줄이 2~3줄로 꺾이던 문제)
+                line += t(" · {act} 남음 {n}개", act=html.escape(tact(step.act)),
+                          n=f'<span style="color:{GIFT}">{len(left)}</span>')
             foot.append(line)
             if self.show_rewards:
                 self.reward_lbl.setText(_reward_list(rewards) + (_split_table(timer) if timer else "")
@@ -689,6 +688,20 @@ class Overlay(QWidget):
             m.exec(e.globalPos())
 
 
+class _WheelLabel(QLabel):
+    """시세 카드의 조건 한 줄: 누르면 켜고 끄기(링크), 휠로 수치 올리고 내리기."""
+
+    def __init__(self, key: str, emit, *args):
+        super().__init__(*args)
+        self.key, self._emit = key, emit
+
+    def wheelEvent(self, e):
+        dy = e.angleDelta().y()
+        if dy:
+            self._emit(f"w:{self.key}:{1 if dy > 0 else -1}")
+        e.accept()
+
+
 class Toast(QWidget):
     """가이드 패널 바로 아래(공간이 없으면 위)에 붙는 알림 창. 카드(머리글+본문)를 위아래로 쌓는다."""
     link = Signal(str)  # 카드 안 링크 (시세: 조건 켜고 끄기 f:N / o:status, 거래소 열기 http…)
@@ -755,12 +768,26 @@ class Toast(QWidget):
                 lay.addLayout(row)
             else:
                 lay.addWidget(h)
-        b = _label(self.fs - 2, TEXT)
-        if "<a " in body:  # 시세 카드: 조건 켜고 끄기, 거래소에서 열기
-            b.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
-            b.linkActivated.connect(self.link.emit)
-        b.setText(body)
-        lay.addWidget(b)
+        if isinstance(body, tuple):  # 시세 카드: (위 html, [(키, 조건 한 줄 html)], 아래 html)
+            top, rows, bottom = body
+            parts = [("", top)] + list(rows) + [("", bottom)]
+        else:
+            parts = [("", body)]
+        for key, part in parts:
+            if not part:
+                continue
+            b = _label(self.fs - 2, TEXT)
+            if key:
+                b = _WheelLabel(key, self.link.emit)
+                b.setFont(QFont("Malgun Gothic", self.fs - 2))
+                b.setStyleSheet(f"color:{TEXT}; background:transparent;")
+                b.setWordWrap(True)
+                b.setTextFormat(Qt.RichText)
+            if "<a " in part:  # 조건 켜고 끄기, 다시 검색
+                b.setTextInteractionFlags(Qt.LinksAccessibleByMouse)
+                b.linkActivated.connect(self.link.emit)
+            b.setText(part)
+            lay.addWidget(b)
         return f
 
     def setWindowOpacity(self, value: float) -> None:

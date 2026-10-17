@@ -40,11 +40,11 @@
 | Third line | League and mode (Softcore / Hardcore / SSF) |
 | Right side | Act and guide step (`Act 1 5/126`) |
 | ⏱ | Time in this act, PB difference, total play time |
-| 📍 | Area, area level and **XP efficiency** (if below 100%, the area level range that gives 100%) |
+| 📍 | Area, area level (orange = 3+ above you) and **XP efficiency** (if below 100%, the `best` area level range) |
 | Card | The current step: area, what to do, ◆ progress (obelisks 2/3 …), ⚔/✓ boss, 🎁 rewards here, 🧭 layout tip |
 | 💎 | Next gem for your level (if a build is linked) |
 | Below | The next step and the areas after it |
-| 🏆 | Permanent rewards n/15 · quest passives n/24 · rewards left in this act |
+| 🏆 | Permanent rewards n/15 · quest passives n/24 · number of rewards left in this act (names under 🏆 / `Ctrl+Alt+R`) |
 
 Hover the panel for the top-right icons: `◀ ▶` step, `🏆` rewards & splits, `💎` gem card, `⚙` full menu.
 
@@ -117,13 +117,14 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
   - `Ctrl+V` is only taken for those 2 seconds, so pasting into search boxes works as usual. If another program uses it: `Ctrl+B` → `Ctrl+G`.
   - `Ctrl+C` alone never contacts the trade site.
 - The card: **lowest · middle price** (real currency plus `≈ ex`), number of similar listings, price ranges of the cheapest 10 per currency, a bait warning (lowest under 1/4 of the middle). Top-right **↗** opens the trade site, **✕** closes the card.
-- **Click filters on the card to toggle them** (☑/☐), then **🔍 Search again with these filters** to search once. Filters are never widened automatically.
-  - Rare / magic gear: total life, resistances, movement speed and attributes (90% of yours), skill levels and speed, DPS for weapons, and while levelling only what you can wear now.
+- **Click filters on the card to toggle them (☑/☐) and use the mouse wheel to change values** (movement speed by 5, everything else by 1 — 0.1 below 1; changed values in yellow, top-right **↺** resets). Two-value modifiers like `Adds 1 to 18` are compared by their average (9.5) on the trade site, then **🔍 Search again with these filters** to search once. Filters are never widened automatically.
+  - Rare / magic gear: total life, resistances, movement speed and attributes (yours or better), skill levels and speed, DPS for weapons, and while levelling only what you can wear now.
   - Normal / magic gear: the base type (plus item level for normal) — crafting bases.
   - Uniques: by name; rolls are off, and when turned on they ask for your roll or better.
   - Gems: name + level + quality. Waystones and tablets: tier + modifiers.
   - Currency, runes, soul cores and the like: exchange offers and 1 each ≈ ex.
   - `Instant buyout only` (off: direct trade too), `Last week` (off: any time).
+  - Wear level (on while levelling), item level and sockets (off; turn on and use the wheel), corrupted (click: any → no → only; corrupted items start at only).
 - Exalted equivalents come from poe.ninja (every 30 minutes), or the exchange median when missing.
 - The trade site's rate limits are respected: if a wait would be needed, nothing is sent and "try again in N s" is shown. The same search is not sent again for 5 minutes.
 - The card closes with **✕**, when you copy another item, or after a minute. Right-click menu → **💰 Show the last price check again**.

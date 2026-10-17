@@ -29,12 +29,12 @@ from .items import Item, parse_item
 
 REALMS = {"kakao": "https://poe.kakaogames.com", "ggg": "https://www.pathofexile.com"}
 UA = f"POE2-Saegida/{__version__} (github.com/ktu0216/poe2-saegida)"
-DATA_KINDS = ("stats", "static", "filters", "items")
+DATA_KINDS = ("stats", "static", "filters", "items", "leagues")
 DATA_TTL = 24 * 3600
 CACHE_TTL = 300  # 같은 검색 다시 보내지 않음 (APT 와 같은 5분)
 RATE_TTL = 1800  # 화폐 → 엑잘 환율 (poe2tradesearch 와 같은 30분)
 MAX_WAIT = 1.5  # 이보다 오래 기다려야 하면 보내지 않고 "N초 후" (요청이 쌓이지 않게)
-MIN_RATIO = 0.9  # 옵션 최소값 = 지금 값의 90%
+MIN_RATIO = 1.0  # 옵션 최소값 = 지금 값 그대로 (90% 로 찾았더니 "끼고 있는 수치보다 낮게" 보여 헷갈림 — 낮추는 건 휠로)
 BASE_CURRENCY = "exalted"
 NINJA = "https://poe.ninja/poe2/api/economy/exchange/current/overview"
 
@@ -112,6 +112,7 @@ class TradeData:
     stack_group: dict[str, str] = field(default_factory=dict)  # 교환소 id → 묶음 (Currency / Runes … = poe.ninja type)
     bases: set[str] = field(default_factory=set)  # 베이스 이름 (매직 아이템 이름에서 찾기)
     translate: dict[str, str] = field(default_factory=dict)  # 문구 언어 이름 → 거래소 언어 이름 (영어 클라 + 카카오)
+    leagues: dict[str, str] = field(default_factory=dict)  # 리그 id → 화면 이름 ("Forbidden Rites" → "금단의 의식")
 
     @classmethod
     def from_json(cls, raw: dict[str, dict], text_raw: Optional[dict[str, dict]] = None) -> "TradeData":
@@ -127,6 +128,9 @@ class TradeData:
                 toks = re.findall(r"#|[+-]?\d+(?:\.\d+)?", plain)
                 st = Stat(e["id"], plain, group, local, tuple(i for i, tk in enumerate(toks) if tk == "#"))
                 d.stats.setdefault((group, _skeleton(plain.replace("#", "0"))), []).append(st)
+        for lg in raw.get("leagues", {}).get("result", []):
+            if lg.get("id"):
+                d.leagues[lg["id"]] = lg.get("text") or lg["id"]
         for g in raw.get("static", {}).get("result", []):
             for e in g.get("entries", []):
                 if e.get("id") and e.get("text"):
@@ -207,6 +211,50 @@ class Filter:
     enabled: bool = True
     unit: str = ""  # 화면 표시용 ("%")
     text: str = ""  # type 필터: 거래소에 보낼 베이스 이름
+    orig: Optional[float] = None  # 처음 값 (휠로 바꾼 값 표시·한 칸 크기)
+    step: Optional[float] = None  # 휠 한 칸 (없으면 1, 처음 값이 1 미만이면 0.1)
+    avg: bool = False  # "1~18 추가" 처럼 두 값: 거래소는 평균으로 비교한다 (9.5 이상)
+    orig_enabled: Optional[bool] = None
+    orig_text: Optional[str] = None  # opt 필터(타락)의 처음 선택
+
+    def __post_init__(self) -> None:
+        if self.orig is None:
+            self.orig = self.min if self.min is not None else self.max
+        if self.orig_enabled is None:
+            self.orig_enabled = self.enabled
+        if self.orig_text is None:
+            self.orig_text = self.text
+
+    @property
+    def changed(self) -> bool:
+        return self.value != self.orig or self.enabled != self.orig_enabled or self.text != self.orig_text
+
+    def cycle(self) -> None:
+        """opt 필터: 상관없음 → 아님 → 만 → 상관없음."""
+        self.text = {"": "false", "false": "true", "true": ""}[self.text]
+
+    def reset(self) -> None:
+        if self.min is not None:
+            self.min = self.orig
+        elif self.max is not None:
+            self.max = self.orig
+        self.enabled = bool(self.orig_enabled)
+        self.text = self.orig_text or ""
+
+    @property
+    def value(self) -> Optional[float]:
+        return self.min if self.min is not None else self.max
+
+    def nudge(self, steps: int) -> bool:
+        """휠 한 칸 = step (이동 속도 5), 없으면 1 — 처음 값이 1 미만(흡수 0.5% 등)이면 0.1.
+        바꾸면 조건을 켠다 (2026-10-17 사용자 요청: 옵션 한 줄도 1 단위)."""
+        if self.value is None or self.orig is None:
+            return False
+        step = self.step or (1.0 if abs(self.orig) >= 1 else 0.1)
+        attr = "min" if self.min is not None else "max"
+        setattr(self, attr, round(max(0.0, getattr(self, attr) + step * steps), 1))
+        self.enabled = True
+        return True
 
 
 @dataclass
@@ -253,6 +301,9 @@ class Query:
                 q["type"] = flt.text
             elif flt.kind == "typef":
                 type_f[flt.key] = val
+            elif flt.kind == "opt":  # 타락 등: 고른 값이 있을 때만
+                if flt.text:
+                    f.setdefault("misc_filters", {"filters": {}})["filters"][flt.key] = {"option": flt.text}
             else:
                 group = {"equip": "equipment_filters", "req": "req_filters", "misc": "misc_filters",
                          "map": "map_filters"}[flt.kind]
@@ -261,8 +312,21 @@ class Query:
         return {"query": q, "sort": {"price": "asc"}}
 
 
+def trade_league(league: str) -> tuple[str, bool]:
+    """게임 리그 → (거래소 리그, SSF 여부). SSF 는 거래소가 없어 같은 일반/하드코어 리그 시세를 본다.
+    "SSF Forbidden Rites" → "Forbidden Rites", "HC SSF Forbidden Rites" → "HC Forbidden Rites",
+    "SSF Standard" → "Standard", "SSF Hardcore" → "Hardcore"."""
+    words = league.split()
+    if "SSF" not in words:
+        return league, False
+    words.remove("SSF")
+    rest = " ".join(words)
+    return rest or "Standard", True
+
+
 def _floor(v: float) -> float:
-    return float(math.floor(v * MIN_RATIO * 10) / 10) if v < 10 else float(math.floor(v * MIN_RATIO))
+    # round 먼저: 4.6 * 10 = 45.999… 이 4.5 로 내려가지 않게
+    return float(math.floor(round(v * MIN_RATIO * 10, 6)) / 10) if v < 10 else float(math.floor(round(v * MIN_RATIO, 6)))
 
 
 def _base_of(header: list[str], rarity: str, bases: set[str]) -> tuple[str, str]:
@@ -316,9 +380,9 @@ def build_query(text: str, data: TradeData, char_level: int = 0, profile: str = 
         q.rarity = ""
         q.filters.append(Filter("type", name, "type", text=q.trade_name))
         if (lv := _prop(props, _GEM_LEVEL)) is not None:
-            q.filters.append(Filter("gem_level", "젬 레벨", "misc", min=lv))
+            q.filters.append(Filter("gem_level", "젬 레벨", "misc", min=lv, step=1))
         if (ql := _prop(props, _QUALITY)):
-            q.filters.append(Filter("quality", "품질", "typef", min=ql, unit="%"))
+            q.filters.append(Filter("quality", "품질", "typef", min=ql, unit="%", step=1))
         return q
     item = parse_item(text)
     if item is None or not q.category:
@@ -327,7 +391,7 @@ def build_query(text: str, data: TradeData, char_level: int = 0, profile: str = 
     unique = rarity == "unique"  # 고유: 이름으로 찾고 옵션은 사용자가 켤 때만
     if q.category.startswith("map"):  # 경로석·서판: 등급 + 옵션
         if (tier := _prop(props, _TIER)) is not None:
-            q.filters.append(Filter("map_tier", "등급", "map", min=tier))
+            q.filters.append(Filter("map_tier", "등급", "map", min=tier, step=1))
         if q.category == "map.tablet" and not unique:
             q.filters.append(Filter("type", base, "type", text=q.trade_base))
         _add_mod_filters(q, lines, data, item, "", profile, auto=False)
@@ -336,26 +400,48 @@ def build_query(text: str, data: TradeData, char_level: int = 0, profile: str = 
     plain = rarity in ("normal", "magic")  # 제작 베이스: 베이스 이름 (일반은 아이템 레벨까지)
     if plain:
         q.filters.append(Filter("type", base, "type", text=q.trade_base))
-        if (ilvl := _prop(props, _ILVL)) is not None:
-            q.filters.append(Filter("ilvl", "아이템 레벨", "typef", min=ilvl, enabled=rarity == "normal"))
+    if not unique and (ilvl := _prop(props, _ILVL)) is not None:  # 희귀는 꺼 두고 필요하면 켠다
+        q.filters.append(Filter("ilvl", "아이템 레벨", "typef", min=ilvl, enabled=rarity == "normal", step=1))
     if item.is_weapon and not unique:
         dps_on = rarity != "normal"  # 일반 무기는 베이스가 곧 DPS
+        dps = item.dps if item.ele_dps > 0 else item.phys_dps
+        step = 1.0  # 휠 한 칸 (2026-10-17 사용자 요청: 합계·DPS 는 1 단위, 이동 속도만 5)
         if item.ele_dps > 0:
-            q.filters.append(Filter("dps", "DPS", "equip", min=_floor(item.dps), enabled=dps_on))
+            q.filters.append(Filter("dps", "DPS", "equip", min=_floor(dps), enabled=dps_on, step=step))
         else:
-            q.filters.append(Filter("pdps", "물리 DPS", "equip", min=_floor(item.phys_dps), enabled=dps_on))
-    pseudo = (("pseudo.pseudo_total_life", "생명력 합", item.life, ""),
-              ("pseudo.pseudo_total_resistance", "저항 합", item.res_total, "%"),
-              ("pseudo.pseudo_increased_movement_speed", "이동 속도", item.move_speed, "%"),
-              ("pseudo.pseudo_total_attributes", "능력치 합", item.attributes, ""))
-    for sid, label, v, unit in pseudo:
+            q.filters.append(Filter("pdps", "물리 DPS", "equip", min=_floor(dps), enabled=dps_on, step=step))
+    # (stat, 이름, 값, 단위, 휠 한 칸): 이동 속도는 옵션 등급이 5% 단위, 나머지 합계는 1
+    pseudo = (("pseudo.pseudo_total_life", "생명력 합", item.life, "", 1),
+              ("pseudo.pseudo_total_resistance", "저항 합", item.res_total, "%", 1),
+              ("pseudo.pseudo_increased_movement_speed", "이동 속도", item.move_speed, "%", 5),
+              ("pseudo.pseudo_total_attributes", "능력치 합", item.attributes, "", 1))
+    for sid, label, v, unit, step in pseudo:
         if v > 0:
-            q.filters.append(Filter(sid, label, "stat", (sid,), _floor(v), enabled=not unique, unit=unit))
+            q.filters.append(Filter(sid, label, "stat", (sid,), _floor(v), enabled=not unique, unit=unit, step=step))
     _add_mod_filters(q, lines, data, item, kind, profile, auto=not unique)
     req = next((m for ln in lines if ln.startswith(("요구 사항", "Requires")) and (m := _REQ_LEVEL.search(ln))), None)
+    req_lv = int(req[1]) if req else 0
     if char_level and not unique:  # 레벨링: 지금 낄 수 있는 것만
-        q.filters.append(Filter("lvl", "착용 레벨", "req", max=float(max(char_level, int(req[1]) if req else 0))))
+        q.filters.append(Filter("lvl", "착용 레벨", "req", max=float(max(char_level, req_lv)), step=1))
+    elif req_lv:  # 엔드게임·고유: 이 아이템 착용 레벨 이하 (꺼 둠)
+        q.filters.append(Filter("lvl", "착용 레벨", "req", max=float(req_lv), enabled=False, step=1))
+    # 홈 개수 (꺼 둠: 룬을 바꿔 끼울 수 있어 값에 영향이 적다). 홈이 없는 무기·방어구도 휠로 "1개 이상" 을 찾을 수 있게.
+    # 장신구는 원래 홈이 없고 특수 베이스(섬세한 허리띠·거머쥐는 반지 …)만 홈이 있어서, 그 아이템에 홈이 있을 때만
+    # (스탠다드 2026-10-18 홈 1개 이상: 허리띠 1만+, 목걸이 122, 반지 59, 화살통 0)
+    sockets = _sockets(lines)
+    if sockets or (q.category.startswith(("weapon", "armour")) and q.category != "armour.quiver"):
+        q.filters.append(Filter("rune_sockets", "홈 개수", "equip", min=float(sockets), enabled=False, step=1))
+    corrupted = any(ln in ("타락", "Corrupted") for ln in lines)
+    q.filters.append(Filter("corrupted", "타락", "opt", text="true" if corrupted else "", enabled=True))
     return q
+
+
+def _sockets(lines: list[str]) -> int:
+    """'홈: S S' / 'Sockets: S S' → 2."""
+    for ln in lines:
+        if ln.startswith(("홈:", "Sockets:")):
+            return len(ln.split(":", 1)[1].split())
+    return 0
 
 
 # pseudo(합계) 로 이미 찾는 옵션: 생명력·저항·이동 속도·능력치
@@ -365,6 +451,8 @@ _PSEUDO_COVERED = re.compile(
     r"|# to .* and .*)$")
 # 자동으로 켜는 옵션 (pseudo 로 못 잡는 것): 스킬 레벨, 속도, 치명
 _AUTO_ON = re.compile(r"스킬 레벨|Level of all|시전 속도|Cast Speed|공격 속도|Attack Speed|치명타|Critical|정신력|Spirit")
+# pseudo 와 똑같은 옵션 줄 (이동 속도): 조건 목록에 두 번 나오지 않게 뺀다
+_SAME_AS_PSEUDO = re.compile(r"^(이동 속도 #% 증가|#% increased Movement Speed)$")
 _WEAPON_DPS = re.compile(r"피해 #~# 추가|Adds # to # .*Damage|공격 속도|Attack Speed|치명타 확률|Critical Hit Chance")
 
 
@@ -381,6 +469,8 @@ def _add_mod_filters(q: Query, lines: list[str], data: TradeData, item: Item, ki
             continue
         stats, vals, tier = hit
         sk = _skeleton(body)
+        if q.rarity != "unique" and _SAME_AS_PSEUDO.match(sk) and item.move_speed:
+            continue
         on = auto and bool(_AUTO_ON.search(body)) and not _PSEUDO_COVERED.match(sk)
         if item.is_weapon and _WEAPON_DPS.search(sk):
             on = False  # 무기 자체의 피해·속도·치명은 DPS 필터에 이미 들어 있다
@@ -392,7 +482,7 @@ def _add_mod_filters(q: Query, lines: list[str], data: TradeData, item: Item, ki
         # 고유는 굴림 범위가 있으면 "범위 아래쪽" 대신 지금 굴림 그대로를 최소로 (좋은 굴림 시세 보기)
         low = (val if q.rarity == "unique" else _floor(val)) if val else None
         q.filters.append(Filter(stats[0].id, _RANGE.sub(r"\1", body), "stat", tuple(s.id for s in stats),
-                                low, enabled=on))
+                                low, enabled=on, avg=len(vals) > 1))
 
 
 # ---------------------------------------------------------------- 요청 제한

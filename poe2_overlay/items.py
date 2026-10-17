@@ -457,4 +457,4 @@ def compare(new: Item, old: Optional[Item], profile: str = "") -> tuple[str, lis
              + sum(cur[k] - prev[k] for k in cur if k.endswith("스킬 레벨")) * 30  # 스킬 레벨 +1 은 매우 큼
              + caster_score(new, profile) - caster_score(old, profile))
     verdict = 1 if score > 2 else (-1 if score < -2 else 0)
-    return new.item_class, diffs, verdict
+    return new.name.split(" / ")[-1] or new.item_class, diffs, verdict  # 베이스 이름 ("도마뱀비늘 장화")

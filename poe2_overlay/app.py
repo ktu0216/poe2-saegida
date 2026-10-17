@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -33,7 +34,8 @@ from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
 
 RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어 변경 등)
-from .trade import RateLimited, TradeClient, TradeData, bait, build_query, ex_text, price_text, summary
+from .trade import (RateLimited, TradeClient, TradeData, bait, build_query, ex_text, price_text, summary,
+                    trade_league)
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -54,13 +56,20 @@ HOTKEYS = {
 }
 OPACITY_STEPS = (1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3)
 TOP_RATIO = 0.08  # 기본 위치: 게임 창 왼쪽, 위에서 8% (왼쪽 위 버프·스킬 아이콘 아래)
-DOUBLE_COPY_SEC = 0.8
+DOUBLE_COPY_SEC = 0.8  # 이보다 느린 재복사는 '다시 비교'로 본다
 # 시세: Ctrl+C 뒤 이 시간 안에 시세 키 (게임은 다른 프로그램이 키를 엿보거나 대신 누르는 것을 막아서,
 # 복사 직후에만 RegisterHotKey 로 잠깐 잡는다 — 평소에는 게임·다른 프로그램이 그 키를 그대로 쓴다)
 # Ctrl 을 누른 채 C → V 로 굴린다. D 는 이동(WASD), X 는 무기 교체라 손이 헷갈림 (2026-10-17 플레이 시험).
 # Ctrl+V 는 채팅·검색창 붙여넣기에만 쓰이고, 복사 직후 잠깐만 잡으니 정규식 붙여넣기와 거의 겹치지 않는다.
 PRICE_KEYS = ("Ctrl+V", "Ctrl+B", "Ctrl+G")  # 다른 프로그램이 쓰면 다음 후보, settings.json "price_key" 로 바꿈
-PRICE_WINDOW_SEC = 2.0  # 5초는 길었음 (settings.json "price_window_sec")  # 이보다 느린 재복사는 '다시 비교'로 본다
+PRICE_WINDOW_SEC = 2.0  # 5초는 길었음 (settings.json "price_window_sec")
+def _slot_title(item, title: str) -> str:
+    """비교 카드 제목: 부위 + 제목. 제목에 부위 이름이 이미 있으면("도마뱀비늘 장화") 한 번만 ("장화 장화" 방지)."""
+    slot = t(item.slot)
+    return title if slot in title else f"{slot} {title}"
+
+
+_NUM_RE = re.compile(r"\d+(?:\.\d+)?")  # 시세 카드: 옵션 문구 안의 숫자 자리
 PROGRESS_VERSION = 23  # 23: 마을에서 쓴 책은 직전 사냥터 보상, 22: 22: 퀘스트 패시브를 주는 단계에 받음 표시, 21: 21: 퀘스트 패시브 받은 단계 표시, 20: 보스전 중 보상 획득은 처치, 19: 19: 건너뛴 지역에서 돌아오면 되돌리기, 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
@@ -176,10 +185,12 @@ class Controller:
         self.trade_data: dict[tuple[str, str], TradeData] = {}  # (거래소, 아이템 문구 언어)
         self._price_query = self._price_res = self._price_data = None  # 마지막 시세 (조건 바꿔 다시 찾기·다시 보기)
         self._price_league, self._price_lang = "", "ko"
+        self._price_ssf, self._price_mode = False, ""
         self._price_dirty = False  # 카드에서 조건을 바꿨지만 아직 다시 찾지 않음
         self.trade_clients: dict[str, TradeClient] = {}
         self.price_msg, self.price_color = "", "#e0b862"
         self.price_tools: tuple = ()  # 시세 카드 머리글 오른쪽 아이콘 (↗ 거래소, ✕ 닫기)
+        self.price_head = ""  # 시세 카드 머리글 (💰 시세 · 리그)
         self._price_busy = False
         self._price_result = None  # 작업 스레드 → tick 에서 화면에
         self._price_clear = QTimer()
@@ -461,7 +472,8 @@ class Controller:
         self.overlay.render(snap, self._notice_text(), states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg + self.price_hint(),
                             gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg,
-                            price_msg=self.price_msg, price_color=self.price_color, price_tools=self.price_tools)
+                            price_msg=self.price_msg, price_color=self.price_color, price_tools=self.price_tools,
+                            price_head=self.price_head)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -679,11 +691,11 @@ class Controller:
                 title, diffs, verdict = compare(item, parse_item(prev_text), build_profile(c.gear))
                 color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
                 mark = t({1: "▲ 더 좋음", -1: "▼ 더 나쁨"}.get(verdict, "≈ 비슷"))
-                body = f'{mark} · {t(item.slot)} {title} {t("(직전 복사 대비)")}' + ("<br>" + " · ".join(diffs) if diffs else "")
+                body = f'{mark} · {_slot_title(item, title)} {t("(직전 복사 대비)")}' + ("<br>" + " · ".join(diffs) if diffs else "")
                 self._show_item(body + note_html + hint, color)
                 return
             title, _, _ = compare(item, None, build_profile(c.gear))
-            self._show_item(f'{t(item.slot)} {title}' + note_html + hint, "#ece6da")
+            self._show_item(f'{_slot_title(item, title)}' + note_html + hint, "#ece6da")
             return
         key = equip_key(item, c.gear)
         if not is_town(c.zone) and key not in c.gear and not notes and (not filled or not item.hand):
@@ -695,7 +707,7 @@ class Controller:
             return
         if not filled:  # 비교할 기준이 없음 (예: 방패만 등록된 채 무기 복사)
             title, _, _ = compare(item, None, build_profile(c.gear))
-            self._show_item(f'{t(item.slot)} {title}' + note_html + hint, "#ece6da")
+            self._show_item(f'{_slot_title(item, title)}' + note_html + hint, "#ece6da")
             return
         # 비교 대상: 칸이 여러 개면 가장 약한 쪽 (바꾼다면 그걸 뺀다)
         target = filled[0]
@@ -704,13 +716,13 @@ class Controller:
         title, diffs, verdict = compare(item, parse_item(c.gear[target]), build_profile(c.gear))
         color = {1: "#8fd18b", -1: "#ff8a65"}.get(verdict, "#ece6da")
         if len(filled) > 1:  # 반지·두 손 무기: 두 칸 모두와 비교해 보여 준다 (바꾼다면 약한 쪽 기준 판정)
-            body = f'{t(item.slot)} {title}'
+            body = f'{_slot_title(item, title)}'
             for k in filled:
                 _, d, v = compare(item, parse_item(c.gear[k]), build_profile(c.gear))
                 body += (f'<br>{t(marks.get(v, "≈ 비슷"))} · {t("{slot} 대비", slot=label(k))}'
                          + (t(" (약한 쪽)") if k == target else "") + (" — " + " · ".join(d) if d else ""))
         else:
-            body = (f'{t(marks.get(verdict, "≈ 비슷"))} · {t(item.slot)} {title}'
+            body = (f'{t(marks.get(verdict, "≈ 비슷"))} · {_slot_title(item, title)}'
                     + (" " + t("({slot} 대비)", slot=label(target)) if len(keys) > 1 or item.hand else ""))
             if diffs:
                 body += "<br>" + " · ".join(diffs)
@@ -767,6 +779,8 @@ class Controller:
         level = c.level if c and c.level < 90 else 0  # 레벨링 중이면 지금 낄 수 있는 것만
         profile = build_profile(c.gear) if c else ""
         text_lang = "en" if text.lstrip().startswith("Item Class:") else "ko"
+        league, self._price_ssf = trade_league(league)  # SSF 는 같은 일반/하드코어 리그 시세
+        self._price_mode = c.mode if c else ""
         self._price_league = league
         self._price_search(league, text_lang, lambda data: build_query(text, data, level, profile))
 
@@ -778,6 +792,7 @@ class Controller:
         if keep_card:
             self._render_price()  # "다시 찾는 중…" 만 바뀐다
         else:
+            self.price_head = ""
             self._show_price(t("💰 시세 찾는 중…"), "#9a9284")
 
         def work():
@@ -823,65 +838,97 @@ class Controller:
         self._render_price()
 
     def _render_price(self) -> None:
+        """시세 카드. 머리글: 💰 시세 · 리그 / 본문: 아이템 → 가격(크게) → 매물 수 → 조건 → 옵션 한 줄."""
         q, res, data = self._price_query, self._price_res, self._price_data
         esc = html.escape
         lang = "ko" if self.lang == "ko" else "en"
         dim = lambda s: f'<span style="color:#9a9284">{s}</span>'
         p = lambda a, c: esc(price_text(a, c, data, lang))
         exs = lambda v: esc(ex_text(v, lang))
+        # 리그: 머리글 오른쪽에 작게 (아이템 이름·가격과 섞이지 않게)
+        # 리그 · 모드 (메인 패널과 같은 색): "금단의 의식 · 하드코어", SSF 는 "· SSF → 거래 리그 시세"
+        lg = self._price_league
+        names = data.leagues if data else {}
+        hc = lg.startswith("HC ") or lg == "Hardcore"
+        league = names.get(lg[3:], lg[3:]) if lg.startswith("HC ") else names.get(lg, lg)
+        mode = ("HC SSF" if hc else "SSF") if self._price_ssf else ("하드코어" if hc else "소프트코어")
+        mcolor = {"하드코어": "#ff6b5b", "HC SSF": "#ff6b5b", "SSF": "#7fb8ff"}.get(mode, "#9a9284")
+        tag = f'<span style="color:{mcolor}">{esc(t(mode))}</span>'
+        if self._price_ssf:
+            tag += f' <span style="color:#9a9284">{t("(거래 리그 시세)")}</span>'
+        self.price_head = (f'{t("💰 시세")} <span style="color:#9a9284;font-weight:normal">· {esc(league)} · </span>'
+                           f'<span style="font-weight:normal">{tag}</span>')
         title = f"<b>{esc(q.base or q.name)}</b>" + (f" {dim(esc(q.name))}" if q.rarity == "unique" else "")
-        self.price_tools = ((("↗", res.url, t("거래소에서 열기")),) if res.url else ()) + (("✕", "x:close", t("닫기")),)
+        changed = (any(f.changed for f in q.filters) or q.status != "securable" or q.indexed != "1week")
+        self.price_tools = ((("↺", "r:reset", t("조건 원래대로")),) if changed and not q.exchange else ()) + (
+            (("↗", res.url, t("거래소에서 열기")),) if res.url else ()) + (("✕", "x:close", t("닫기")),)
         if q.exchange:  # 화폐·룬 …: 교환소 1개 가격
             if res.unit_ex is None:
                 body = t("교환소에 엑잘로 사는 매물이 없습니다")
             else:
-                body = (t("1개 ≈ {p}", p=f'<b style="color:#e8b04a">{exs(res.unit_ex)}</b>')
-                        + " " + dim(t("(교환소 매물 {n}개 중간값)", n=res.total)))
+                body = (f'<big>{t("1개 ≈ {p}", p=f"<b style=\"color:#e8b04a\">{exs(res.unit_ex)}</b>")}</big>'
+                        + "<br>" + dim(t("교환소 온라인 매물 {n}개", n=res.total)))
             self._show_price(f"{title}<br>{body}", "#e0b862", tools=self.price_tools)
             return
-        # 조건: 눌러서 켜고 끄기 (다시 검색은 잠깐 뒤 한 번만)
-        chips = []
+        # 조건 줄: 숫자는 굵게(휠로 바꾼 값은 노란색), "이상/이하" 는 뒤에 한 번
+        chips, opts = [], []
         for i, f in enumerate(q.filters):
+            if f.kind == "opt":  # 타락: 아래 옵션 줄로
+                state = {"": t("상관없음"), "false": t("타락 아님"), "true": t("타락만")}[f.text]
+                if f.text != f.orig_text:
+                    state = f'<span style="color:#e8b04a">{state}</span>'
+                opts.append(f'<a href="f:{i}" style="color:#ece6da;text-decoration:none">⇄ {t("타락")}: {state}</a>')
+                continue
+            box = "☑" if f.enabled else "☐"
+            color = "#ece6da" if f.enabled else "#6f685c"
             if f.kind == "type":
                 text = t("베이스 {name}", name=esc(f.label))
-            elif f.min is None and f.max is None:
+            elif f.value is None:
                 text = esc(t(f.label))
             else:
-                num = f"{(f.min if f.min is not None else f.max):g}{f.unit}"
-                text = (t("{label} {n} 이상", label=esc(t(f.label)), n=num) if f.min is not None
-                        else t("{label} {n} 이하", label=esc(t(f.label)), n=num))
-            color = "#ece6da" if f.enabled else "#6f685c"
-            chips.append(f'<a href="f:{i}" style="color:{color};text-decoration:none">{"☑" if f.enabled else "☐"} {text}</a>')
-        opts = [(f'<a href="o:status" style="color:#ece6da;text-decoration:none">'
-                 + ("☑ " + t("즉시 구매만") if q.status == "securable" else "☐ " + t("즉시 구매만")) + "</a>"),
-                (f'<a href="o:indexed" style="color:#ece6da;text-decoration:none">'
-                 + ("☑ " + t("최근 1주일") if q.indexed else "☐ " + t("최근 1주일")) + "</a>")]
-        cond = (dim(t("조건 (눌러서 켜고 끄기)")) + "<br>" + "<br>".join(chips + [" &nbsp; ".join(opts)]))
+                n = f"{f.value:g}"
+                n = f'<b style="color:#e8b04a">{n}</b>' if f.value != f.orig else f"<b>{n}</b>"
+                more = t("이상") if f.min is not None else t("이하")
+                if f.avg:  # "번개 피해 1~18 추가" → 거래소는 평균으로 비교
+                    text = f"{esc(f.label)} {dim(t('평균'))} {n}{f.unit} {more}"
+                elif f.kind == "stat" and not f.key.startswith("pseudo.") and _NUM_RE.search(f.label):
+                    # 옵션 한 줄: 문구 안의 숫자를 기준값으로 ("민첩 +25" → "민첩 +25 이상")
+                    m = _NUM_RE.search(f.label)
+                    text = esc(f.label[:m.start()]) + n + esc(f.label[m.end():]) + " " + more
+                else:
+                    text = f"{esc(t(f.label))} {n}{f.unit} {more}"
+            chips.append((str(i), f'<a href="f:{i}" style="color:{color};text-decoration:none">{box} {text}</a>'))
+        opts = [f'<a href="o:status" style="color:#ece6da;text-decoration:none">'
+                f'{"☑" if q.status == "securable" else "☐"} {t("즉시 구매만")}</a>',
+                f'<a href="o:indexed" style="color:#ece6da;text-decoration:none">'
+                f'{"☑" if q.indexed else "☐"} {t("최근 1주일")}</a>'] + opts
+        head = f'<hr>{dim(t("조건 · 누르면 켜고 끄기 · 휠로 수치"))}'
+        bottom = " &nbsp; ".join(opts)
         if self._price_busy:
-            cond += "<br>" + dim(t("다시 찾는 중…"))
+            bottom += "<br>" + dim(t("다시 찾는 중…"))
         elif self._price_dirty:  # 여러 개를 고른 뒤 한 번에 찾기 (위 가격은 바꾸기 전 조건)
-            cond += (f'<br><a href="s:go" style="color:#e8b04a">{t("🔍 이 조건으로 다시 검색")}</a>'
-                     + " " + dim(t("(위 가격은 바꾸기 전 조건)")))
+            bottom += (f'<br><a href="s:go" style="color:#e8b04a">{t("🔍 이 조건으로 다시 검색")}</a>'
+                       + " " + dim(t("(위 가격은 바꾸기 전 조건)")))
+        rows = tuple(chips)
         if not res.listings:
-            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다')}<br>{cond}", "#9a9284", tools=self.price_tools)
+            self._show_price((f"{title}<br>{t('비슷한 매물이 없습니다')}{head}", rows, bottom), "#9a9284",
+                             tools=self.price_tools)
             return
-        low, mid, groups = summary(res)
-        with_ex = lambda l: p(l.amount, l.currency) + (
-            f" {dim('≈' + exs(l.ex))}" if l.ex is not None and l.currency != "exalted" else "")
-        big = (t("최저 {p}", p=f'<b style="color:#e8b04a">{p(low.amount, low.currency)}</b>')
-               + (f" {dim('≈' + exs(low.ex))}" if low.ex is not None and low.currency != "exalted" else "")
-               + " &nbsp; " + t("중간 {p}", p=f"<b>{with_ex(mid)}</b>"))
+        low, mid, _groups = summary(res)
+        ex_part = lambda l: f" {dim('≈' + exs(l.ex))}" if l.ex is not None and l.currency != "exalted" else ""
+        # 최저·중간을 한 줄씩 (한 줄에 넣으면 엑잘 환산이 다음 줄로 꺾인다)
+        big = ("<big>" + t("최저 {p}", p=f'<b style="color:#e8b04a">{p(low.amount, low.currency)}</b>') + "</big>"
+               + ex_part(low) + "<br><big>" + t("중간 {p}", p=f"<b>{p(mid.amount, mid.currency)}</b>") + "</big>"
+               + ex_part(mid))
         if bait(res):
-            big += f'<br><span style="color:#ff8a65">{t("⚠ 최저가가 다른 매물보다 훨씬 쌉니다 (미끼일 수 있음)")}</span>'
-        spread = []
-        for cur, lo, hi, n in groups:
-            rng = p(lo, cur) if lo == hi else f"{p(lo, cur).split(' ')[0]}~{p(hi, cur)}"
-            ex = [l.ex for l in res.listings if l.currency == cur and l.ex is not None]
-            if ex and cur != "exalted":
-                rng += " " + ("≈" + exs(min(ex)) if min(ex) == max(ex) else f"≈{ex_text(min(ex), lang).split(' ')[0]}~{exs(max(ex))}")
-            spread.append(f"{rng} ({n})")
-        count = t("비슷한 매물 {n}개 — 싼 10개: {s}", n=res.total, s=" · ".join(spread))
-        self._show_price(f"{title}<br>{big}<br>{dim(count)}<br>{cond}", "#e0b862", tools=self.price_tools)
+            big += f'<br><span style="color:#ff8a65">{t("⚠ 최저가가 유난히 쌉니다 (미끼일 수 있음)")}</span>'
+        exs_known = [l.ex for l in res.listings if l.ex is not None]
+        if len(exs_known) == len(res.listings):  # 싼 10개를 엑잘로 한 줄
+            count = t("매물 {n}개 · 싼 {k}개 {lo}~{hi}", n=res.total, k=len(res.listings),
+                      lo=ex_text(min(exs_known), lang).split(" ")[0], hi=exs(max(exs_known)))
+        else:
+            count = t("매물 {n}개", n=res.total)
+        self._show_price((f"{title}<br>{big}<br>{dim(count)}{head}", rows, bottom), "#e0b862", tools=self.price_tools)
 
     def on_price_link(self, href: str) -> None:
         """시세 카드의 링크: 거래소 열기 / 조건 켜고 끄기 / 다시 검색."""
@@ -894,13 +941,27 @@ class Controller:
         if href == "x:close":
             self._clear_price()
             return
+        if href == "r:reset":  # 처음 조건으로 (값·켜고 끈 것·즉시 구매·기간)
+            for f in q.filters:
+                f.reset()
+            q.status, q.indexed = "securable", "1week"
+            self._price_dirty = True
+            self._render_price()
+            return
         if href == "s:go":
             self._redo_price()
             return
-        if href.startswith("f:"):
+        if href.startswith("w:"):  # 휠: w:줄:±1
+            _, i, d = href.split(":")
+            if not (0 <= int(i) < len(q.filters)) or not q.filters[int(i)].nudge(int(d)):
+                return
+        elif href.startswith("f:"):
             i = int(href[2:])
             if 0 <= i < len(q.filters):
-                q.filters[i].enabled = not q.filters[i].enabled
+                if q.filters[i].kind == "opt":
+                    q.filters[i].cycle()
+                else:
+                    q.filters[i].enabled = not q.filters[i].enabled
         elif href == "o:status":
             q.status = "available" if q.status == "securable" else "securable"
         elif href == "o:indexed":
@@ -917,7 +978,8 @@ class Controller:
         if self._price_query is not None and self._price_res is not None:
             self._render_price()
 
-    def _show_price(self, html_text: str, color: str, seconds: int = 60, tools: tuple = ()) -> None:
+    def _show_price(self, html_text, color: str, seconds: int = 60, tools: tuple = ()) -> None:
+        """html_text: html 문자열, 또는 시세 결과 (위 html, 조건 줄들, 아래 html)."""
         self.price_msg, self.price_color = html_text, color
         self.price_tools = tools or (("✕", "x:close", t("닫기")),)  # 오류·안내 카드도 닫을 수 있게
         self._price_clear.start(seconds * 1000)
