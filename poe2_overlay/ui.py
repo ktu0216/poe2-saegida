@@ -339,7 +339,8 @@ class Overlay(QWidget):
                passive_total: int = 0, timer: Optional[TimerView] = None,
                regex: Optional[RegexRule] = None, regex_key: str = "", flash: str = "",
                item_msg: str = "", gems=None, gem_names=None, gem_card: bool = False,
-               item_color: str = ACCENT, endgame=None, price_msg: str = "", price_color: str = ACCENT) -> None:
+               item_color: str = ACCENT, endgame=None, price_msg: str = "", price_color: str = ACCENT,
+               price_tools: tuple = ()) -> None:
         rewards = rewards or []
         self._render_gems(gems, gem_names, hidden=gem_card)
         # 알림 창 카드: 순서 고정 (알림 → 아이템 비교 → 젬 → 정규식)
@@ -349,7 +350,7 @@ class Overlay(QWidget):
         if item_msg:
             cards.append((t("⚔ 아이템 비교"), item_msg, item_color))
         if price_msg:
-            cards.append((t("💰 시세"), price_msg, price_color))
+            cards.append((t("💰 시세"), price_msg, price_color, tuple(price_tools)))
         if gem_card:  # Ctrl+Alt+G
             if gems is not None:
                 head, body = _gem_card(gems, gem_names)
@@ -713,8 +714,8 @@ class Toast(QWidget):
                 if w:
                     w.deleteLater()
             total = 0
-            for head, body, color in cards:
-                card = self._card(head, body, color)
+            for head, body, color, *tools in cards:
+                card = self._card(head, body, color, tools[0] if tools else ())
                 cl = card.layout()
                 cl.activate()  # 카드 안 줄바꿈 글자 높이를 폭 기준으로 계산
                 h = cl.totalHeightForWidth(self.width()) if cl.hasHeightForWidth() else card.sizeHint().height()
@@ -726,17 +727,34 @@ class Toast(QWidget):
                 self.setFixedHeight(total + self.lay.spacing() * (len(cards) - 1))
         self.setVisible(bool(cards) and parent_visible)
 
-    def _card(self, head: str, body: str, color: str) -> QFrame:
+    def _card(self, head: str, body: str, color: str, tools: tuple = ()) -> QFrame:
+        """tools: 머리글 오른쪽 아이콘 [(아이콘, 링크, 설명)] — 메인 패널 오른쪽 위 아이콘과 같은 모양 (시세: ↗ 거래소, ✕ 닫기)."""
         f = QFrame()
         f.setObjectName("tcard")
-        f.setStyleSheet(f"QFrame#tcard{{background:rgba(14,12,10,242);border:2px solid {color};border-radius:6px}}")
+        f.setStyleSheet(f"QFrame#tcard{{background:rgba(14,12,10,242);border:2px solid {color};border-radius:6px}}"
+                        f"QPushButton{{color:{TEXT};background:transparent;border:none;padding:0px 4px}}"
+                        f"QPushButton:hover{{color:{ACCENT};background:rgba(232,176,74,40);border-radius:4px}}")
         lay = QVBoxLayout(f)
         lay.setContentsMargins(10, 6, 10, 8)
         lay.setSpacing(3)
         if head:
             h = _label(self.fs - 1, color, True)
             h.setText(head)
-            lay.addWidget(h)
+            if tools:
+                row = QHBoxLayout()
+                row.setContentsMargins(0, 0, 0, 0)
+                row.setSpacing(0)
+                row.addWidget(h, 1)
+                for icon, href, tip in tools:
+                    btn = QPushButton(icon)
+                    btn.setFont(QFont("Segoe UI Emoji", max(8, self.fs - 4)))
+                    btn.setToolTip(tip)
+                    btn.setCursor(Qt.PointingHandCursor)
+                    btn.clicked.connect(lambda _=False, u=href: self.link.emit(u))
+                    row.addWidget(btn)
+                lay.addLayout(row)
+            else:
+                lay.addWidget(h)
         b = _label(self.fs - 2, TEXT)
         if "<a " in body:  # 시세 카드: 조건 켜고 끄기, 거래소에서 열기
             b.setTextInteractionFlags(Qt.LinksAccessibleByMouse)

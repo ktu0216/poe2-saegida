@@ -176,11 +176,10 @@ class Controller:
         self.trade_data: dict[tuple[str, str], TradeData] = {}  # (거래소, 아이템 문구 언어)
         self._price_query = self._price_res = self._price_data = None  # 마지막 시세 (조건 바꿔 다시 찾기·다시 보기)
         self._price_league, self._price_lang = "", "ko"
-        self._price_redo = QTimer()
-        self._price_redo.setSingleShot(True)
-        self._price_redo.timeout.connect(self._redo_price)
+        self._price_dirty = False  # 카드에서 조건을 바꿨지만 아직 다시 찾지 않음
         self.trade_clients: dict[str, TradeClient] = {}
         self.price_msg, self.price_color = "", "#e0b862"
+        self.price_tools: tuple = ()  # 시세 카드 머리글 오른쪽 아이콘 (↗ 거래소, ✕ 닫기)
         self._price_busy = False
         self._price_result = None  # 작업 스레드 → tick 에서 화면에
         self._price_clear = QTimer()
@@ -462,7 +461,7 @@ class Controller:
         self.overlay.render(snap, self._notice_text(), states, self.rewards.quest_passive_total, timer,
                             rule if in_town else None, HOTKEYS["copy_regex"], self.flash, self.item_msg + self.price_hint(),
                             gems, self.gem_names, self.show_gem_card, self.item_color, endgame=eg,
-                            price_msg=self.price_msg, price_color=self.price_color)
+                            price_msg=self.price_msg, price_color=self.price_color, price_tools=self.price_tools)
 
     # ---------------------------------------------------------- 보스전 간단 모드
     def _boss_compact(self, snap) -> bool:
@@ -723,6 +722,8 @@ class Controller:
     def _arm_price(self, text: str) -> None:
         """아이템을 복사하면 PRICE_WINDOW_SEC 동안 시세 키를 잡는다. 다시 복사하면 대상·시간을 새로."""
         self._price_text = text
+        if self.price_msg and not self._price_busy:
+            self._clear_price()  # 다른 아이템을 복사하면 지난 시세 카드는 닫는다 (메뉴에서 다시 보기)
         if not self._price_hid:
             first = self.settings.get("price_key", "")
             for key in ((first,) if first else ()) + PRICE_KEYS:
@@ -761,7 +762,7 @@ class Controller:
         c = self.tracker.snapshot().character
         league = (c.league if c else "") or self.tracker.league
         if not league:
-            self._show_price(t("리그를 알 수 없습니다 — 캐릭터 선택 화면에서 리그를 고른 뒤 다시"), "#ff8a65")
+            self._show_price(t("리그를 알 수 없습니다 — 캐릭터 선택 화면에서 리그를 고른 뒤 다시"), "#ff8a65", 10)
             return
         level = c.level if c and c.level < 90 else 0  # 레벨링 중이면 지금 낄 수 있는 것만
         profile = build_profile(c.gear) if c else ""
@@ -769,12 +770,15 @@ class Controller:
         self._price_league = league
         self._price_search(league, text_lang, lambda data: build_query(text, data, level, profile))
 
-    def _price_search(self, league: str, text_lang: str, make_query) -> None:
-        """make_query(data) → Query 를 작업 스레드에서 검색. 조건을 바꿔 다시 찾을 때도 같은 길."""
+    def _price_search(self, league: str, text_lang: str, make_query, keep_card: bool = False) -> None:
+        """make_query(data) → Query 를 작업 스레드에서 검색. 조건을 바꿔 다시 찾을 때도 같은 길 (그때는 카드를 그대로 둔다)."""
         realm = self.realm
         self._price_busy = True
         self._price_lang = text_lang
-        self._show_price(t("💰 시세 찾는 중…"), "#9a9284")
+        if keep_card:
+            self._render_price()  # "다시 찾는 중…" 만 바뀐다
+        else:
+            self._show_price(t("💰 시세 찾는 중…"), "#9a9284")
 
         def work():
             try:
@@ -804,17 +808,18 @@ class Controller:
         self._price_busy = False
         esc = html.escape
         if kind == "limited":
-            self._show_price(t("거래소 요청 제한 — {sec}초 뒤 다시", sec=int(value) + 1), "#ff8a65")
+            self._show_price(t("거래소 요청 제한 — {sec}초 뒤 다시", sec=int(value) + 1), "#ff8a65", 10)
             return
         if kind == "error":
-            self._show_price(t("거래소 연결 실패: {err}", err=esc(value)[:80]), "#ff8a65")
+            self._show_price(t("거래소 연결 실패: {err}", err=esc(value)[:80]), "#ff8a65", 10)
             return
         if kind == "unsupported":
-            self._show_price(t(qd.unsupported), "#9a9284")
+            self._show_price(t(qd.unsupported), "#9a9284", 6)
             return
         q, data = qd
         self._price_query, self._price_data = q, data
         self._price_res = value
+        self._price_dirty = False
         self._render_price()
 
     def _render_price(self) -> None:
@@ -825,14 +830,14 @@ class Controller:
         p = lambda a, c: esc(price_text(a, c, data, lang))
         exs = lambda v: esc(ex_text(v, lang))
         title = f"<b>{esc(q.base or q.name)}</b>" + (f" {dim(esc(q.name))}" if q.rarity == "unique" else "")
-        link = f'<a href="{esc(res.url)}" style="color:#9fd3ff">{t("거래소에서 열기 ↗")}</a>'
+        self.price_tools = ((("↗", res.url, t("거래소에서 열기")),) if res.url else ()) + (("✕", "x:close", t("닫기")),)
         if q.exchange:  # 화폐·룬 …: 교환소 1개 가격
             if res.unit_ex is None:
                 body = t("교환소에 엑잘로 사는 매물이 없습니다")
             else:
                 body = (t("1개 ≈ {p}", p=f'<b style="color:#e8b04a">{exs(res.unit_ex)}</b>')
                         + " " + dim(t("(교환소 매물 {n}개 중간값)", n=res.total)))
-            self._show_price(f"{title}<br>{body}<br>{link}", "#e0b862")
+            self._show_price(f"{title}<br>{body}", "#e0b862", tools=self.price_tools)
             return
         # 조건: 눌러서 켜고 끄기 (다시 검색은 잠깐 뒤 한 번만)
         chips = []
@@ -852,8 +857,13 @@ class Controller:
                 (f'<a href="o:indexed" style="color:#ece6da;text-decoration:none">'
                  + ("☑ " + t("최근 1주일") if q.indexed else "☐ " + t("최근 1주일")) + "</a>")]
         cond = (dim(t("조건 (눌러서 켜고 끄기)")) + "<br>" + "<br>".join(chips + [" &nbsp; ".join(opts)]))
+        if self._price_busy:
+            cond += "<br>" + dim(t("다시 찾는 중…"))
+        elif self._price_dirty:  # 여러 개를 고른 뒤 한 번에 찾기 (위 가격은 바꾸기 전 조건)
+            cond += (f'<br><a href="s:go" style="color:#e8b04a">{t("🔍 이 조건으로 다시 검색")}</a>'
+                     + " " + dim(t("(위 가격은 바꾸기 전 조건)")))
         if not res.listings:
-            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다')}<br>{cond}<br>{link}", "#9a9284")
+            self._show_price(f"{title}<br>{t('비슷한 매물이 없습니다')}<br>{cond}", "#9a9284", tools=self.price_tools)
             return
         low, mid, groups = summary(res)
         with_ex = lambda l: p(l.amount, l.currency) + (
@@ -871,15 +881,21 @@ class Controller:
                 rng += " " + ("≈" + exs(min(ex)) if min(ex) == max(ex) else f"≈{ex_text(min(ex), lang).split(' ')[0]}~{exs(max(ex))}")
             spread.append(f"{rng} ({n})")
         count = t("비슷한 매물 {n}개 — 싼 10개: {s}", n=res.total, s=" · ".join(spread))
-        self._show_price(f"{title}<br>{big}<br>{dim(count)}<br>{cond}<br>{link}", "#e0b862")
+        self._show_price(f"{title}<br>{big}<br>{dim(count)}<br>{cond}", "#e0b862", tools=self.price_tools)
 
     def on_price_link(self, href: str) -> None:
-        """시세 카드의 링크: 거래소 열기 / 조건 켜고 끄기."""
+        """시세 카드의 링크: 거래소 열기 / 조건 켜고 끄기 / 다시 검색."""
         if href.startswith("http"):
             webbrowser.open(href)
             return
         q = self._price_query
         if q is None or self._price_busy:
+            return
+        if href == "x:close":
+            self._clear_price()
+            return
+        if href == "s:go":
+            self._redo_price()
             return
         if href.startswith("f:"):
             i = int(href[2:])
@@ -889,23 +905,24 @@ class Controller:
             q.status = "available" if q.status == "securable" else "securable"
         elif href == "o:indexed":
             q.indexed = "" if q.indexed else "1week"
-        self._render_price()  # 바뀐 체크를 바로 보여 주고
-        self._price_redo.start(900)  # 여러 개를 연달아 눌러도 검색은 한 번
+        self._price_dirty = True  # 검색은 "다시 검색" 을 누를 때 한 번 (여러 개를 바꿀 수 있게)
+        self._render_price()
 
     def _redo_price(self) -> None:
         q = self._price_query
         if q is not None and self._price_league:
-            self._price_search(self._price_league, self._price_lang, lambda data: q)
+            self._price_search(self._price_league, self._price_lang, lambda data: q, keep_card=True)
 
     def show_last_price(self) -> None:
         if self._price_query is not None and self._price_res is not None:
             self._render_price()
 
-    def _show_price(self, html_text: str, color: str) -> None:
+    def _show_price(self, html_text: str, color: str, seconds: int = 60, tools: tuple = ()) -> None:
         self.price_msg, self.price_color = html_text, color
-        self._price_clear.start(60000)
-        # 알림 창은 평소 클릭 통과 — 시세 카드가 있는 동안만 눌러서 조건·거래소 열기 (포커스는 뺏지 않음)
-        set_click_through(int(self.overlay.toast.winId()), "<a " not in html_text)
+        self.price_tools = tools or (("✕", "x:close", t("닫기")),)  # 오류·안내 카드도 닫을 수 있게
+        self._price_clear.start(seconds * 1000)
+        # 알림 창은 평소 클릭 통과 — 시세 카드가 있는 동안만 눌러서 조건·거래소 열기·닫기 (포커스는 뺏지 않음)
+        set_click_through(int(self.overlay.toast.winId()), False)
         self.refresh()
 
     def _clear_price(self) -> None:
