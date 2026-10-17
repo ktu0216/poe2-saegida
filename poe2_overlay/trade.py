@@ -545,11 +545,12 @@ class TradeClient:
         self._cache[key] = (time.monotonic(), res)
         return res
 
-    def _offers(self, league: str, want: str) -> tuple[dict, list[float]]:
-        """교환소: 엑잘을 내고 want 를 받는 매물 → 1개당 엑잘 (싼 순)."""
+    def _offers(self, league: str, want: str, status: str = "online") -> tuple[dict, list[float]]:
+        """교환소: 엑잘을 내고 want 를 받는 매물 → 1개당 엑잘 (싼 순).
+        보여 주는 검색(거래소에서 열기)은 온라인만 — 오프라인 매물은 살 수 없다 (2026-10-17 사용자 요청).
+        환율 추정에만 오프라인까지 (status="any": 하드코어 리그는 온라인 매물이 거의 없다)."""
         lg = urllib.parse.quote(league)
-        # 온라인만 보면 하드코어 리그는 매물이 거의 없다 (2026-10-17 확인) — 환율 추정이라 오프라인 매물도 본다
-        body = {"query": {"status": {"option": "any"}, "have": [BASE_CURRENCY], "want": [want]},
+        body = {"query": {"status": {"option": status}, "have": [BASE_CURRENCY], "want": [want]},
                 "sort": {"have": "asc"}, "engine": "new"}
         d = self._call("exchange", f"{self.base}/api/trade2/exchange/poe2/{lg}", json.dumps(body).encode("utf-8"))
         per = []
@@ -609,7 +610,7 @@ class TradeClient:
         hit = self._rates.get((league, currency))
         if hit and time.monotonic() - hit[0] < RATE_TTL:
             return hit[1]
-        _, per = self._offers(league, currency)
+        _, per = self._offers(league, currency, "any")
         if not per:
             return None
         unit = statistics.median(per)

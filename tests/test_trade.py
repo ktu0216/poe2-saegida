@@ -166,7 +166,7 @@ def test_exchange_unit_price_and_rates_on_listings():
     def offer(pay, get):
         return {"listing": {"offers": [{"exchange": {"currency": "exalted", "amount": pay},
                                         "item": {"currency": "x", "amount": get}}]}}
-    calls = []
+    calls, sent = [], []
 
     def opener(url, data):
         calls.append(url)
@@ -176,6 +176,7 @@ def test_exchange_unit_price_and_rates_on_listings():
                 return 200, {}, json.dumps({"core": {"rates": {"exalted": 300}}, "lines": [{"id": "rune_x", "primaryValue": 0.1}]}).encode()
             return 500, {}, b""  # Currency: 실패 → 교환소 중간값으로
         if "/api/trade2/exchange/" in url:
+            sent.append(data)
             want = json.loads(data)["query"]["want"][0]
             pays = {"divine": [(300, 1), (320, 1), (400, 1)], "chaos": [(1, 1), (2, 1), (2, 1)]}.get(want, [])
             return 200, head, json.dumps({"id": "E1", "total": 3, "result": {str(i): offer(*o) for i, o in enumerate(pays)}}).encode()
@@ -187,6 +188,7 @@ def test_exchange_unit_price_and_rates_on_listings():
     client = TradeClient("kakao", opener=opener)
     ex = client.exchange("L", "divine")
     assert ex.unit_ex == 320 and ex.url.endswith("/trade2/exchange/poe2/L/E1")
+    assert json.loads(sent[0])["query"]["status"] == {"option": "online"}  # 거래소에서 열기는 온라인 매물만
     res = client.search("L", build_query(BOOTS_EQUIPPED_KO, DATA))
     client.add_rates("L", res)
     assert [l.ex for l in res.listings] == [4, 10, 320]  # 카오스 1 = 2 엑잘(중간값), 신성은 위에서 받은 환율 그대로
