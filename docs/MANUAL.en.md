@@ -113,6 +113,8 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 
 ### Price check
 
+![Price check](images/price_check_en.png)
+
 - `Ctrl+C` an item, then **`Ctrl+V` within 2 seconds** → a trade price card (hold `Ctrl`, tap C → V). Works anywhere.
   - `Ctrl+V` is only taken for those 2 seconds, so pasting into search boxes works as usual. If another program uses it: `Ctrl+B` → `Ctrl+G`.
   - `Ctrl+C` alone never contacts the trade site.

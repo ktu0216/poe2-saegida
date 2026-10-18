@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import html
 import os
-import re
 import subprocess
 import sys
 import threading
@@ -17,7 +16,7 @@ from PySide6.QtCore import QProcess, QTimer
 from PySide6.QtGui import QAction, QActionGroup
 from PySide6.QtWidgets import QApplication, QFileDialog, QMenu, QMessageBox, QSystemTrayIcon
 
-from . import __version__, config, endgame, export, i18n, progress_code, updater
+from . import __version__, config, endgame, export, i18n, pricecard, progress_code, updater
 from .i18n import t
 from .guide import Guide, is_town
 from .logparse import parse_line
@@ -34,8 +33,7 @@ from .ui import Overlay, make_icon
 from .timing import ENDGAME, personal_bests, timer_view
 
 RESTARTED = "--restarted"  # 오버레이가 스스로 다시 켠 경우 (언어 변경 등)
-from .trade import (RateLimited, TradeClient, TradeData, bait, build_query, ex_text, price_text, summary,
-                    trade_league)
+from .trade import RateLimited, TradeClient, TradeData, build_query, trade_league
 from .watchdog import timed
 from .winutil import HotkeyManager, foreground_pid, game_pids, game_window_rect, set_click_through
 
@@ -69,7 +67,6 @@ def _slot_title(item, title: str) -> str:
     return title if slot in title else f"{slot} {title}"
 
 
-_NUM_RE = re.compile(r"\d+(?:\.\d+)?")  # 시세 카드: 옵션 문구 안의 숫자 자리
 PROGRESS_VERSION = 23  # 23: 마을에서 쓴 책은 직전 사냥터 보상, 22: 22: 퀘스트 패시브를 주는 단계에 받음 표시, 21: 21: 퀘스트 패시브 받은 단계 표시, 20: 보스전 중 보상 획득은 처치, 19: 19: 건너뛴 지역에서 돌아오면 되돌리기, 18: 전직 단계, 2: 플레이 시간/액트 스플릿, 3: 되돌아간 지역 건너뛰기 수정, 4: 같은 이름 새 캐릭터 분리, 5: 보스 처치 전 마을 방문은 단계 유지, 6: NPC 단계 이름 보스 목록에서 제외, 7: 하위 지역 보스, 8: 재접속 시 직전 캐릭터 우선 추정 (이전 저장본은 로그 전체를 다시 읽는다)
 
 
@@ -838,97 +835,12 @@ class Controller:
         self._render_price()
 
     def _render_price(self) -> None:
-        """시세 카드. 머리글: 💰 시세 · 리그 / 본문: 아이템 → 가격(크게) → 매물 수 → 조건 → 옵션 한 줄."""
-        q, res, data = self._price_query, self._price_res, self._price_data
-        esc = html.escape
-        lang = "ko" if self.lang == "ko" else "en"
-        dim = lambda s: f'<span style="color:#9a9284">{s}</span>'
-        p = lambda a, c: esc(price_text(a, c, data, lang))
-        exs = lambda v: esc(ex_text(v, lang))
-        # 리그: 머리글 오른쪽에 작게 (아이템 이름·가격과 섞이지 않게)
-        # 리그 · 모드 (메인 패널과 같은 색): "금단의 의식 · 하드코어", SSF 는 "· SSF → 거래 리그 시세"
-        lg = self._price_league
-        names = data.leagues if data else {}
-        hc = lg.startswith("HC ") or lg == "Hardcore"
-        league = names.get(lg[3:], lg[3:]) if lg.startswith("HC ") else names.get(lg, lg)
-        mode = ("HC SSF" if hc else "SSF") if self._price_ssf else ("하드코어" if hc else "소프트코어")
-        mcolor = {"하드코어": "#ff6b5b", "HC SSF": "#ff6b5b", "SSF": "#7fb8ff"}.get(mode, "#9a9284")
-        tag = f'<span style="color:{mcolor}">{esc(t(mode))}</span>'
-        if self._price_ssf:
-            tag += f' <span style="color:#9a9284">{t("(거래 리그 시세)")}</span>'
-        self.price_head = (f'{t("💰 시세")} <span style="color:#9a9284;font-weight:normal">· {esc(league)} · </span>'
-                           f'<span style="font-weight:normal">{tag}</span>')
-        title = f"<b>{esc(q.base or q.name)}</b>" + (f" {dim(esc(q.name))}" if q.rarity == "unique" else "")
-        changed = (any(f.changed for f in q.filters) or q.status != "securable" or q.indexed != "1week")
-        self.price_tools = ((("↺", "r:reset", t("조건 원래대로")),) if changed and not q.exchange else ()) + (
-            (("↗", res.url, t("거래소에서 열기")),) if res.url else ()) + (("✕", "x:close", t("닫기")),)
-        if q.exchange:  # 화폐·룬 …: 교환소 1개 가격
-            if res.unit_ex is None:
-                body = t("교환소에 엑잘로 사는 매물이 없습니다")
-            else:
-                body = (f'<big>{t("1개 ≈ {p}", p=f"<b style=\"color:#e8b04a\">{exs(res.unit_ex)}</b>")}</big>'
-                        + "<br>" + dim(t("교환소 온라인 매물 {n}개", n=res.total)))
-            self._show_price(f"{title}<br>{body}", "#e0b862", tools=self.price_tools)
-            return
-        # 조건 줄: 숫자는 굵게(휠로 바꾼 값은 노란색), "이상/이하" 는 뒤에 한 번
-        chips, opts = [], []
-        for i, f in enumerate(q.filters):
-            if f.kind == "opt":  # 타락: 아래 옵션 줄로
-                state = {"": t("상관없음"), "false": t("타락 아님"), "true": t("타락만")}[f.text]
-                if f.text != f.orig_text:
-                    state = f'<span style="color:#e8b04a">{state}</span>'
-                opts.append(f'<a href="f:{i}" style="color:#ece6da;text-decoration:none">⇄ {t("타락")}: {state}</a>')
-                continue
-            box = "☑" if f.enabled else "☐"
-            color = "#ece6da" if f.enabled else "#6f685c"
-            if f.kind == "type":
-                text = t("베이스 {name}", name=esc(f.label))
-            elif f.value is None:
-                text = esc(t(f.label))
-            else:
-                n = f"{f.value:g}"
-                n = f'<b style="color:#e8b04a">{n}</b>' if f.value != f.orig else f"<b>{n}</b>"
-                more = t("이상") if f.min is not None else t("이하")
-                if f.avg:  # "번개 피해 1~18 추가" → 거래소는 평균으로 비교
-                    text = f"{esc(f.label)} {dim(t('평균'))} {n}{f.unit} {more}"
-                elif f.kind == "stat" and not f.key.startswith("pseudo.") and _NUM_RE.search(f.label):
-                    # 옵션 한 줄: 문구 안의 숫자를 기준값으로 ("민첩 +25" → "민첩 +25 이상")
-                    m = _NUM_RE.search(f.label)
-                    text = esc(f.label[:m.start()]) + n + esc(f.label[m.end():]) + " " + more
-                else:
-                    text = f"{esc(t(f.label))} {n}{f.unit} {more}"
-            chips.append((str(i), f'<a href="f:{i}" style="color:{color};text-decoration:none">{box} {text}</a>'))
-        opts = [f'<a href="o:status" style="color:#ece6da;text-decoration:none">'
-                f'{"☑" if q.status == "securable" else "☐"} {t("즉시 구매만")}</a>',
-                f'<a href="o:indexed" style="color:#ece6da;text-decoration:none">'
-                f'{"☑" if q.indexed else "☐"} {t("최근 1주일")}</a>'] + opts
-        head = f'<hr>{dim(t("조건 · 누르면 켜고 끄기 · 휠로 수치"))}'
-        bottom = " &nbsp; ".join(opts)
-        if self._price_busy:
-            bottom += "<br>" + dim(t("다시 찾는 중…"))
-        elif self._price_dirty:  # 여러 개를 고른 뒤 한 번에 찾기 (위 가격은 바꾸기 전 조건)
-            bottom += (f'<br><a href="s:go" style="color:#e8b04a">{t("🔍 이 조건으로 다시 검색")}</a>'
-                       + " " + dim(t("(위 가격은 바꾸기 전 조건)")))
-        rows = tuple(chips)
-        if not res.listings:
-            self._show_price((f"{title}<br>{t('비슷한 매물이 없습니다')}{head}", rows, bottom), "#9a9284",
-                             tools=self.price_tools)
-            return
-        low, mid, _groups = summary(res)
-        ex_part = lambda l: f" {dim('≈' + exs(l.ex))}" if l.ex is not None and l.currency != "exalted" else ""
-        # 최저·중간을 한 줄씩 (한 줄에 넣으면 엑잘 환산이 다음 줄로 꺾인다)
-        big = ("<big>" + t("최저 {p}", p=f'<b style="color:#e8b04a">{p(low.amount, low.currency)}</b>') + "</big>"
-               + ex_part(low) + "<br><big>" + t("중간 {p}", p=f"<b>{p(mid.amount, mid.currency)}</b>") + "</big>"
-               + ex_part(mid))
-        if bait(res):
-            big += f'<br><span style="color:#ff8a65">{t("⚠ 최저가가 유난히 쌉니다 (미끼일 수 있음)")}</span>'
-        exs_known = [l.ex for l in res.listings if l.ex is not None]
-        if len(exs_known) == len(res.listings):  # 싼 10개를 엑잘로 한 줄
-            count = t("매물 {n}개 · 싼 {k}개 {lo}~{hi}", n=res.total, k=len(res.listings),
-                      lo=ex_text(min(exs_known), lang).split(" ")[0], hi=exs(max(exs_known)))
-        else:
-            count = t("매물 {n}개", n=res.total)
-        self._show_price((f"{title}<br>{big}<br>{dim(count)}{head}", rows, bottom), "#e0b862", tools=self.price_tools)
+        """시세 카드 (그리는 건 pricecard.card — 문서용 스크린샷과 같은 코드)."""
+        head, body, color, tools = pricecard.card(
+            self._price_query, self._price_res, self._price_data, self._price_league, self._price_ssf,
+            "ko" if self.lang == "ko" else "en", busy=self._price_busy, dirty=self._price_dirty)
+        self.price_head = head
+        self._show_price(body, color, tools=tools)
 
     def on_price_link(self, href: str) -> None:
         """시세 카드의 링크: 거래소 열기 / 조건 켜고 끄기 / 다시 검색."""

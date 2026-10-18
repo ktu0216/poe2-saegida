@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +17,8 @@ from PySide6.QtCore import QPoint, Qt  # noqa: E402
 from PySide6.QtGui import QColor, QImage, QLinearGradient, QPainter  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
-from poe2_overlay import config, endgame, i18n  # noqa: E402
+from poe2_overlay import config, endgame, i18n, pricecard  # noqa: E402
+from poe2_overlay.trade import Listing, Result, TradeData, build_query  # noqa: E402
 from poe2_overlay.builds import BuildFile, Gem, GemNames, GemPlan  # noqa: E402
 from poe2_overlay.encounters import Encounters  # noqa: E402
 from poe2_overlay.guide import Guide  # noqa: E402
@@ -217,6 +219,18 @@ def scenes(lang: str, app: QApplication) -> None:
     item_msg = f'{mark} · {t("{slot} 대비", slot=t("반지 2"))}<br>' + " · ".join(diffs)
     render(o, item_msg=item_msg, item_color="#8fd18b")
     compose(f"item_compare_{lang}", o)
+
+    # 3-1. 시세 (Ctrl+C → 2초 안 Ctrl+V): 거래소에 묻지 않고 예시 매물로 같은 카드를 그린다
+    data = TradeData.from_json(json.loads((ROOT / "tests" / "fixtures" / "trade_ko_min.json").read_text(encoding="utf-8")))
+    data.leagues = {"Rise of the Abyssal": "Rise of the Abyssal"}  # 패널과 같은 리그
+    q = build_query(tx["ring_new"], data, 45)
+    sale = [(15, "exalted", 15), (18, "exalted", 18), (20, "exalted", 20), (25, "exalted", 25), (30, "exalted", 30),
+            (1, "chaos", 55), (60, "exalted", 60), (80, "exalted", 80), (120, "exalted", 120), (1, "divine", 340)]
+    res = Result(37, [Listing(a, c, "", "", ex) for a, c, ex in sale], "https://www.pathofexile.com/trade2")
+    head, body, color, tools = pricecard.card(q, res, data, "Rise of the Abyssal", False, lang)
+    render(o, item_msg=item_msg, item_color="#8fd18b", price_msg=body, price_color=color, price_tools=tools,
+           price_head=head)
+    compose(f"price_check_{lang}", o)
 
     # 4. 젬 카드 (Ctrl+Alt+G)
     render(o, gem_card=True)
