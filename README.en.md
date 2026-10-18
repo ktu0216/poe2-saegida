@@ -50,6 +50,9 @@ https://github.com/user-attachments/assets/2c27bfc5-b0f1-4ccb-b99c-745cacdffff7
 <tr>
 <td><img src="docs/images/panel_en.png" width="300"><br>Campaign</td>
 <td><img src="docs/images/item_compare_en.png" width="300"><br>Item compare (Ctrl+C)</td>
+</tr>
+<tr>
+<td><img src="docs/images/price_check_en.png" width="300"><br>Price check (Ctrl+C → Ctrl+V)</td>
 <td><img src="docs/images/endgame_en.png" width="300"><br>Endgame log</td>
 </tr>
 </table>

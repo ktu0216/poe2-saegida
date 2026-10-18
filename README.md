@@ -50,6 +50,9 @@ https://github.com/user-attachments/assets/602c86dd-506f-4dc7-924c-94535b4e995c
 <tr>
 <td><img src="docs/images/panel_ko.png" width="300"><br>캠페인 진행</td>
 <td><img src="docs/images/item_compare_ko.png" width="300"><br>아이템 비교 (Ctrl+C)</td>
+</tr>
+<tr>
+<td><img src="docs/images/price_check_ko.png" width="300"><br>시세 검색 (Ctrl+C → Ctrl+V)</td>
 <td><img src="docs/images/endgame_ko.png" width="300"><br>엔드게임 기록</td>
 </tr>
 </table>
