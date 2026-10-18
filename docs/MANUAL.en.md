@@ -8,7 +8,7 @@
 4. [Boss fights](#4-boss-fights)
 5. [Permanent rewards and quest passives](#5-permanent-rewards-and-quest-passives)
 6. [Split timer](#6-split-timer)
-7. [Item compare](#7-item-compare)
+7. [Item compare](#7-item-compare) · [Price check](#price-check)
 8. [Gem guide](#8-gem-guide)
 9. [Vendor regex](#9-vendor-regex)
 10. [Endgame log](#10-endgame-log)
@@ -116,8 +116,11 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 - `Ctrl+C` an item, then **`Ctrl+V` within 2 seconds** → a trade price card (hold `Ctrl`, tap C → V). Works anywhere.
   - `Ctrl+V` is only taken for those 2 seconds, so pasting into search boxes works as usual. If another program uses it: `Ctrl+B` → `Ctrl+G`.
   - `Ctrl+C` alone never contacts the trade site.
-- The card: **lowest · middle price** (real currency plus `≈ ex`), number of similar listings, price ranges of the cheapest 10 per currency, a bait warning (lowest under 1/4 of the middle). Top-right **↗** opens the trade site, **✕** closes the card.
-- **Click filters on the card to toggle them (☑/☐) and use the mouse wheel to change values** (movement speed by 5, everything else by 1 — 0.1 below 1; changed values in yellow, top-right **↺** resets). Two-value modifiers like `Adds 1 to 18` are compared by their average (9.5) on the trade site, then **🔍 Search again with these filters** to search once. Filters are never widened automatically.
+- The card, top to bottom:
+  - Header: `💰 Price · league · mode` (e.g. `Forbidden Rites · Hardcore`). SSF has no trade site, so SSF characters see the matching trade league, marked `(trade league prices)`. Top right: **↺** reset filters (only after a change), **↗** open on the trade site, **✕** close.
+  - Item name → **lowest · middle price** (large, real currency plus `≈ ex`) → a bait warning (lowest under 1/4 of the middle) → `N listed · cheapest 10: a~b ex`.
+  - Below the line, the filters; at the bottom one line with `Instant buyout only · Last week · Corrupted`.
+- **Click filters on the card to toggle them (☑/☐) and use the mouse wheel to change values** (movement speed by 5, everything else by 1 — 0.1 below 1; changed values in yellow, top-right **↺** resets). Two-value modifiers like `Adds 1 to 18` are compared by their average (9.5) on the trade site. After changing several, **🔍 Search again with these filters** searches once. Filters are never widened automatically.
   - Rare / magic gear: total life, resistances, movement speed and attributes (yours or better), skill levels and speed, DPS for weapons, and while levelling only what you can wear now.
   - Normal / magic gear: the base type (plus item level for normal) — crafting bases.
   - Uniques: by name; rolls are off, and when turned on they ask for your roll or better.
@@ -128,6 +131,7 @@ Format: `id,area_name,quest` (`id` = the area code from the log, lower case). Ed
 - Exalted equivalents come from poe.ninja (every 30 minutes), or the exchange median when missing.
 - The trade site's rate limits are respected: if a wait would be needed, nothing is sent and "try again in N s" is shown. The same search is not sent again for 5 minutes.
 - The card closes with **✕**, when you copy another item, or after a minute. Right-click menu → **💰 Show the last price check again**.
+- With the English client on the Kakao server, names are translated to Korean for the search.
 
 ## 8. Gem guide
 
