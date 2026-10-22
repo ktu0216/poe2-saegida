@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>업데이트 소식 · POE2 새기다</title>
+  <meta name="description" content="POE2 새기다 버전마다 새로 들어간 기능.">
+  <meta name="theme-color" content="#141217">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="">POE2 새기다</a>
+    <nav>
+      <a href="updates.html" aria-current="page">업데이트 소식</a>
+      <a href="story.html">만든 이야기</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용 설명서</a>
+      <a href="./#safe">안전</a>
+      <a href="install.html">설치 도움말</a>
+      <a class="btn" href="./#install">내려받기</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap">
+    <div class="kicker">업데이트 소식</div>
+    <h1>새 버전에서 달라진 것</h1>
+    <p class="muted">버전마다 새로 들어간 기능을 모았습니다. 고친 문제까지 담은 전체 목록은 버전마다 맨 아래 링크에서 볼 수 있습니다. 설치해 두면 새 버전이 나왔을 때 패널 아래에 알림이 뜨고, 우클릭 → 🆕 업데이트 설치로 바로 올립니다.</p>
+
+    <article id="v0.2.3">
+      <div class="ver"><b>0.2.3</b> 2026년 10월 18일</div>
+      <h2>아이템을 복사하고 붙여 넣으면 시세가 나옵니다.</h2>
+      <p>게임에서 아이템에 <kbd>Ctrl+C</kbd>, 2초 안에 <kbd>Ctrl+V</kbd>. 사냥터·마을 어디서나 오버레이 안에서 거래소 시세를 봅니다.</p>
+      <ul>
+        <li><b>최저 · 중간 가격</b>을 실제 화폐 그대로, 옆에 엑잘 환산과 함께 (환율은 poe.ninja). 최저가가 유난히 싸면 미끼일 수 있다고 알려 줍니다.</li>
+        <li><b>조건은 카드에서 직접</b>: 누르면 켜고 끄기, 마우스 휠로 수치 조절, 여러 개 바꾼 뒤 다시 검색 한 번.</li>
+        <li>SSF 캐릭터는 같은 계열 거래 리그 시세를 봅니다. 계정·로그인 정보는 쓰지 않고, 거래소 요청 제한을 지킵니다.</li>
+        <li><b>아이템 비교</b>: 활·창은 공격형, 지팡이·셉터는 주문형으로 판정. 방어구 능력치와 이동 속도, 무기의 원소·카오스 피해를 더 정확히 셉니다.</li>
+        <li><b>가이드</b>: 액트 2·4와 노래하는 암굴(마티키 대화)을 실제 플레이로 다시 확인했습니다.</li>
+      </ul>
+      <p class="small"><a href="https://github.com/ktu0216/poe2-saegida/releases/tag/v0.2.3">0.2.3에서 고친 것까지 전부 보기</a></p>
+    </article>
+
+    <article id="v0.2.2">
+      <div class="ver"><b>0.2.2</b> 2026년 10월 11일</div>
+      <h2>영어 클라이언트도 보스전을 알아챕니다.</h2>
+      <p>영어 클라이언트로 캠페인을 처음부터 끝까지 진행하며 보스마다 전투 시작·페이즈·처치 신호를 실제 로그로 넣었습니다.</p>
+      <ul>
+        <li><b>진행 코드</b>: PC방처럼 PC를 옮겨 다닐 때, 캐릭터 기록을 한 줄 코드로 복사해 옮깁니다. 서버로 보내지 않습니다.</li>
+        <li><b>주 손 / 보조 손</b>: 한 손 무기 두 개, 양손 ↔ 한 손 + 보조 손 바뀜까지 비교합니다.</li>
+        <li><b>주문 무기 비교</b>: 주문 피해·시전 속도로 좋음/나쁨을 판정합니다.</li>
+        <li>띄어쓰기가 있는 상점 정규식을 따옴표로 감싸 복사합니다.</li>
+      </ul>
+      <p class="small"><a href="https://github.com/ktu0216/poe2-saegida/releases/tag/v0.2.2">0.2.2에서 고친 것까지 전부 보기</a></p>
+    </article>
+
+    <article id="v0.2.1">
+      <div class="ver"><b>0.2.1</b> 2026년 10월 7일</div>
+      <h2>스피드런 가이드, 막간을 다시 정리.</h2>
+      <ul>
+        <li><b>스피드런 가이드</b>: 메인 퀘스트와 길 위의 영구 보상만 챙기는 경로. 참고 영상의 요령과 액트별 누적 시간이 단계에 나옵니다.</li>
+        <li><b>보스전 한 줄 패널 펼치기</b>: 클릭하거나 <kbd>Ctrl+Alt+X</kbd>.</li>
+        <li><b>막간 1~3</b> 가이드를 실제 플레이로 다시 정리했고, 순서를 바꿔 가도 건너뛴 단계로 돌아와 따라갑니다.</li>
+        <li>영어 클라이언트 상점 정규식.</li>
+      </ul>
+      <p class="small"><a href="https://github.com/ktu0216/poe2-saegida/releases/tag/v0.2.1">0.2.1에서 고친 것까지 전부 보기</a></p>
+    </article>
+
+    <article id="v0.2.0">
+      <div class="ver"><b>0.2.0</b> 2026년 10월 5일</div>
+      <h2>완주 카드와 앱 안 업데이트.</h2>
+      <ul>
+        <li><b>새 버전 알림·업데이트</b>: 우클릭 → 업데이트 설치로 내려받아 SHA-256 확인 후 덮어쓰기 설치. 설정·기록은 그대로.</li>
+        <li><b>캠페인 완주 카드</b>: 액트별 시간·PB 차이·사망이 담긴 공유용 PNG.</li>
+        <li><b>LiveSplit 내보내기</b>: 기록을 <code>.lss</code> 파일로.</li>
+      </ul>
+      <p class="small"><a href="https://github.com/ktu0216/poe2-saegida/releases/tag/v0.2.0">0.2.0 릴리스 노트</a></p>
+    </article>
+
+    <article id="v0.1.0">
+      <div class="ver"><b>0.1.0</b> 2026년 10월 5일</div>
+      <h2>첫 릴리스.</h2>
+      <p>가이드 자동 진행(액트 1~4, 막간 1~3), 보스 전투 표시, 영구 보상·퀘스트 패시브 체크, 길 찾기 메모, 경험치 효율, 스플릿 타이머, 아이템 비교, 젬 안내, 상인 정규식, 엔드게임 기록.</p>
+      <p class="small"><a href="https://github.com/ktu0216/poe2-saegida/releases/tag/v0.1.0">0.1.0 릴리스 노트</a></p>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/releases">릴리스</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">문제 알리기 · 의견 보내기</a>
+      <a href="install.html">설치 도움말</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/LICENSE">라이선스 (MIT)</a>
+      <a href="https://ko-fi.com/saegida">☕ Ko-fi</a>
+    </nav>
+    <p>누구나 무료로 쓰며, 있는 그대로 제공하고 따로 보증하지 않습니다. Path of Exile은 Grinding Gear Games의 상표이며, 새기다는 Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -116,7 +116,7 @@ Everything is free and will stay free. If it helped you, ☕ [buy me a coffee on
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) · Notices for bundled components such as Qt/PySide6 (LGPL-3.0): [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md)
 
 ## Credits
 

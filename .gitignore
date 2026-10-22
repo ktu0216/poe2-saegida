@@ -16,3 +16,6 @@ build_onefile/
 
 # 내부 검토 메모 (저장소에 올리지 않음)
 notes/
+
+# 소개 사이트 미리보기용 이미지 복사본 (배포 때 docs/images 에서 복사)
+site/images/
