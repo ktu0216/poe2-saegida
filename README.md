@@ -110,7 +110,7 @@ Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.
 
 ## 라이선스
 
-[MIT](LICENSE)
+[MIT](LICENSE) · 설치 파일에 함께 들어 있는 Qt/PySide6(LGPL-3.0) 등의 고지는 [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md)
 
 ## 크레딧
 

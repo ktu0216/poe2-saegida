@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>POE2 새기다: 로그만 읽는 캠페인 가이드 오버레이</title>
+  <meta name="description" content="Path of Exile 2 캠페인에서 지금 해야 할 일을 게임 화면 구석에 보여주는 무료 오버레이. 게임 로그 파일만 읽고, 게임 메모리는 읽지 않습니다.">
+  <meta name="theme-color" content="#141217">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="POE2 새기다: 로그만 읽는 캠페인 가이드 오버레이">
+  <meta property="og:description" content="지역을 옮기면 가이드가 따라 넘어갑니다. 게임 메모리는 읽지 않습니다.">
+  <meta property="og:image" content="images/panel_ko.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="favicon.svg" alt="">POE2 새기다</a>
+    <nav>
+      <a href="updates.html">업데이트 소식</a>
+      <a href="story.html">만든 이야기</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용 설명서</a>
+      <a href="#safe">안전</a>
+      <a href="install.html">설치 도움말</a>
+      <a class="btn" href="#install">내려받기</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="hero">
+    <div class="wrap">
+      <a class="badge" href="updates.html"><b>0.2.3</b> 시세 검색, 아이템 비교 개선 →</a>
+      <h1>지금 해야 할 일을,<br><em>게임 화면 구석에.</em></h1>
+      <p class="lead">Path of Exile 2 캠페인 가이드 오버레이입니다. 게임이 남기는 로그 파일만 읽어서, 접속한 캐릭터와 들어간 지역을 알아서 따라갑니다. 단계를 넘기려고 버튼을 누를 필요가 없습니다.</p>
+      <div class="btns">
+        <a class="btn" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="setup">↓ Windows용 내려받기</a>
+        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">휴대용 zip</a>
+        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
+      </div>
+      <p class="small muted">무료 · Windows 10·11 · 한국어(카카오) / English(Steam·GGG) 클라이언트 · <a href="install.html">설치 안내</a></p>
+      <p class="meaning">새기다 — 마음에 새기다, 돌에 새기다. 진행·보상·기록을 놓치지 않게 새겨 두는 도구.</p>
+      <div class="shot"><img src="images/intro_ko.gif" width="640" height="360" alt="지역을 옮기면 가이드가 넘어가고, 보스전에서는 패널이 한 줄로 줄어드는 모습"></div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="kicker">기능</div>
+      <h2>캠페인 내내, 옆에 펼쳐 둔 가이드.</h2>
+      <p class="intro">지역을 옮기면 가이드가 따라 넘어가고, 보스를 잡기 전에는 다음 단계로 넘기지 않습니다. 놓치기 쉬운 영구 보상과 퀘스트 패시브도 챙깁니다.</p>
+      <div class="grid">
+        <div class="card"><h3>가이드 자동 진행</h3><p>지역을 옮기면 단계가 따라 넘어갑니다. 마을에 잠깐 들른 건 무시합니다.</p></div>
+        <div class="card"><h3>보스 전투 표시</h3><p>보스 대사로 전투 시작·페이즈·처치를 알아채고, 전투 중에는 패널을 한 줄로 줄입니다.</p></div>
+        <div class="card"><h3>영구 보상 · 퀘스트 패시브</h3><p>저항·정신력·생명력 보상과 퀘스트 패시브 24점 중 받은 것과 남은 것.</p></div>
+        <div class="card"><h3>지역 길 찾기 메모 🧭</h3><p>"벽 따라 시계 방향" 같은 지역마다 짧은 길 찾기 팁.</p></div>
+        <div class="card"><h3>경험치 효율</h3><p>지역 레벨과 내 레벨로 경험치 패널티를 계산해 적정 레벨을 보여 줍니다.</p></div>
+        <div class="card"><h3>액트 스플릿 타이머</h3><p>액트마다 걸린 시간과 이전 캐릭터 최고 기록(PB)과의 차이.</p></div>
+        <div class="card"><h3>아이템 비교</h3><p>게임에서 <kbd>Ctrl+C</kbd> 한 장비를 끼고 있는 장비와 비교해 더 좋은지 알려 줍니다.</p></div>
+        <div class="card"><h3>시세 검색 💰</h3><p><kbd>Ctrl+C</kbd> 뒤 2초 안에 <kbd>Ctrl+V</kbd>. 거래소 최저·중간 가격과 엑잘 환산.</p></div>
+        <div class="card"><h3>젬 안내</h3><p>빌드 플래너에 연결된 빌드를 읽어, 지금 레벨에 쓸 젬과 다음에 열릴 젬.</p></div>
+        <div class="card"><h3>완주 카드 · LiveSplit</h3><p>액트별 기록이 담긴 공유용 카드(PNG), 스플릿을 LiveSplit 파일로.</p></div>
+        <div class="card"><h3>엔드게임 기록</h3><p>세션 지도 수·평균 시간·사망, 최종 보스 도전·처치 기록.</p></div>
+        <div class="card"><h3>한국어 / English</h3><p>카카오(한국어)·Steam/GGG(영어) 클라이언트 모두. 화면 언어도 따로 고릅니다.</p></div>
+      </div>
+      <div class="shots">
+        <figure><img src="images/panel_ko.png" width="570" height="545" loading="lazy" alt="캠페인 진행 패널"><figcaption>캠페인 진행</figcaption></figure>
+        <figure><img src="images/item_compare_ko.png" width="570" height="656" loading="lazy" alt="아이템 비교 카드"><figcaption>아이템 비교 (Ctrl+C)</figcaption></figure>
+        <figure><img src="images/price_check_ko.png" width="570" height="1078" loading="lazy" alt="시세 검색 카드"><figcaption>시세 검색 (Ctrl+C → Ctrl+V)</figcaption></figure>
+        <figure><img src="images/endgame_ko.png" width="570" height="427" loading="lazy" alt="엔드게임 기록"><figcaption>엔드게임 기록</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="safe">
+    <div class="wrap">
+      <div class="kicker">안전</div>
+      <h2>로그만 읽고, 보여 주기만 합니다.</h2>
+      <p class="intro">게임 클라이언트를 건드리지 않습니다. 게임이 스스로 남기는 텍스트 로그를 읽어 화면에 띄울 뿐입니다. 소스 코드는 모두 GitHub에 공개되어 있습니다.</p>
+      <div class="rules">
+        <div class="rule"><div class="no">게임 메모리 읽기</div><div class="yes">게임이 직접 남기는 로그 파일(<code>Client.txt</code> / <code>KakaoClient.txt</code>)만 읽습니다.</div></div>
+        <div class="rule"><div class="no">게임에 키 입력 보내기 (자동 조작)</div><div class="yes">화면에 보여 주기만 합니다. 모든 키는 직접 누릅니다.</div></div>
+        <div class="rule"><div class="no">게임 파일·프로세스 수정</div><div class="yes">게임 폴더에는 아무것도 쓰지 않습니다.</div></div>
+        <div class="rule"><div class="no">게임 데이터를 밖으로 보내기</div><div class="yes">기록은 내 PC(<code>%APPDATA%\poe2-saegida</code>)에만 저장합니다. 인터넷은 새 버전 확인(끌 수 있음)과 직접 누른 시세 검색에만 씁니다. 계정·로그인 정보는 쓰지 않습니다.</div></div>
+      </div>
+      <p class="small muted" style="margin-top:20px">클립보드는 게임 창이 앞에 있을 때 복사한 아이템 문구만 읽습니다. Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.</p>
+    </div>
+  </section>
+
+  <section id="credits">
+    <div class="wrap">
+      <div class="kicker">오픈소스</div>
+      <h2>함께 쓴 자료와 프로그램.</h2>
+      <p class="intro">새기다는 MIT 라이선스로 공개한 오픈소스입니다. 아래 자료와 프로그램 덕분에 만들 수 있었습니다. 설치 파일에 들어 있는 구성 요소의 라이선스 고지는 <a href="https://github.com/ktu0216/poe2-saegida/blob/main/THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES</a>에 있습니다.</p>
+      <ul class="credits">
+        <li><a href="https://www.qt.io/qt-for-python">Qt for Python (PySide6)</a><span>오버레이 화면 · LGPL-3.0</span></li>
+        <li><a href="https://pyinstaller.org">PyInstaller</a><span>실행 파일 만들기 · GPL-2.0 (실행 파일 예외)</span></li>
+        <li><a href="https://github.com/Sikaka/POE2Radar">POE2Radar</a><span>지역 팁 일부 (원문 Path of Levelling 2) · MIT</span></li>
+        <li><a href="https://poe2db.tw">poe2db.tw</a><span>지역·보상 영어 이름</span></li>
+        <li><a href="https://github.com/bear421/poe-map-log-viewer">poe-map-log-viewer</a><span>영어 클라이언트 로그 형식 · MIT</span></li>
+        <li><a href="https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2">Path of Building (PoE2)</a><span>젬 내부 ID → 이름</span></li>
+        <li><a href="https://www.poe2way.com/act-guide/ko">poe2way 액트 가이드</a><span>막간 지역 팁 일부</span></li>
+        <li><a href="https://poe.ninja">poe.ninja</a><span>시세 검색의 엑잘 환율</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="kicker">설치</div>
+      <h2>설치는 세 단계.</h2>
+      <ol class="steps">
+        <li><h3>설치 파일 받기</h3><p>아래 단추로 <code>poe2-saegida-setup-*.exe</code>를 받아 실행합니다. 관리자 권한 없이 내 계정에만 설치됩니다.</p></li>
+        <li><h3>경고가 뜨면 추가 정보 → 실행</h3><p>코드 서명이 없는 개인 제작 프로그램이라 "Windows의 PC 보호"가 뜰 수 있습니다. <a href="install.html#smartscreen">화면으로 보기</a></p></li>
+        <li><h3>창 모드 전체 화면으로</h3><p>게임 설정을 창 모드 전체 화면(테두리 없는 창)으로 바꾸고, 지역을 옮기면 캐릭터와 진행 위치를 알아서 잡습니다.</p></li>
+      </ol>
+      <div class="btns">
+        <a class="btn" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="setup">↓ Windows용 내려받기</a>
+        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">휴대용 zip</a>
+      </div>
+      <p class="small muted">GitHub 릴리스 페이지에서 받습니다. 설치한 뒤에는 새 버전이 나오면 패널 아래에 알림이 뜨고, 우클릭 → 업데이트 설치로 바로 올립니다. 설치하다 막혔다면 <a href="install.html">설치 도움말</a>을 보세요.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/releases">릴리스</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">문제 알리기 · 의견 보내기</a>
+      <a href="install.html">설치 도움말</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/LICENSE">라이선스 (MIT)</a>
+      <a href="https://ko-fi.com/saegida">☕ Ko-fi</a>
+    </nav>
+    <p>누구나 무료로 쓰며, 있는 그대로 제공하고 따로 보증하지 않습니다. Path of Exile은 Grinding Gear Games의 상표이며, 새기다는 Grinding Gear Games, Kakao Games와 관련 없는 개인 제작 도구입니다.</p>
+  </div>
+</footer>
+<script src="latest.js"></script>
+</body>
+</html>

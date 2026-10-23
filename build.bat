@@ -9,3 +9,6 @@ cd /d "%~dp0"
   --exclude-module PySide6.QtWebEngineCore --exclude-module PySide6.QtQuick --exclude-module PySide6.QtQml ^
   --exclude-module PySide6.Qt3DCore --exclude-module PySide6.QtMultimedia --exclude-module PySide6.QtPdf ^
   run_overlay.py
+rem Ship license notices with both the installer and the portable zip
+copy /y LICENSE dist\poe2-saegida\ >nul || exit /b 1
+copy /y THIRD-PARTY-NOTICES.md dist\poe2-saegida\ >nul || exit /b 1
