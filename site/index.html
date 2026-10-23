@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>POE2 새기다: 로그만 읽는 캠페인 가이드 오버레이</title>
+  <title>POE2 새기다: 캠페인 길잡이 오버레이</title>
   <meta name="description" content="Path of Exile 2 캠페인에서 지금 해야 할 일을 게임 화면 구석에 보여주는 무료 오버레이. 게임 로그 파일만 읽고, 게임 메모리는 읽지 않습니다.">
   <meta name="theme-color" content="#141217">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="POE2 새기다: 로그만 읽는 캠페인 가이드 오버레이">
-  <meta property="og:description" content="지역을 옮기면 가이드가 따라 넘어갑니다. 게임 메모리는 읽지 않습니다.">
+  <meta property="og:title" content="POE2 새기다: 캠페인 길잡이 오버레이">
+  <meta property="og:description" content="지역에 들어서는 순간 다음 이정표가 뜹니다. 게임 로그만 읽고, 게임 메모리는 읽지 않습니다.">
   <meta property="og:image" content="images/panel_ko.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,12 +23,13 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="favicon.svg" alt="">POE2 새기다</a>
     <nav>
-      <a href="updates.html">업데이트 소식</a>
-      <a href="story.html">만든 이야기</a>
-      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용 설명서</a>
-      <a href="#safe">안전</a>
-      <a href="install.html">설치 도움말</a>
-      <a class="btn" href="#install">내려받기</a>
+      <a href="#features">기능</a>
+      <a href="#speedrun">스피드런</a>
+      <a href="#safe">안전한가요?</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용법</a>
+      <a href="updates.html">패치 노트</a>
+      <a href="story.html">개발 일지</a>
+      <a class="btn" href="#install">무료 다운로드</a>
     </nav>
   </div>
 </header>
@@ -37,11 +38,11 @@
   <div class="hero">
     <div class="wrap">
       <a class="badge" href="updates.html"><b>0.2.3</b> 시세 검색, 아이템 비교 개선 →</a>
-      <h1>지금 해야 할 일을,<br><em>게임 화면 구석에.</em></h1>
-      <p class="lead">Path of Exile 2 캠페인 가이드 오버레이입니다. 게임이 남기는 로그 파일만 읽어서, 접속한 캐릭터와 들어간 지역을 알아서 따라갑니다. 단계를 넘기려고 버튼을 누를 필요가 없습니다.</p>
+      <h1>헤맬 틈 없이,<br><em>다음 이정표가 먼저.</em></h1>
+      <p class="lead">Path of Exile 2 캠페인 길잡이 오버레이입니다. 지역에 들어서는 순간 다음 목적지와 보스, 놓치면 안 될 보상이 게임 화면 구석에 뜹니다. 게임 로그만 읽어서 알아서 따라오니, 가이드를 띄워 둔 브라우저를 오갈 필요가 없습니다.</p>
       <div class="btns">
         <a class="btn" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="setup">↓ Windows용 내려받기</a>
-        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">휴대용 zip</a>
+        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">설치 없이 쓰기 (zip)</a>
         <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
       </div>
       <p class="small muted">무료 · Windows 10·11 · 한국어(카카오) / English(Steam·GGG) 클라이언트 · <a href="install.html">설치 안내</a></p>
@@ -75,6 +76,35 @@
         <figure><img src="images/price_check_ko.png" width="570" height="1078" loading="lazy" alt="시세 검색 카드"><figcaption>시세 검색 (Ctrl+C → Ctrl+V)</figcaption></figure>
         <figure><img src="images/endgame_ko.png" width="570" height="427" loading="lazy" alt="엔드게임 기록"><figcaption>엔드게임 기록</figcaption></figure>
       </div>
+    </div>
+  </section>
+
+  <section id="speedrun" class="speedrun">
+    <div class="wrap">
+      <div class="kicker">스피드런</div>
+      <h2>3시간 46분의 경로를, 그대로 따라 달린다.</h2>
+      <p class="intro">우클릭 → 가이드 → <b>스피드런</b>. 메인 퀘스트와 길 위의 영구 보상(패시브 포인트·정신력·저항)만 챙기고, 젬·화폐만 주는 곁가지는 건너뛰는 경로입니다. 레벨 1부터 지도까지 3:46에 끝낸 참고 영상(GuyThatDies, 0.5 기준)의 해설을 단계마다 옮겨 두었습니다.</p>
+      <div class="sp-grid">
+        <div>
+          <ol class="splits" aria-label="참고 영상의 액트별 구간 시간">
+          <li><span class="sp-name">액트 1</span><span class="sp-bar"><i style="width:64.7%"></i></span><span class="sp-time">35:00</span><span class="sp-cum">35:00</span></li>
+          <li><span class="sp-name">액트 2</span><span class="sp-bar"><i style="width:93.1%"></i></span><span class="sp-time">50:20</span><span class="sp-cum">1:25:20</span></li>
+          <li><span class="sp-name">액트 3</span><span class="sp-bar"><i style="width:78.6%"></i></span><span class="sp-time">42:30</span><span class="sp-cum">2:07:50</span></li>
+          <li><span class="sp-name">액트 4</span><span class="sp-bar"><i style="width:100.0%"></i></span><span class="sp-time">54:05</span><span class="sp-cum">3:01:55</span></li>
+          <li><span class="sp-name">막간 3</span><span class="sp-bar"><i style="width:27.0%"></i></span><span class="sp-time">14:35</span><span class="sp-cum">3:16:30</span></li>
+          <li><span class="sp-name">막간 2</span><span class="sp-bar"><i style="width:27.1%"></i></span><span class="sp-time">14:40</span><span class="sp-cum">3:31:10</span></li>
+          <li><span class="sp-name">막간 1</span><span class="sp-bar"><i style="width:23.7%"></i></span><span class="sp-time">12:50</span><span class="sp-cum">3:44:00</span></li>
+          </ol>
+          <p class="small muted">참고 영상의 구간 시간과 누적 시간 (예비 캐릭터 2분 제외). 액트가 끝날 때 가이드에 누적 시간이 함께 나와서, 내 페이스를 바로 비교할 수 있습니다.</p>
+        </div>
+        <div class="sp-cards">
+          <div class="card"><h3>요령이 단계 안에</h3><p>"다리 앞 체크포인트에서 부활하면 아살라가 옆으로 옴", "유물은 하이에나가 떨어뜨림", "지오너는 가운데에 붙잡으면 페이즈 하나 생략" 같은 한 줄 팁.</p></div>
+          <div class="card"><h3>스플릿 · PB</h3><p>액트마다 구간 시간을 재고, 이전 캐릭터의 최고 기록(PB)과 차이를 패널에 띄웁니다. 자리 비움과 재시작 공백은 뺍니다.</p></div>
+          <div class="card"><h3>보스전은 한 줄로</h3><p>보스 대사로 전투를 알아채고 패널을 한 줄로 줄여 화면을 가리지 않습니다.</p></div>
+          <div class="card"><h3>LiveSplit · 완주 카드</h3><p>기록을 <code>.lss</code>로 내보내 다음 캐릭터의 목표로 쓰고, 완주하면 액트별 시간이 담긴 카드(PNG)를 저장합니다.</p></div>
+        </div>
+      </div>
+      <figure class="sp-shot"><img src="images/boss_compact_ko.png" width="570" height="97" loading="lazy" alt="보스전 한 줄 패널"><figcaption class="small muted">보스전 한 줄 패널</figcaption></figure>
     </div>
   </section>
 
@@ -122,9 +152,9 @@
       </ol>
       <div class="btns">
         <a class="btn" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="setup">↓ Windows용 내려받기</a>
-        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">휴대용 zip</a>
+        <a class="btn ghost" href="https://github.com/ktu0216/poe2-saegida/releases/latest" data-asset="portable">설치 없이 쓰기 (zip)</a>
       </div>
-      <p class="small muted">GitHub 릴리스 페이지에서 받습니다. 설치한 뒤에는 새 버전이 나오면 패널 아래에 알림이 뜨고, 우클릭 → 업데이트 설치로 바로 올립니다. 설치하다 막혔다면 <a href="install.html">설치 도움말</a>을 보세요.</p>
+      <p class="small muted">설치 없이 쓰기(zip)는 원하는 폴더에 풀어서 바로 실행하는 버전입니다. 시작 메뉴 등록 없이 폴더째 옮기거나 지우면 됩니다. 둘 다 GitHub 릴리스 페이지에서 받습니다. 설치한 뒤에는 새 버전이 나오면 패널 아래에 알림이 뜨고, 우클릭 → 업데이트 설치로 바로 올립니다. 설치하다 막혔다면 <a href="install.html">설치 문제 해결</a>을 보세요.</p>
     </div>
   </section>
 </main>
@@ -135,7 +165,7 @@
       <a href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
       <a href="https://github.com/ktu0216/poe2-saegida/releases">릴리스</a>
       <a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">문제 알리기 · 의견 보내기</a>
-      <a href="install.html">설치 도움말</a>
+      <a href="install.html">설치 문제 해결</a>
       <a href="https://github.com/ktu0216/poe2-saegida/blob/main/LICENSE">라이선스 (MIT)</a>
       <a href="https://ko-fi.com/saegida">☕ Ko-fi</a>
     </nav>
