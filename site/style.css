@@ -163,7 +163,6 @@ section { padding: 72px 0; border-top: 1px solid var(--line); }
   border-left: 3px solid var(--gold); background: var(--stone-2);
   padding: 14px 18px; border-radius: 0 10px 10px 0; color: var(--muted); margin: 1.5em 0;
 }
-.todo { border-left-color: var(--ember); }
 .page .toc { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 28px 0 0; padding: 0; list-style: none; }
 .toc a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--stone-2); }
 .toc a:hover { border-color: var(--gold); }
