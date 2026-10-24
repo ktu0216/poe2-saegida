@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>만든 이야기 · POE2 새기다</title>
-  <meta name="description" content="POE2 새기다를 만든 이유.">
+  <title>개발 일지 · POE2 새기다</title>
+  <meta name="description" content="하드코어에서 계속 죽고 액트만 수십 번 밀다가 새기다를 만든 이야기.">
   <meta name="theme-color" content="#141217">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,41 +19,45 @@
   <div class="wrap">
     <a class="brand" href="./"><img src="favicon.svg" alt="">POE2 새기다</a>
     <nav>
-      <a href="updates.html">업데이트 소식</a>
-      <a href="story.html" aria-current="page">만든 이야기</a>
-      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용 설명서</a>
-      <a href="./#safe">안전</a>
-      <a href="install.html">설치 도움말</a>
-      <a class="btn" href="./#install">내려받기</a>
+      <a href="./#features">기능</a>
+      <a href="./#speedrun">스피드런</a>
+      <a href="./#safe">안전한가요?</a>
+      <a href="https://github.com/ktu0216/poe2-saegida/blob/main/docs/MANUAL.md">사용법</a>
+      <a href="updates.html">패치 노트</a>
+      <a href="story.html" aria-current="page">개발 일지</a>
+      <a class="btn" href="./#install">무료 다운로드</a>
     </nav>
   </div>
 </header>
 
 <main id="main" class="page">
   <div class="wrap">
-    <div class="kicker">만든 이야기</div>
-    <h1>새기다를 만든 이유</h1>
-    <p class="muted">ktu0216 · <!-- TODO: 날짜 -->2026년 10월</p>
+    <div class="kicker">개발 일지</div>
+    <h1>액트만 수십 번 밀다가 만들었어</h1>
+    <p class="muted">ktu0216 · 2026년 10월</p>
 
-    <!-- TODO: 아래 TODO 블록은 직접 쓸 자리. 다 채우면 .todo 블록을 지운다. -->
-    <div class="note todo">초안입니다. 붉은 줄 블록은 직접 채울 자리예요.</div>
+    <p>만든 김에 같이 쓰면 좋겠다 싶어서 공유해. PoE2 막 시작했거나, 액트 순서가 아직 헷갈리거나, 빌드 보면서 젬 챙기기 귀찮거나, 스피드런 한번 해 보고 싶은 사람한테 조금이라도 편하고, PoE2 알아 가는 데 도움이 됐으면 좋겠어.</p>
 
-    <h2>캠페인은 매번 처음 같았다</h2>
-    <div class="note todo">처음 PoE2 캠페인을 하며 막혔던 순간 — 놓친 영구 보상, 길을 헤맨 지역, 브라우저 가이드를 alt-tab 으로 오가던 일 같은 직접 겪은 장면 한두 개.</div>
+    <h2>하드코어에서 계속 죽었어</h2>
+    <p>PoE1은 리그 몇 개 하다가 쉬었고, PoE2 나오고 나서는 리그 세 개를 했어. 패턴은 늘 비슷했어. 일반 리그에서 액트 다 밀고 지도 쭉 돌고, 보스도 몇 번 잡고, 레벨 92쯤까지 하고 나면 하드코어로 넘어가.</p>
+    <p>근데 하드코어는 솔직히 잘 못해. 한 번 죽으면 끝이니까 다시 만들고, 또 죽고, 또 만들고. 리그마다 캐릭터를 30~40개씩 만들었는데, 출시 초반 리그에서 액트 한 번 다 밀고 1맵에서 죽은 거 빼면 전부 액트도 못 끝내고 죽었어.</p>
 
-    <h2>새기다라는 이름</h2>
-    <p>새기다는 마음에 새기다, 돌에 새기다의 새기다입니다. 지나온 단계, 받은 보상, 액트마다 걸린 시간을 놓치지 않게 새겨 두는 도구라는 뜻으로 지었습니다.</p>
-    <div class="note todo">이름을 고른 계기나 덧붙이고 싶은 이야기가 있으면 여기에.</div>
+    <h2>액트를 너무 많이 밀었더니</h2>
+    <p>좀 쉬다가 이번에 0.5, 0.5.5를 했는데, 하도 반복하다 보니까 액트 순서는 거의 외워졌더라. 스타터도 바꿔 보고 빌드도 바꿔 가면서 하는데, 매번 찾아보고 확인하고, 중간중간 가이드 글 읽으면서 하니까 시간이 꽤 걸리는 거야. 그래서 이거 도와주는 거 하나 만들어야겠다 싶었어.</p>
+    <p>본업은 DevOps 인프라 관리자야. SaaS 서비스 인프라를 IDC랑 AWS 하이브리드로 운영하고 있어. 요즘은 AI·AX도 한참 만지고 있어서 이참에 직접 만들어 보자 한 거지.</p>
 
-    <h2>로그만 읽기로 한 이유</h2>
-    <p>게임 메모리를 읽으면 더 많은 것을 알 수 있습니다. 하지만 그건 게임을 건드리는 일이고, 쓰는 사람이 계정을 걱정하게 만듭니다. 새기다는 게임이 스스로 남기는 텍스트 로그만 읽고, 화면에 보여 주기만 하기로 했습니다. 키 입력을 대신 보내지도 않습니다.</p>
-    <p>그래서 할 수 없는 것도 있습니다. 보스를 잡았는지는 보스 대사로 알아채야 하고, 그 대사를 모으려고 한국어와 영어 클라이언트로 캠페인을 처음부터 끝까지 여러 번 진행했습니다.</p>
-    <div class="note todo">이 원칙에 대한 생각을 더 적고 싶다면 여기에.</div>
+    <h2>오버레이 여러 개 띄우기 싫어서</h2>
+    <p>PoE2는 진입장벽이 좀 있어. 알아야 할 게 꽤 많거든. 그래서 다른 오버레이도 많이 써 봤는데, 이것저것 한 번에 여러 개 띄우게 되기도 하고, 기능이 조금씩 아쉽기도 했어. 그래서 내가 필요한 기능을 하나씩 붙여 가면서 설계하고 만들었어. 액트 순서, 보스, 놓치기 쉬운 영구 보상, 아이템 비교, 시세 검색까지 하나로.</p>
+    <p>게임 메모리는 안 읽고, 게임이 남기는 로그 파일만 읽어. 키 입력도 대신 안 보내고 보여 주기만 해. 쓰는 사람이 계정 걱정할 일은 없어야 하니까.</p>
+
+    <h2>스피드런은 꼭 넣고 싶었어</h2>
+    <p>스피드런은 액트 순서만 안다고 되는 게 아니더라. 장비, 빌드까지 싹 외워야 시작이라도 해 볼 만해. 그걸 조금이라도 덜어 보려고 스피드런 가이드랑 구간 타이머를 넣었어.</p>
+    <p>그렇다고 내가 액트를 빨리 깨는 건 아니야. 액트 1도 40분 넘게 걸리고, 2, 3까지 가면 한두 시간은 훌쩍 지나. 스피드런 하는 사람들 영상 보면 진짜 대단하더라.</p>
 
     <h2>앞으로</h2>
-    <div class="note todo">다음에 해 보고 싶은 것, 피드백을 어디로 보내 주면 좋은지.</div>
+    <p>직업마다 기본 빌드를 하나씩 넣어서, 빌드를 따로 안 챙겨도 젬 안내를 받을 수 있게 해 보려고. 써 보다가 불편한 거나 있었으면 하는 기능 있으면 편하게 알려 줘.</p>
 
-    <p style="margin-top:2em">써 보고 불편한 점이나 바라는 점이 있으면 <a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">GitHub 이슈</a>로 알려 주세요.</p>
+    <p style="margin-top:2em"><a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">GitHub 이슈로 의견 보내기</a></p>
   </div>
 </main>
 
@@ -63,7 +67,7 @@
       <a href="https://github.com/ktu0216/poe2-saegida">GitHub</a>
       <a href="https://github.com/ktu0216/poe2-saegida/releases">릴리스</a>
       <a href="https://github.com/ktu0216/poe2-saegida/issues/new/choose">문제 알리기 · 의견 보내기</a>
-      <a href="install.html">설치 도움말</a>
+      <a href="install.html">설치 문제 해결</a>
       <a href="https://github.com/ktu0216/poe2-saegida/blob/main/LICENSE">라이선스 (MIT)</a>
       <a href="https://ko-fi.com/saegida">☕ Ko-fi</a>
     </nav>

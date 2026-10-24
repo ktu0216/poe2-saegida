@@ -163,7 +163,6 @@ section { padding: 72px 0; border-top: 1px solid var(--line); }
   border-left: 3px solid var(--gold); background: var(--stone-2);
   padding: 14px 18px; border-radius: 0 10px 10px 0; color: var(--muted); margin: 1.5em 0;
 }
-.todo { border-left-color: var(--ember); }
 .page .toc { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 28px 0 0; padding: 0; list-style: none; }
 .toc a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--stone-2); }
 .toc a:hover { border-color: var(--gold); }
@@ -184,3 +183,19 @@ section { padding: 72px 0; border-top: 1px solid var(--line); }
 footer { border-top: 1px solid var(--line); padding: 40px 0 56px; color: var(--muted); font-size: var(--t-sm); }
 footer nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 16px; }
 footer nav a { color: var(--muted); }
+
+/* 스피드런 */
+.speedrun { background: linear-gradient(180deg, rgba(232, 176, 74, .05), transparent 60%); }
+.sp-grid { display: grid; gap: 32px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); margin-top: 32px; align-items: start; }
+.splits { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.splits li { display: grid; grid-template-columns: 4.2em 1fr 3.6em 4.6em; gap: 12px; align-items: center; font-variant-numeric: tabular-nums; }
+.sp-name { color: var(--muted); font-size: var(--t-sm); }
+.sp-bar { height: 12px; background: var(--stone-3); border-radius: 6px; overflow: hidden; }
+.sp-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); border-radius: 6px; }
+.sp-time { text-align: right; font-weight: 700; }
+.sp-cum { text-align: right; color: var(--muted); font-size: var(--t-sm); }
+.sp-cards { display: grid; gap: 12px; }
+.sp-shot { margin: 32px 0 0; max-width: 570px; }
+.sp-shot img { border-radius: 8px; border: 1px solid var(--line); }
+section[id] { scroll-margin-top: 64px; }
+@media (max-width: 640px) { .top { position: static; } }
